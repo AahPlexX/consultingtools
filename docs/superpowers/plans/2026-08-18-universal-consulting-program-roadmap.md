@@ -62,6 +62,14 @@ The program is not complete until all of the following are true:
 - the production MCP endpoint is externally verified and public-listing metadata accurately matches its behavior;
 - `main` is the only authoritative integration branch and is not behind another branch.
 
+## Verification record
+
+### Subproject 1 verification
+
+Capability Platform Foundation verified on `16e5d2938c0645df996c25982213952ed53916cb` with `npm run verify` passing through GitHub Actions run `32175704377`; the `ci/verify` commit status and the workflow verify job both concluded `success`. Subproject 2 may begin.
+
+The foundation verification covers the modular capability registry, open-access status correction, capability relationship graph, structured workflow-plan validation, epistemic contracts, common QA contracts, MCP capability search/inspection/workflow validation, orchestrator Skill contract, and all preserved pre-existing regression tests.
+
 ## Next detailed plan
 
-Execute `docs/superpowers/plans/2026-08-18-capability-platform-foundation.md` first. Do not start subproject 2 until subproject 1's verification gate passes.
+Write and approve the detailed implementation plan for Subproject 2 — **100+ Capability Baseline** — before changing the capability breadth catalog. Subproject 2 must use the verified Subproject 1 contracts rather than introducing a parallel taxonomy.
