@@ -3,9 +3,16 @@ import {
   hostHeaderValidationResponse,
   originValidationResponse,
 } from "@modelcontextprotocol/server";
+import { MemoryArtifactStore } from "./artifacts/memory-store.js";
+import type { ArtifactStore } from "./artifacts/types.js";
 import { createServer } from "./server.js";
 
-export interface HttpGuardOptions {
+export interface HttpHandlerOptions {
+  artifactStore?: ArtifactStore;
+  maxInlineArtifactBytes?: number;
+}
+
+export interface HttpGuardOptions extends HttpHandlerOptions {
   allowedHosts: readonly string[];
   allowedOrigins?: readonly string[];
 }
@@ -44,8 +51,15 @@ function forbidden(): Response {
   });
 }
 
-export function createHttpHandler() {
-  return createMcpHandler(() => createServer());
+export function createHttpHandler(options: HttpHandlerOptions = {}) {
+  const artifactStore = options.artifactStore ?? new MemoryArtifactStore();
+  const maxInlineArtifactBytes = options.maxInlineArtifactBytes;
+
+  return createMcpHandler(() =>
+    maxInlineArtifactBytes === undefined
+      ? createServer({ artifactStore })
+      : createServer({ artifactStore, maxInlineArtifactBytes }),
+  );
 }
 
 export function createGuardedHttpHandler(options: HttpGuardOptions) {
@@ -54,7 +68,7 @@ export function createGuardedHttpHandler(options: HttpGuardOptions) {
     options.allowedOrigins === undefined
       ? undefined
       : normalizeHostnames(options.allowedOrigins, "allowedOrigins");
-  const handler = createHttpHandler();
+  const handler = createHttpHandler(options);
 
   return {
     bus: handler.bus,
