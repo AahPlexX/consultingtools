@@ -55,4 +55,20 @@ describe("guarded remote MCP HTTP boundary", () => {
       await handler.close();
     }
   });
+
+  it("rejects credential-shaped Origin values even when the hostname suffix is allowed", async () => {
+    const handler = createGuardedHttpHandler({
+      allowedHosts: ["api.example.com"],
+      allowedOrigins: ["chatgpt.com"],
+    });
+
+    try {
+      const response = await handler.fetch(
+        mcpRequest("api.example.com", "https://attacker@chatgpt.com"),
+      );
+      expect(response.status).toBe(403);
+    } finally {
+      await handler.close();
+    }
+  });
 });
