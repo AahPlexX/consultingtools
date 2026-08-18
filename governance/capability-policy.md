@@ -14,6 +14,14 @@ A roadmap entry, prompt recipe, library dependency, schema, or stub does not qua
 
 `provider-dependent` must not be used as a back door for credentialed integrations. Google Drive/Docs/Sheets, Microsoft 365, CRMs, authenticated analytics, Search Console, commercial keyword/backlink providers, private databases, and similar account-linked systems are outside the current product boundary. If a user directly supplies an export from one of those systems, analysis of that supplied artifact is ordinary input processing rather than a provider integration.
 
+## Epistemic and quality contracts
+
+Routing and delivery must preserve the distinction among **verified external fact**, **user-supplied fact**, **deterministic calculation**, **bounded assumption**, **inference**, **hypothesis**, **estimate**, **scenario**, and **recommendation** whenever that distinction affects interpretation. A lower-evidence class may not be represented as a higher-evidence class.
+
+A capability may be promoted to `implemented` only when its execution path and required **QA** gates are executable and verified. QA means machine-testable analytical, epistemic, consulting, and artifact checks appropriate to the capability; it does not mean an invented universal confidence percentage.
+
+Capabilities that support routing must expose enough structured metadata to identify the business question they solve, positive and negative trigger conditions, evidence needs, required inputs, supported outputs, assumptions, failure behavior, access boundary, risk class, composition relationships, and evaluation fixtures. Legacy catalog entries may remain discoverable during migration but must not be treated as fully routing-ready until those contracts exist.
+
 ## Adaptive method selection
 
 Do not force a universal report template or automatically run every familiar framework. For each request:
@@ -36,6 +44,10 @@ Choose methods based on their decision value, evidence requirements, compatibili
 The capability catalog may be larger than the plugin's public metadata. Public metadata should summarize broad working outcomes, while detailed catalog entries may include implemented, partial, provider-dependent, unavailable, and planned items. Agent-facing descriptions must make those states visible before a tool is selected.
 
 Any catalog entry that inherently depends on credentials or private account authorization must be `unavailable` under the current product boundary, even if a third-party service exists that could theoretically provide the data.
+
+## Capability composition
+
+Routing may combine multiple capabilities only when the relationship is decision-relevant and dependencies are explicit. Prerequisites, useful follow-ons, alternatives, overlaps, and conflicts should be represented as typed relationships rather than inferred from naming alone. Duplicate frameworks that answer the same question must not be stacked merely to create the appearance of rigor.
 
 ## Tool granularity
 
