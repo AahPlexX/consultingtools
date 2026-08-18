@@ -13,7 +13,7 @@ Before promising an operation, determine whether the installed version has an im
 
 Artifact-level storage CRUD is not document-format CRUD. The existence of `artifact://` import, inspect, replace, read, or delete operations does not make PDF, DOCX, XLSX, CSV, or PPTX content mutation implemented.
 
-The broad consulting capability catalog and the low-level MCP tool surface are distinct. Use capability status for broad claims and inspect installed tools for narrower utilities such as template placeholder operations.
+The broad consulting capability catalog and the low-level MCP tool surface are distinct. Use capability status for broad claims and inspect installed tools for narrower utilities such as template or metadata operations.
 
 ## Plugin-owned artifact sequence
 
@@ -40,7 +40,13 @@ When the artifact workspace is available:
 
 ## PDF
 
-Treat PDF as a presentation-oriented format whose visual layout may be as important as extracted text. For production-ready PDF CRUD, validate page count, text/content integrity, annotations/forms when promised, fonts/resources, links, metadata, and rendered pages. Do not call text extraction alone a formatting audit. Use visual page inspection when layout matters. Do not assume a selected PDF library can arbitrarily edit existing page text merely because it can add text, manipulate pages, or edit form fields.
+The currently supported plugin-owned existing-PDF subset is document-level inspection and metadata mutation only:
+
+- `inspect_pdf` may report page count plus document-level metadata from a byte-detected PDF without modifying the artifact.
+- `update_pdf_metadata` may change only explicitly supplied title, author, subject, keywords, creator, or producer fields, with `expectedRevision` protection and post-save reopening/page-count validation.
+- Do not represent these tools as existing page-text extraction/editing, layout editing, page manipulation, form editing, annotation editing, merge/split, or visual validation.
+
+Treat broader PDF work as presentation-oriented: visual layout may be as important as extracted structure. For production-ready PDF operations, validate the exact promised envelope, including page count, content integrity, annotations/forms when promised, fonts/resources, links, metadata, and rendered pages. Do not call text extraction alone a formatting audit. Use visual page inspection when layout matters. Do not assume a selected PDF library can arbitrarily edit existing page text merely because it can add text, manipulate pages, or edit form fields.
 
 ## DOCX
 
