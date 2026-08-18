@@ -48,7 +48,7 @@ Artifact storage CRUD is **not** equivalent to PDF/DOCX/XLSX/PPTX document editi
 
 ## DOCX template support
 
-The first bounded document-format adapter is intentionally narrower than general DOCX CRUD:
+The first bounded Word adapter is intentionally narrower than general DOCX CRUD:
 
 - `inspect_docx_template` lists placeholder keys in byte-detected macro-free DOCX templates without modification;
 - `patch_docx_template` replaces only explicitly supplied existing placeholders, rejects unknown keys, uses artifact revision preconditions, validates the resulting package, and stores the result as a new revision;
@@ -56,6 +56,16 @@ The first bounded document-format adapter is intentionally narrower than general
 - request size and placeholder-count bounds prevent the template tool from becoming an unbounded document-ingestion path.
 
 This does **not** claim arbitrary existing Word-document text/layout CRUD. The broader `docx-crud` capability remains a separate milestone.
+
+## PDF metadata support
+
+The first bounded PDF adapter is also intentionally operation-specific:
+
+- `inspect_pdf` loads a byte-detected PDF and reports page count plus document-level metadata without modifying the artifact;
+- `update_pdf_metadata` changes only explicitly supplied title, author, subject, keywords, creator, or producer metadata, uses an artifact revision precondition, reopens the saved PDF, verifies page count preservation, and stores the result as a new revision;
+- the tool descriptions explicitly exclude arbitrary existing page-text extraction/editing and page-layout mutation.
+
+This does **not** claim broad PDF CRUD. Page manipulation, forms, annotations, overlays, merging/splitting, creation, and any visual-content mutation remain separate operation-level gates that require preservation and rendering validation.
 
 ## Remote MCP status
 
@@ -70,7 +80,7 @@ This is intentionally **not** described as a production deployment. A public HTT
 
 ## Development status
 
-This repository is being built incrementally. The current foundation establishes governance, plugin packaging, adaptive routing, a broad capability registry, capability discovery, guarded remote-MCP source transport, versioned plugin-owned artifact storage, a safe pre-mutation format-inspection gate, and bounded DOCX template inspection/patching. Broad PDF/DOCX/XLSX/PPTX/CSV format CRUD, live SEO acquisition, advanced data processing, persistent production storage, production remote-MCP hosting, authentication, provider integrations, end-to-end marketplace tests, and public-directory submission remain separate milestones and must not be claimed as complete until their own verification gates pass.
+This repository is being built incrementally. The current foundation establishes governance, plugin packaging, adaptive routing, a broad capability registry, capability discovery, guarded remote-MCP source transport, versioned plugin-owned artifact storage, a safe pre-mutation format-inspection gate, bounded DOCX template inspection/patching, and bounded PDF inspection/metadata mutation. Broad PDF/DOCX/XLSX/PPTX/CSV format CRUD, live SEO acquisition, advanced data processing, persistent production storage, production remote-MCP hosting, authentication, provider integrations, end-to-end marketplace tests, and public-directory submission remain separate milestones and must not be claimed as complete until their own verification gates pass.
 
 ## Branch policy
 
