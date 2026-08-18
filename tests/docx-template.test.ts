@@ -159,7 +159,7 @@ describe("DOCX template operations", () => {
         expect.arrayContaining([
           expect.objectContaining({
             type: "text",
-            text: expect.stringContaining("Unknown DOCX template placeholder"),
+            text: expect.stringContaining("Unknown placeholder key(s)"),
           }),
         ]),
       );
