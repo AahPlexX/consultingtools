@@ -1,0 +1,6 @@
+{
+  "consulting-tools": {
+    "command": "node",
+    "args": ["dist/stdio.js"]
+  }
+}
