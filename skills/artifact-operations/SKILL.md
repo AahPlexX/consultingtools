@@ -11,12 +11,26 @@ Use this skill for file-oriented consulting work. Capability availability is env
 
 Before promising an operation, determine whether the installed version has an `implemented` capability for the requested format/action or whether the host supplies an appropriate native file tool. If only `planned`, `partial`, `provider-dependent`, or unavailable capability exists, explain the limitation and perform only the supported subset.
 
+Artifact-level storage CRUD is not document-format CRUD. The existence of `artifact://` import, inspect, replace, read, or delete operations does not make PDF, DOCX, XLSX, CSV, or PPTX content mutation implemented.
+
+## Plugin-owned artifact sequence
+
+When the artifact workspace is available:
+
+1. Import or resolve the exact `artifact://` resource. `import_artifact_inline` is a bounded fallback only when the caller already has the bytes; do not describe it as universal attachment, local-file, drive, or URL ingestion.
+2. Call metadata inspection and record the current revision and SHA-256 before mutation.
+3. Call format inspection before any PDF/Office adapter. Trust detected bytes/package metadata over filename extensions or caller-declared MIME strings.
+4. If the package is macro-enabled, never execute macros or embedded active content. Do not silently downgrade DOCM/XLSM/PPTM into macro-free DOCX/XLSX/PPTX semantics.
+5. For active-state replacement or deletion, use the observed revision as the `expectedRevision` precondition. On a revision conflict, re-inspect instead of overwriting newer work.
+6. After a successful format-level transformation, store the new bytes as a new revision only after that format's own validation gates pass.
+7. Re-read the final artifact resource and verify digest, revision, format, and requested content invariants.
+
 ## Universal file sequence
 
 1. Resolve the exact source artifact and requested target outcome.
 2. Inspect the source before mutation; do not infer unseen content or formatting.
 3. Identify preservation requirements: text, tables, formulas, styles, comments, annotations, metadata, links, accessibility, page/slide structure, or other format-specific features.
-4. Preserve the original or use a transactional copy for any mutation that can lose information.
+4. Preserve the original or use a transactional/versioned copy for any mutation that can lose information.
 5. Make the smallest requested change.
 6. Reopen/reparse the output using an independent read path when practical.
 7. Validate both changed content and unaffected invariants.
@@ -24,15 +38,15 @@ Before promising an operation, determine whether the installed version has an `i
 
 ## PDF
 
-Treat PDF as a presentation-oriented format whose visual layout may be as important as extracted text. For production-ready PDF CRUD, validate page count, text/content integrity, annotations/forms when promised, fonts/resources, links, metadata, and rendered pages. Do not call text extraction alone a formatting audit. Use visual page inspection when layout matters.
+Treat PDF as a presentation-oriented format whose visual layout may be as important as extracted text. For production-ready PDF CRUD, validate page count, text/content integrity, annotations/forms when promised, fonts/resources, links, metadata, and rendered pages. Do not call text extraction alone a formatting audit. Use visual page inspection when layout matters. Do not assume a selected PDF library can arbitrarily edit existing page text merely because it can add text, manipulate pages, or edit form fields.
 
 ## DOCX
 
-DOCX operations must account for package relationships and document structure, not only paragraphs. Preserve styles, numbering, headers/footers, tables, sections, media, hyperlinks, comments/notes, fields, and accessibility-related structure when those features exist and are outside the requested edit scope. Validate by reopening the generated package.
+DOCX operations must account for package relationships and document structure, not only paragraphs. Preserve styles, numbering, headers/footers, tables, sections, media, hyperlinks, comments/notes, fields, and accessibility-related structure when those features exist and are outside the requested edit scope. Validate by reopening the generated package. A template/placeholder patching API is not evidence of lossless arbitrary existing-document editing.
 
 ## XLSX
 
-Workbook operations must preserve formulas, number formats, styles, merged cells, worksheet order/names, tables, named ranges, validation, filters, charts, comments/notes, external links, and workbook calculation behavior when present and not intentionally changed. Treat formulas and CSV exports as potentially dangerous input/output; prevent formula injection where appropriate. Never replace a formula with its cached value unless requested.
+Workbook operations must preserve formulas, number formats, styles, merged cells, worksheet order/names, tables, named ranges, validation, filters, charts, comments/notes, external links, and workbook calculation behavior when present and not intentionally changed. Treat formulas and CSV exports as potentially dangerous input/output; prevent formula injection where appropriate. Never replace a formula with its cached value unless requested. Do not promote workbook CRUD until representative round-trip fixtures prove the supported preservation envelope.
 
 ## CSV and tabular text
 
