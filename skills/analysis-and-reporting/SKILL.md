@@ -33,6 +33,8 @@ Use segmentation, ideal-customer-profile analysis, jobs-to-be-done, customer jou
 
 Use unit economics, break-even, ROI, cost-benefit, investment appraisal, working capital, ratios, budget variance, sensitivity, scenarios, weighted decision matrices, or multi-criteria analysis. Show formulas, units, time periods, and material assumptions.
 
+When the installed MCP surface exposes a deterministic calculator whose definition matches the requested measure, use it instead of hand arithmetic. `calculate_break_even` implements fixed-cost/unit-contribution break-even only. `calculate_simple_roi` implements undiscounted `(totalBenefits - totalCosts) / totalCosts` only. Do not relabel simple ROI as NPV, IRR, annualized return, payback, or another time-value-of-money measure.
+
 ### Operations and quality
 
 Use process maps, SIPOC, value-stream analysis, bottleneck/capacity analysis, Five Whys, cause-and-effect analysis, Pareto analysis, service blueprints, vendor evaluation, risk registers, and FMEA. Brainstormed causes are hypotheses until evidence validates them.
@@ -50,6 +52,7 @@ Use stakeholder analysis, accountability mapping, change-readiness assessment, o
 - Do not imply causation from correlation alone.
 - Distinguish accounting measures, cash measures, forecasts, scenarios, and estimates.
 - Recalculate totals and cross-check relationships before reporting them.
+- Keep calculator outputs tied to the exact formula returned by the tool; if the user's intended definition differs, do not use the calculator as though it matched.
 
 ## Recommendation discipline
 
