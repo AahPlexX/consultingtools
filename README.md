@@ -21,10 +21,11 @@ The repository uses a hybrid plugin architecture:
 - `src/stdio.ts` — local protocol-negotiating stdio entry.
 - `src/http.ts` — web-standard Streamable HTTP entry plus explicit Host/Origin guard layer for a future public deployment.
 - `src/artifacts/` — versioned artifact storage, MCP artifact tools, bounded binary/package inspection, and format-specific adapters whose supported envelope has been proven.
+- `src/finance/` — deterministic calculation engines and MCP finance tools for formulas whose definitions are fixed and explicit.
 - `src/catalog.ts` — capability registry and search implementation.
 - `scripts/check-runtime-freshness.mjs` — registry-backed check for governed runtime/toolchain pins.
 - `governance/` — source-of-truth rules for every model and contributor.
-- `tests/` — contract, protocol, security-boundary, artifact, and behavior tests.
+- `tests/` — contract, protocol, security-boundary, artifact, calculation, and behavior tests.
 - `docs/` — architecture and implementation documentation.
 - `.github/workflows/` — CI plus a non-branching scheduled runtime-freshness check.
 
@@ -67,6 +68,16 @@ The first bounded PDF adapter is also intentionally operation-specific:
 
 This does **not** claim broad PDF CRUD. Page manipulation, forms, annotations, overlays, merging/splitting, creation, and any visual-content mutation remain separate operation-level gates that require preservation and rendering validation.
 
+## Deterministic finance support
+
+The plugin now exposes reproducible calculators for finance definitions that are narrow enough to make deterministic:
+
+- `calculate_break_even` computes unit contribution margin, contribution-margin ratio, exact and whole-unit break-even volume, and break-even revenue from supplied fixed costs, unit price, and unit variable cost;
+- `calculate_simple_roi` computes undiscounted simple ROI as `(totalBenefits - totalCosts) / totalCosts` and preserves an optional caller-supplied period in months;
+- both are read-only, closed-world tools and return their formula definitions rather than relying on opaque model arithmetic.
+
+These tools do not infer missing financial inputs, evaluate time-value-of-money cash flows, or relabel simple ROI as NPV, IRR, annualized return, or payback.
+
 ## Remote MCP status
 
 The repository contains the **source boundary** required for remote Streamable HTTP MCP operation:
@@ -80,7 +91,7 @@ This is intentionally **not** described as a production deployment. A public HTT
 
 ## Development status
 
-This repository is being built incrementally. The current foundation establishes governance, plugin packaging, adaptive routing, a broad capability registry, capability discovery, guarded remote-MCP source transport, versioned plugin-owned artifact storage, a safe pre-mutation format-inspection gate, bounded DOCX template inspection/patching, and bounded PDF inspection/metadata mutation. Broad PDF/DOCX/XLSX/PPTX/CSV format CRUD, live SEO acquisition, advanced data processing, persistent production storage, production remote-MCP hosting, authentication, provider integrations, end-to-end marketplace tests, and public-directory submission remain separate milestones and must not be claimed as complete until their own verification gates pass.
+This repository is being built incrementally. The current foundation establishes governance, plugin packaging, adaptive routing, a broad capability registry, capability discovery, guarded remote-MCP source transport, versioned plugin-owned artifact storage, a safe pre-mutation format-inspection gate, bounded DOCX template inspection/patching, bounded PDF inspection/metadata mutation, and deterministic break-even/simple-ROI calculations. Broad PDF/DOCX/XLSX/PPTX/CSV format CRUD, live SEO acquisition, advanced data processing, persistent production storage, production remote-MCP hosting, authentication, provider integrations, end-to-end marketplace tests, and public-directory submission remain separate milestones and must not be claimed as complete until their own verification gates pass.
 
 ## Branch policy
 
