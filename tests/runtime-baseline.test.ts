@@ -11,6 +11,10 @@ const packageJson = JSON.parse(
 const serverSource = readFileSync(new URL("../src/server.ts", import.meta.url), "utf8");
 const stdioSource = readFileSync(new URL("../src/stdio.ts", import.meta.url), "utf8");
 const httpSource = readFileSync(new URL("../src/http.ts", import.meta.url), "utf8");
+const artifactFormatSource = readFileSync(
+  new URL("../src/artifacts/format.ts", import.meta.url),
+  "utf8",
+);
 
 describe("current runtime baseline", () => {
   it("uses the stable MCP v2 server package instead of the legacy monolithic SDK", () => {
@@ -30,6 +34,13 @@ describe("current runtime baseline", () => {
     expect(httpSource).toContain("createMcpHandler");
     expect(httpSource).toContain("hostHeaderValidationResponse");
     expect(httpSource).toContain("originValidationResponse");
+  });
+
+  it("uses the governed bounded ZIP inspection dependency for Office package classification", () => {
+    expect(packageJson.dependencies?.fflate).toBe("0.8.3");
+    expect(artifactFormatSource).toContain('from "fflate"');
+    expect(artifactFormatSource).toContain('file.name === "[Content_Types].xml"');
+    expect(artifactFormatSource).toContain("file.originalSize <= MAX_CONTENT_TYPES_BYTES");
   });
 
   it("pins the verified supporting toolchain", () => {
