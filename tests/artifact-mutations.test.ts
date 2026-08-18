@@ -28,6 +28,34 @@ async function importText(client: Client, text: string) {
 }
 
 describe("artifact mutation tools", () => {
+  it("inspects current artifact metadata without embedding the binary payload", async () => {
+    const { client, handler } = await connectedClient();
+
+    try {
+      const artifact = await importText(client, "inspect me");
+      const inspected = await client.callTool({
+        name: "inspect_artifact",
+        arguments: { artifactUri: artifact.uri },
+      });
+
+      expect(inspected.isError).not.toBe(true);
+      expect(inspected.structuredContent).toMatchObject({
+        artifact: {
+          uri: artifact.uri,
+          name: "working.txt",
+          mimeType: "text/plain",
+          revision: 1,
+        },
+      });
+      expect(inspected.content).toContainEqual(
+        expect.objectContaining({ type: "resource_link", uri: artifact.uri }),
+      );
+    } finally {
+      await client.close();
+      await handler.close();
+    }
+  });
+
   it("replaces only the expected current revision and exposes the new bytes", async () => {
     const { client, handler } = await connectedClient();
 
