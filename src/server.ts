@@ -2,6 +2,7 @@ import { McpServer } from "@modelcontextprotocol/server";
 import * as z from "zod/v4";
 import { MemoryArtifactStore } from "./artifacts/memory-store.js";
 import { registerArtifactTools } from "./artifacts/register-tools.js";
+import { registerPdfTools } from "./artifacts/register-pdf-tools.js";
 import type { ArtifactStore } from "./artifacts/types.js";
 import {
   capabilityDomains,
@@ -97,6 +98,7 @@ export function createServer(options: ConsultingServerOptions = {}): McpServer {
       ? undefined
       : { maxInlineArtifactBytes: options.maxInlineArtifactBytes };
   registerArtifactTools(server, artifactStore, artifactOptions);
+  registerPdfTools(server, artifactStore);
 
   return server;
 }
