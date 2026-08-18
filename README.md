@@ -17,10 +17,10 @@ The repository uses a hybrid plugin architecture:
 - `.codex-plugin/plugin.json` — plugin package manifest.
 - `.mcp.json` — bundled local MCP server configuration.
 - `skills/` — adaptive consulting workflows.
-- `src/server.ts` — MCP server and tool registration.
+- `src/server.ts` — MCP server composition and consulting capability discovery.
 - `src/stdio.ts` — local protocol-negotiating stdio entry.
 - `src/http.ts` — web-standard Streamable HTTP entry plus explicit Host/Origin guard layer for a future public deployment.
-- `src/artifacts/` — versioned artifact storage contracts, in-memory development store, and bounded binary/package inspection.
+- `src/artifacts/` — versioned artifact storage, MCP artifact tools, bounded binary/package inspection, and format-specific adapters whose supported envelope has been proven.
 - `src/catalog.ts` — capability registry and search implementation.
 - `scripts/check-runtime-freshness.mjs` — registry-backed check for governed runtime/toolchain pins.
 - `governance/` — source-of-truth rules for every model and contributor.
@@ -44,7 +44,18 @@ The repository now has a format-neutral plugin-owned artifact substrate:
 - explicit destructive deletion semantics;
 - read-only binary format inspection that distinguishes PDF, ordinary DOCX/XLSX/PPTX packages, macro-enabled DOCM/XLSM/PPTM packages, generic ZIP, and unknown binary content.
 
-This substrate is **not** equivalent to PDF/DOCX/XLSX/PPTX document editing. Format-specific CRUD remains planned until each adapter passes its preservation, malformed-input, round-trip, and representative-fixture gates. Macro detection never executes macros or embedded active content.
+Artifact storage CRUD is **not** equivalent to PDF/DOCX/XLSX/PPTX document editing. Format-specific CRUD remains gated by preservation, malformed-input, round-trip, and representative-fixture validation. Macro detection never executes macros or embedded active content.
+
+## DOCX template support
+
+The first bounded document-format adapter is intentionally narrower than general DOCX CRUD:
+
+- `inspect_docx_template` lists placeholder keys in byte-detected macro-free DOCX templates without modification;
+- `patch_docx_template` replaces only explicitly supplied existing placeholders, rejects unknown keys, uses artifact revision preconditions, validates the resulting package, and stores the result as a new revision;
+- macro-enabled DOCM input is rejected instead of being executed, silently stripped, or treated as ordinary DOCX;
+- request size and placeholder-count bounds prevent the template tool from becoming an unbounded document-ingestion path.
+
+This does **not** claim arbitrary existing Word-document text/layout CRUD. The broader `docx-crud` capability remains a separate milestone.
 
 ## Remote MCP status
 
@@ -59,7 +70,7 @@ This is intentionally **not** described as a production deployment. A public HTT
 
 ## Development status
 
-This repository is being built incrementally. The current foundation establishes governance, plugin packaging, adaptive routing, a broad capability registry, capability discovery, guarded remote-MCP source transport, versioned plugin-owned artifact storage, and a safe pre-mutation format-inspection gate. PDF/DOCX/XLSX/PPTX/CSV format CRUD, live SEO acquisition, advanced data processing, persistent production storage, production remote-MCP hosting, authentication, provider integrations, end-to-end marketplace tests, and public-directory submission remain separate milestones and must not be claimed as complete until their own verification gates pass.
+This repository is being built incrementally. The current foundation establishes governance, plugin packaging, adaptive routing, a broad capability registry, capability discovery, guarded remote-MCP source transport, versioned plugin-owned artifact storage, a safe pre-mutation format-inspection gate, and bounded DOCX template inspection/patching. Broad PDF/DOCX/XLSX/PPTX/CSV format CRUD, live SEO acquisition, advanced data processing, persistent production storage, production remote-MCP hosting, authentication, provider integrations, end-to-end marketplace tests, and public-directory submission remain separate milestones and must not be claimed as complete until their own verification gates pass.
 
 ## Branch policy
 
