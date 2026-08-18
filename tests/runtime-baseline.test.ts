@@ -10,6 +10,7 @@ const packageJson = JSON.parse(
 
 const serverSource = readFileSync(new URL("../src/server.ts", import.meta.url), "utf8");
 const stdioSource = readFileSync(new URL("../src/stdio.ts", import.meta.url), "utf8");
+const httpSource = readFileSync(new URL("../src/http.ts", import.meta.url), "utf8");
 
 describe("current runtime baseline", () => {
   it("uses the stable MCP v2 server package instead of the legacy monolithic SDK", () => {
@@ -22,6 +23,13 @@ describe("current runtime baseline", () => {
     expect(stdioSource).toContain('import { serveStdio } from "@modelcontextprotocol/server/stdio"');
     expect(stdioSource).toContain("await serveStdio(() => createServer());");
     expect(stdioSource).not.toContain("StdioServerTransport");
+  });
+
+  it("serves remote MCP through the modern web-standard handler entry point", () => {
+    expect(packageJson.devDependencies?.["@modelcontextprotocol/client"]).toBe("2.0.0");
+    expect(httpSource).toContain("createMcpHandler");
+    expect(httpSource).toContain("hostHeaderValidationResponse");
+    expect(httpSource).toContain("originValidationResponse");
   });
 
   it("pins the verified supporting toolchain", () => {
