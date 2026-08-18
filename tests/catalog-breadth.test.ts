@@ -5,6 +5,8 @@ import { financeMaCapabilities } from "../src/catalog/families/finance-ma.js";
 import { operationsSupplyCapabilities } from "../src/catalog/families/operations-supply.js";
 import { organizationProjectCapabilities } from "../src/catalog/families/organization-project.js";
 import { dataForecastingCapabilities } from "../src/catalog/families/data-forecasting.js";
+import { researchRiskSeoCapabilities } from "../src/catalog/families/research-risk-seo.js";
+import { innovationDeliveryArtifactCapabilities } from "../src/catalog/families/innovation-delivery-artifacts.js";
 
 describe("capability family breadth", () => {
   it("preserves established strategy and market stable IDs", () => {
@@ -43,14 +45,30 @@ describe("capability family breadth", () => {
     );
   });
 
-  it("makes every family entry routing-ready", () => {
-    expect([
+  it("covers research, fact checking, risk, assessment, audit, and public SEO", () => {
+    expect(researchRiskSeoCapabilities.map(({ id }) => id)).toEqual(
+      expect.arrayContaining(["evidence-synthesis", "source-discovery", "source-ranking", "freshness-validation", "claim-source-mapping", "corroboration", "conflict-detection", "quote-verification", "benchmark-synthesis", "research-gap", "risk-register", "decision-matrix", "mcda", "gap-assessment", "maturity-assessment", "readiness-assessment", "scenario-risk", "dependency-risk", "implementation-risk", "seo-technical-audit", "seo-on-page", "seo-content-gap", "local-seo-plan", "seo-search-console"]),
+    );
+  });
+
+  it("covers innovation, comparison, executive delivery, artifacts, and visualization outcomes", () => {
+    expect(innovationDeliveryArtifactCapabilities.map(({ id }) => id)).toEqual(
+      expect.arrayContaining(["ideation", "convergent-filtering", "constraint-ideation", "premortem", "red-team-analysis", "hypothesis-generation", "experiment-design", "product-service-comparison", "build-buy", "location-comparison", "business-case", "executive-brief", "decision-memo", "strategy-document", "operating-plan", "feasibility-study", "proposal", "assessment-report", "board-material", "implementation-plan", "status-report", "pdf-crud", "docx-crud", "xlsx-crud", "csv-crud", "pptx-crud", "docx-template-patching", "pdf-metadata-update", "bar-chart", "line-chart", "scatter-plot", "waterfall-chart", "risk-heatmap", "tornado-chart", "process-diagram", "kpi-dashboard"]),
+    );
+  });
+
+  it("defines at least 100 materially described routing-ready capabilities across all families", () => {
+    const all = [
       ...strategyMarketCapabilities,
       ...customerGrowthCapabilities,
       ...financeMaCapabilities,
       ...operationsSupplyCapabilities,
       ...organizationProjectCapabilities,
       ...dataForecastingCapabilities,
-    ].every(({ routingReady }) => routingReady)).toBe(true);
+      ...researchRiskSeoCapabilities,
+      ...innovationDeliveryArtifactCapabilities,
+    ];
+    expect(all.length).toBeGreaterThanOrEqual(100);
+    expect(all.every(({ routingReady }) => routingReady)).toBe(true);
   });
 });
