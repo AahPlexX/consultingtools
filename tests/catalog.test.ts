@@ -3,6 +3,7 @@ import {
   capabilities,
   capabilityDomains,
   capabilityStatuses,
+  getCapabilityById,
   searchCapabilities,
 } from "../src/catalog.js";
 
@@ -22,19 +23,22 @@ describe("capability catalog", () => {
     }
   });
 
+  it("preserves stable ids during catalog modularization", () => {
+    expect(getCapabilityById("swot")?.name).toBe("SWOT analysis");
+    expect(getCapabilityById("break-even")?.domain).toBe("finance");
+    expect(getCapabilityById("pdf-crud")?.status).toBe("planned");
+  });
+
   it("does not falsely mark file CRUD as implemented", () => {
     for (const id of ["pdf-crud", "docx-crud", "xlsx-crud", "csv-crud", "pptx-crud"]) {
-      expect(capabilities.find((capability) => capability.id === id)?.status).toBe("planned");
+      expect(getCapabilityById(id)?.status).toBe("planned");
     }
   });
 
-  it("keeps external SEO metrics provider-dependent", () => {
-    expect(capabilities.find(({ id }) => id === "seo-keyword-metrics")?.status).toBe(
-      "provider-dependent",
-    );
-    expect(capabilities.find(({ id }) => id === "seo-backlink-metrics")?.status).toBe(
-      "provider-dependent",
-    );
+  it("marks private-account SEO metrics unavailable under open access", () => {
+    for (const id of ["seo-keyword-metrics", "seo-backlink-metrics", "seo-search-console"]) {
+      expect(getCapabilityById(id)?.status).toBe("unavailable");
+    }
   });
 
   it("searches by query and filters without exceeding the bound", () => {
