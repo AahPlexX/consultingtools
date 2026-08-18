@@ -25,6 +25,7 @@ describe("runtime dependency freshness", () => {
     const packageJson = {
       dependencies: {
         "@modelcontextprotocol/server": "2.0.0",
+        fflate: "0.8.3",
         zod: "4.4.3",
       },
       devDependencies: {
@@ -38,6 +39,7 @@ describe("runtime dependency freshness", () => {
     const latest = {
       "@modelcontextprotocol/server": "2.0.0",
       "@modelcontextprotocol/client": "2.0.0",
+      fflate: "0.8.3",
       zod: "4.4.3",
       "@types/node": "24.13.4",
       typescript: "7.0.2",
