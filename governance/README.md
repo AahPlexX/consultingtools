@@ -7,6 +7,7 @@ This directory is the authoritative governance index for Consulting Tools. It is
 | Document | Governs |
 | --- | --- |
 | `north-star.md` | Mission, product boundaries, non-negotiable outcomes |
+| `open-access-boundary.md` | Public no-auth access model and prohibited credential/account integrations |
 | `platform-baseline.md` | Dated OpenAI/MCP/runtime assumptions and mandatory revalidation triggers |
 | `xlsx-engine-decision.md` | Dated XLSX engine security/preservation decision and revalidation conditions |
 | `safety-security.md` | Authorization, privacy, untrusted input, destructive actions, secrets |
@@ -19,10 +20,11 @@ This directory is the authoritative governance index for Consulting Tools. It is
 
 1. Applicable platform safety, law, and host-runtime constraints always apply.
 2. Current authoritative external specifications supersede a stale dated platform baseline or package decision; update the affected dated governance and implementation together.
-3. This governance directory applies repository-wide.
-4. More specific rules in this directory refine broader rules but may not weaken safety, evidence, truthfulness, freshness, or branch-integrity requirements.
-5. Task-specific docs and implementation notes may add constraints but may not contradict governance.
-6. If two repository rules conflict and cannot be reconciled safely, stop the conflicting state change, preserve data, and report the conflict instead of inventing a resolution.
+3. The open-access boundary is a product constraint: ordinary Consulting Tools functionality must not be redesigned to require user API keys, OAuth, account linking, or private-provider credentials.
+4. This governance directory applies repository-wide.
+5. More specific rules in this directory refine broader rules but may not weaken safety, evidence, truthfulness, freshness, open access, or branch-integrity requirements.
+6. Task-specific docs and implementation notes may add constraints but may not contradict governance.
+7. If two repository rules conflict and cannot be reconciled safely, stop the conflicting state change, preserve data, and report the conflict instead of inventing a resolution.
 
 ## SSOT discipline
 
