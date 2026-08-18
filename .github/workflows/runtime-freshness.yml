@@ -1,0 +1,38 @@
+name: Runtime Freshness
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - package.json
+      - scripts/check-runtime-freshness.mjs
+      - tests/runtime-freshness.test.mjs
+      - .github/workflows/runtime-freshness.yml
+      - governance/platform-baseline.md
+  schedule:
+    - cron: "23 9 * * *"
+      timezone: "America/Chicago"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: runtime-freshness-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-current-pins:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js LTS
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      - name: Check governed npm pins against registry
+        run: node scripts/check-runtime-freshness.mjs
