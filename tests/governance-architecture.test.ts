@@ -28,6 +28,6 @@ describe("approved universal consulting architecture", () => {
       expect(policy).toContain(phrase);
     }
     expect(policy).toContain("QA");
-    expect(policy).not.toContain("generic provider ecosystem");
+    expect(policy).toContain("Do not build a generic provider ecosystem");
   });
 });
