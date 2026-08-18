@@ -9,6 +9,11 @@ const checks = [
     args: ["view", "@modelcontextprotocol/server", "dist-tags.latest", "--json"],
   },
   {
+    name: "@modelcontextprotocol/client",
+    section: "devDependencies",
+    args: ["view", "@modelcontextprotocol/client", "dist-tags.latest", "--json"],
+  },
+  {
     name: "zod",
     section: "dependencies",
     args: ["view", "zod", "dist-tags.latest", "--json"],
