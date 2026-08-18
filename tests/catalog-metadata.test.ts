@@ -6,6 +6,7 @@ import {
   executionModes,
   outputModalities,
   riskClasses,
+  surfaceRequirements,
   type RoutableCapabilityDefinition,
   isRoutingReadyCapability,
 } from "../src/catalog/types.js";
@@ -35,6 +36,9 @@ describe("canonical capability metadata", () => {
     expect(outputModalities).toContain("spreadsheet");
     expect(artifactFormats).toContain("xlsx");
     expect(riskClasses).toContain("high-stakes");
+    expect(surfaceRequirements).toEqual(
+      expect.arrayContaining(["host-reasoning", "deterministic-engine", "public-web"]),
+    );
   });
 
   it("identifies only complete v2 metadata as routing-ready", () => {
@@ -53,9 +57,11 @@ describe("canonical capability metadata", () => {
       requiredInputs: ["decision objective"],
       optionalInputs: ["current market evidence"],
       methodology: "Compare options against explicit decision criteria and evidence.",
+      deterministicEngineIds: [],
       evidence: { level: "user-input-sufficient", publicResearchAllowed: true },
       outputs: ["text", "structured-model"],
       artifactFormats: [],
+      surfaceRequirements: ["host-reasoning"],
       qualityGates: ["consulting.problem-framing", "epistemic.claim-classification"],
       assumptionPolicy: "State bounded assumptions and test material assumptions.",
       failureBehavior: "Return missing evidence or a bounded limitation without fabricating it.",
