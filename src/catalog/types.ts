@@ -77,6 +77,16 @@ export const evidenceLevels = [
 ] as const;
 export type EvidenceLevel = (typeof evidenceLevels)[number];
 
+export const surfaceRequirements = [
+  "host-reasoning",
+  "deterministic-engine",
+  "public-web",
+  "artifact-input",
+  "artifact-output",
+  "interactive-ui",
+] as const;
+export type SurfaceRequirement = (typeof surfaceRequirements)[number];
+
 export type QualityGateId =
   | "analytical.formula-correctness"
   | "analytical.internal-consistency"
@@ -114,9 +124,11 @@ export interface RoutableCapabilityDefinition extends CapabilityCore {
   requiredInputs: readonly string[];
   optionalInputs: readonly string[];
   methodology: string;
+  deterministicEngineIds: readonly string[];
   evidence: { level: EvidenceLevel; publicResearchAllowed: boolean };
   outputs: readonly OutputModality[];
   artifactFormats: readonly ArtifactFormat[];
+  surfaceRequirements: readonly SurfaceRequirement[];
   qualityGates: readonly QualityGateId[];
   assumptionPolicy: string;
   failureBehavior: string;
