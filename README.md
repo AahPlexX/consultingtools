@@ -15,22 +15,36 @@ The repository uses a hybrid plugin architecture:
 ## Repository map
 
 - `.codex-plugin/plugin.json` — plugin package manifest.
-- `.mcp.json` — bundled MCP server configuration.
+- `.mcp.json` — bundled local MCP server configuration.
 - `skills/` — adaptive consulting workflows.
-- `src/` — MCP server and capability catalog implementation.
+- `src/server.ts` — MCP server and tool registration.
+- `src/stdio.ts` — local protocol-negotiating stdio entry.
+- `src/http.ts` — web-standard Streamable HTTP entry plus explicit Host/Origin guard layer for a future public deployment.
+- `src/catalog.ts` — capability registry and search implementation.
 - `scripts/check-runtime-freshness.mjs` — registry-backed check for governed runtime/toolchain pins.
 - `governance/` — source-of-truth rules for every model and contributor.
-- `tests/` — contract and behavior tests.
+- `tests/` — contract, protocol, security-boundary, and behavior tests.
 - `docs/` — architecture and implementation documentation.
 - `.github/workflows/` — CI plus a non-branching scheduled runtime-freshness check.
 
 ## Runtime baseline
 
-The bundled local MCP foundation targets the stable MCP TypeScript v2 server package and the MCP 2026-07-28 protocol line. Stdio startup uses the v2 protocol-negotiating helper rather than the legacy monolithic SDK transport path. Exact dated dependency pins and their revalidation rules live in `governance/platform-baseline.md`; do not treat versions written in prose as permanently current.
+The MCP foundation targets the stable split TypeScript v2 packages and the MCP 2026-07-28 protocol line. Stdio startup uses the v2 protocol-negotiating helper rather than the legacy monolithic SDK transport path. Remote-source support uses the v2 web-standard MCP handler and is exercised through the matching MCP client test harness. Exact dated dependency pins and their revalidation rules live in `governance/platform-baseline.md`; do not treat versions written in prose as permanently current.
+
+## Remote MCP status
+
+The repository now contains the **source boundary** required for remote Streamable HTTP MCP operation:
+
+- a fresh MCP server instance is created through the current v2 HTTP handler factory;
+- the protocol contract is tested with the matching MCP client package and requires 2026-07-28 negotiation;
+- a guarded wrapper requires an explicit allowed-host list and can enforce an allowed-origin list before MCP dispatch;
+- credential-shaped Host/Origin values are rejected before the SDK validators are invoked.
+
+This is intentionally **not** described as a production deployment. A public HTTPS endpoint, production hostname, authentication configuration, hosting provider, runtime observability, external end-to-end verification, and OpenAI domain verification still require their own implementation and evidence.
 
 ## Development status
 
-This repository is being built incrementally. The current foundation establishes governance, plugin packaging, adaptive routing, a broad capability registry, a read-only MCP capability-discovery tool, and current-runtime/freshness contracts. File-format CRUD, live SEO acquisition, advanced data processing, production remote-MCP hosting, authentication, provider integrations, end-to-end marketplace tests, and public-directory submission are separate implementation milestones and must not be claimed as complete until their own verification gates pass.
+This repository is being built incrementally. The current foundation establishes governance, plugin packaging, adaptive routing, a broad capability registry, a read-only MCP capability-discovery tool, current-runtime/freshness contracts, and a guarded remote-MCP source boundary. File-format CRUD, live SEO acquisition, advanced data processing, production remote-MCP hosting, authentication, provider integrations, end-to-end marketplace tests, and public-directory submission are separate implementation milestones and must not be claimed as complete until their own verification gates pass.
 
 ## Branch policy
 
