@@ -8,6 +8,7 @@ This directory is the authoritative governance index for Consulting Tools. It is
 | --- | --- |
 | `north-star.md` | Mission, product boundaries, non-negotiable outcomes |
 | `platform-baseline.md` | Dated OpenAI/MCP/runtime assumptions and mandatory revalidation triggers |
+| `xlsx-engine-decision.md` | Dated XLSX engine security/preservation decision and revalidation conditions |
 | `safety-security.md` | Authorization, privacy, untrusted input, destructive actions, secrets |
 | `source-policy.md` | Evidence quality, freshness, provenance, uncertainty |
 | `capability-policy.md` | Capability states, adaptive consulting method selection, truthful discovery |
@@ -17,7 +18,7 @@ This directory is the authoritative governance index for Consulting Tools. It is
 ## Precedence
 
 1. Applicable platform safety, law, and host-runtime constraints always apply.
-2. Current authoritative external specifications supersede a stale dated platform baseline; update the baseline and affected implementation together.
+2. Current authoritative external specifications supersede a stale dated platform baseline or package decision; update the affected dated governance and implementation together.
 3. This governance directory applies repository-wide.
 4. More specific rules in this directory refine broader rules but may not weaken safety, evidence, truthfulness, freshness, or branch-integrity requirements.
 5. Task-specific docs and implementation notes may add constraints but may not contradict governance.
@@ -28,7 +29,7 @@ This directory is the authoritative governance index for Consulting Tools. It is
 - Put each durable governing rule in exactly one best-fit governance file.
 - Other files reference the rule instead of duplicating it.
 - Keep examples illustrative, not normative templates.
-- Treat dated external-platform/package facts as snapshots that require revalidation when a trigger in `platform-baseline.md` applies.
+- Treat dated external-platform/package facts as snapshots that require revalidation when a trigger in the applicable dated governance applies.
 - A governance change must preserve consistency across affected rules, code, tests, and plugin metadata.
 - Planned behavior is not governing fact until the implementation and its quality gates exist.
 
