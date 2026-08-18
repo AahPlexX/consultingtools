@@ -1,6 +1,6 @@
 # Consulting Tools
 
-Consulting Tools is an in-development public, open-access plugin for ChatGPT and Codex that is intended to combine adaptive consulting workflows with controlled executable tools for research, analysis, and business artifacts.
+Consulting Tools is an in-development public, open-access plugin for ChatGPT and Codex intended to provide a universal consulting capability and quality layer: adaptive consulting workflows, deterministic analysis, evidence controls, professional artifacts, and measurable quality gates without requiring ordinary users to connect private third-party accounts.
 
 ## Access model
 
@@ -12,26 +12,50 @@ The plugin may work with user-supplied files/data, plugin-owned computation, pub
 
 The repository uses a hybrid plugin architecture:
 
-- **Skills** decide which consulting methods are appropriate for a user's actual objective and adapt the deliverable structure to the work rather than forcing a fixed report template.
-- **MCP tools** perform reproducible operations that require code, files, public live data, or plugin-owned state.
+- **Skills** perform natural-language consulting interpretation, method selection, sequencing, and deliverable reasoning.
+- **Capability catalog** exposes stable user-visible consulting capability identities and truthful implementation status.
+- **MCP tools** perform reproducible validation, calculations, file operations, and other controlled executable work.
+- **Epistemic contracts** distinguish verified facts, user-supplied facts, deterministic calculations, bounded assumptions, inferences, hypotheses, estimates, scenarios, and recommendations.
+- **Quality contracts** provide machine-readable analytical, epistemic, consulting, and artifact gate results instead of decorative confidence scores.
 - **Governance** is model-agnostic and lives under `governance/`. `AGENTS.md` is the universal entry point for any LLM or agent modifying this repository.
 - **Capability status is explicit.** A capability is never presented as implemented merely because it appears on the roadmap or in the catalog.
 - **External-platform facts are dated.** `governance/platform-baseline.md` records the verified OpenAI/MCP/runtime snapshot and the events that require live revalidation.
+
+## Capability platform foundation
+
+The capability layer is now being migrated from a monolithic catalog into typed, composable contracts:
+
+- `src/catalog/types.ts` defines canonical domains, modes, statuses, output modalities, artifact formats, access boundaries, risk classes, and QA gate identifiers;
+- `src/catalog/legacy.ts` preserves current stable capability IDs while explicitly marking those entries as not yet fully routing-ready;
+- `src/catalog/registry.ts` supplies bounded search and stable-ID lookup;
+- `src/catalog/relationships.ts` encodes typed prerequisite/follow-on relationships and validates the graph for dangling/self references;
+- `src/routing/` validates structured workflow selections, implementation blockers, and encoded dependencies;
+- `src/epistemics/` validates provenance requirements for material claim classes;
+- `src/quality/` determines whether required quality gates passed before a capability can be promoted;
+- MCP capability tools provide catalog search, single-capability inspection, and structured workflow validation.
+
+The foundation validates structured capability plans; it does not claim that a hand-written keyword classifier independently understands arbitrary consulting language. Natural-language semantic selection remains a host-model/Skill responsibility backed by the typed catalog and deterministic validation layer.
+
+The approved architecture requires at least 100 materially distinct user-visible capabilities, but that breadth milestone is a separate catalog subproject and is **not** claimed complete merely because the foundation can represent it.
 
 ## Repository map
 
 - `.codex-plugin/plugin.json` — plugin package manifest.
 - `.mcp.json` — bundled local MCP server configuration.
-- `skills/` — adaptive consulting workflows.
-- `src/server.ts` — MCP server composition and consulting capability discovery.
+- `skills/` — adaptive consulting workflows and semantic orchestration guidance.
+- `src/server.ts` — MCP server composition.
 - `src/stdio.ts` — local protocol-negotiating stdio entry.
 - `src/http.ts` — web-standard Streamable HTTP entry plus explicit Host/Origin guard layer for a future public deployment.
+- `src/catalog/` — typed capability metadata, registry, relationships, and capability MCP tools.
+- `src/catalog.ts` — compatibility re-export for the modular catalog package.
+- `src/routing/` — deterministic structured workflow-plan validation.
+- `src/epistemics/` — claim classification/provenance validation contracts.
+- `src/quality/` — common quality-gate reports and promotion logic.
 - `src/artifacts/` — versioned artifact storage, MCP artifact tools, bounded binary/package inspection, and format-specific adapters whose supported envelope has been proven.
 - `src/finance/` — deterministic calculation engines and MCP finance tools for formulas whose definitions are fixed and explicit.
-- `src/catalog.ts` — capability registry and search implementation.
 - `scripts/check-runtime-freshness.mjs` — registry-backed check for governed runtime/toolchain pins.
 - `governance/` — source-of-truth rules for every model and contributor.
-- `tests/` — contract, protocol, security-boundary, artifact, calculation, and behavior tests.
+- `tests/` — contract, protocol, security-boundary, artifact, calculation, routing, epistemic, quality, and behavior tests.
 - `docs/` — architecture and implementation documentation.
 - `.github/workflows/` — CI plus a non-branching scheduled runtime-freshness check.
 
@@ -41,7 +65,7 @@ The MCP foundation targets the stable split TypeScript v2 packages and the MCP 2
 
 ## Artifact workspace
 
-The repository now has a format-neutral plugin-owned artifact substrate:
+The repository has a format-neutral plugin-owned artifact substrate:
 
 - bounded inline import for callers that already possess artifact bytes;
 - `artifact://` MCP resources for binary retrieval;
@@ -76,7 +100,7 @@ This does **not** claim broad PDF CRUD. Page manipulation, forms, annotations, o
 
 ## Deterministic finance support
 
-The plugin now exposes reproducible calculators for finance definitions that are narrow enough to make deterministic:
+The plugin exposes reproducible calculators for finance definitions that are narrow enough to make deterministic:
 
 - `calculate_break_even` computes unit contribution margin, contribution-margin ratio, exact and whole-unit break-even volume, and break-even revenue from supplied fixed costs, unit price, and unit variable cost;
 - `calculate_simple_roi` computes undiscounted simple ROI as `(totalBenefits - totalCosts) / totalCosts` and preserves an optional caller-supplied period in months;
@@ -97,7 +121,9 @@ This is intentionally **not** described as a production deployment. A public HTT
 
 ## Development status
 
-This repository is being built incrementally. The current foundation establishes governance, plugin packaging, adaptive routing, a broad capability registry, capability discovery, guarded remote-MCP source transport, versioned plugin-owned artifact storage, a safe pre-mutation format-inspection gate, bounded DOCX template inspection/patching, bounded PDF inspection/metadata mutation, and deterministic break-even/simple-ROI calculations. Broad PDF/DOCX/XLSX/PPTX/CSV format CRUD, anonymous public-web SEO acquisition, advanced data processing, persistent production storage, production remote-MCP hosting, abuse/rate controls, end-to-end marketplace tests, and public-directory submission remain separate milestones and must not be claimed as complete until their own verification gates pass.
+The repository is being built incrementally toward the approved Universal Consulting Capability Engine architecture. The source now includes the modular capability/routing/epistemic/quality foundation in addition to the previously established plugin packaging, guarded MCP transport, versioned artifact storage, DOCX template operations, bounded PDF metadata operations, and deterministic break-even/simple-ROI calculators.
+
+Runtime verification for the current foundation HEAD must still pass before Subproject 1 is recorded as verified complete. The 100+ capability baseline, expanded finance/FP&A, statistics/forecasting, project/operations/supply-chain engines, CSV/XLSX/DOCX/PDF/PPTX artifact expansion, visualization, anonymous public research/fact checking/SEO, executive workflows, production remote MCP, and marketplace submission remain separate milestones.
 
 ## Branch policy
 
