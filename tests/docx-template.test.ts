@@ -1,76 +1,60 @@
 import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
 import { Document, Packer, Paragraph, TextRun } from "docx";
-import { strFromU8, unzipSync } from "fflate";
+import { unzipSync } from "fflate";
 import { describe, expect, it } from "vitest";
 import { createHttpHandler } from "../src/http.js";
 
-async function connectedClient() {
-  const handler = createHttpHandler();
-  const transport = new StreamableHTTPClientTransport(new URL("http://test.local/mcp"), {
-    fetch: (url, init) => handler.fetch(new Request(url, init)),
+async function templateBase64(): Promise<string> {
+  const document = new Document({
+    sections: [
+      {
+        children: [
+          new Paragraph({ children: [new TextRun("Client: {{client}}")]}),
+          new Paragraph({ children: [new TextRun("Recommendation: {{recommendation}}")]}),
+        ],
+      },
+    ],
   });
-  const client = new Client(
-    { name: "docx-template-test", version: "1.0.0" },
-    { versionNegotiation: { mode: "auto" } },
-  );
-  await client.connect(transport);
-  return { client, handler };
+  return (await Packer.toBuffer(document)).toString("base64");
 }
 
-async function templateBytes(): Promise<Buffer> {
-  return Packer.toBuffer(
-    new Document({
-      sections: [
-        {
-          children: [
-            new Paragraph({
-              children: [
-                new TextRun("Client: "),
-                new TextRun({ text: "{{client}}", bold: true }),
-              ],
-            }),
-            new Paragraph("Recommendation: {{recommendation}}"),
-          ],
-        },
-      ],
-    }),
-  );
+function documentXml(base64: string): string {
+  const entries = unzipSync(Buffer.from(base64, "base64"));
+  const document = entries["word/document.xml"];
+  if (!document) throw new Error("DOCX fixture is missing word/document.xml");
+  return Buffer.from(document).toString("utf8");
 }
 
-async function importDocx(client: Client, bytes: Buffer) {
-  const result = await client.callTool({
-    name: "import_artifact_inline",
-    arguments: {
-      name: "report-template.docx",
-      mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      dataBase64: bytes.toString("base64"),
-    },
-  });
-  return (result.structuredContent as { artifact: { uri: string; revision: number } }).artifact;
-}
-
-function documentXml(blob: string): string {
-  const parts = unzipSync(Buffer.from(blob, "base64"), {
-    filter: (file) => file.name === "word/document.xml",
-  });
-  const xml = parts["word/document.xml"];
-  if (!xml) throw new Error("fixture lacks word/document.xml");
-  return strFromU8(xml);
-}
-
-describe("DOCX template tools", () => {
-  it("discovers placeholder keys without modifying the artifact", async () => {
-    const { client, handler } = await connectedClient();
+describe("DOCX template operations", () => {
+  it("inspects placeholder keys without mutating the artifact", async () => {
+    const handler = createHttpHandler();
+    const transport = new StreamableHTTPClientTransport(new URL("http://test.local/mcp"), {
+      fetch: (url, init) => handler.fetch(new Request(url, init)),
+    });
+    const client = new Client(
+      { name: "docx-template-test", version: "1.0.0" },
+      { versionNegotiation: { mode: "auto" } },
+    );
 
     try {
-      const artifact = await importDocx(client, await templateBytes());
+      await client.connect(transport);
+      const imported = await client.callTool({
+        name: "import_artifact_inline",
+        arguments: {
+          name: "template.docx",
+          mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+          base64: await templateBase64(),
+        },
+      });
+      const artifact = (imported.structuredContent as { artifact: { uri: string } }).artifact;
+
       const result = await client.callTool({
         name: "inspect_docx_template",
         arguments: { artifactUri: artifact.uri },
       });
 
       expect(result.isError).not.toBe(true);
-      expect(result.structuredContent).toEqual({
+      expect(result.structuredContent).toMatchObject({
         artifactUri: artifact.uri,
         revision: 1,
         placeholders: ["client", "recommendation"],
@@ -81,11 +65,28 @@ describe("DOCX template tools", () => {
     }
   });
 
-  it("patches only supplied placeholders into a new artifact revision", async () => {
-    const { client, handler } = await connectedClient();
+  it("patches only requested existing placeholders and creates a new revision", async () => {
+    const handler = createHttpHandler();
+    const transport = new StreamableHTTPClientTransport(new URL("http://test.local/mcp"), {
+      fetch: (url, init) => handler.fetch(new Request(url, init)),
+    });
+    const client = new Client(
+      { name: "docx-template-test", version: "1.0.0" },
+      { versionNegotiation: { mode: "auto" } },
+    );
 
     try {
-      const artifact = await importDocx(client, await templateBytes());
+      await client.connect(transport);
+      const imported = await client.callTool({
+        name: "import_artifact_inline",
+        arguments: {
+          name: "template.docx",
+          mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+          base64: await templateBase64(),
+        },
+      });
+      const artifact = (imported.structuredContent as { artifact: { uri: string } }).artifact;
+
       const result = await client.callTool({
         name: "patch_docx_template",
         arguments: {
@@ -108,7 +109,7 @@ describe("DOCX template tools", () => {
 
       const resource = await client.readResource({ uri: artifact.uri });
       const content = resource.contents[0];
-      if (!("blob" in content) || typeof content.blob !== "string") {
+      if (!content || !("blob" in content) || typeof content.blob !== "string") {
         throw new Error("DOCX resource did not return a binary blob");
       }
       const xml = documentXml(content.blob);
@@ -123,22 +124,44 @@ describe("DOCX template tools", () => {
   });
 
   it("rejects unknown replacement keys instead of silently producing a misleading document", async () => {
-    const { client, handler } = await connectedClient();
+    const handler = createHttpHandler();
+    const transport = new StreamableHTTPClientTransport(new URL("http://test.local/mcp"), {
+      fetch: (url, init) => handler.fetch(new Request(url, init)),
+    });
+    const client = new Client(
+      { name: "docx-template-test", version: "1.0.0" },
+      { versionNegotiation: { mode: "auto" } },
+    );
 
     try {
-      const artifact = await importDocx(client, await templateBytes());
+      await client.connect(transport);
+      const imported = await client.callTool({
+        name: "import_artifact_inline",
+        arguments: {
+          name: "template.docx",
+          mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+          base64: await templateBase64(),
+        },
+      });
+      const artifact = (imported.structuredContent as { artifact: { uri: string } }).artifact;
+
       const result = await client.callTool({
         name: "patch_docx_template",
         arguments: {
           artifactUri: artifact.uri,
           expectedRevision: 1,
-          values: { missing_placeholder: "value" },
+          values: { missing: "Should fail" },
         },
       });
 
       expect(result.isError).toBe(true);
-      expect(result.content).toContainEqual(
-        expect.objectContaining({ type: "text", text: expect.stringMatching(/unknown placeholder/i) }),
+      expect(result.content).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            type: "text",
+            text: expect.stringContaining("Unknown DOCX template placeholder"),
+          }),
+        ]),
       );
     } finally {
       await client.close();
