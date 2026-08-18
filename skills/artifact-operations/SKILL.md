@@ -9,9 +9,11 @@ Use this skill for file-oriented consulting work. Capability availability is env
 
 ## Availability gate
 
-Before promising an operation, determine whether the installed version has an `implemented` capability for the requested format/action or whether the host supplies an appropriate native file tool. If only `planned`, `partial`, `provider-dependent`, or unavailable capability exists, explain the limitation and perform only the supported subset.
+Before promising an operation, determine whether the installed version has an implemented broad capability, an explicitly supported narrower utility, or a host-native file tool for the requested action. If only `planned`, `partial`, `provider-dependent`, or unavailable broad capability exists, perform only the narrower behavior that is actually exposed and validated.
 
 Artifact-level storage CRUD is not document-format CRUD. The existence of `artifact://` import, inspect, replace, read, or delete operations does not make PDF, DOCX, XLSX, CSV, or PPTX content mutation implemented.
+
+The broad consulting capability catalog and the low-level MCP tool surface are distinct. Use capability status for broad claims and inspect installed tools for narrower utilities such as template placeholder operations.
 
 ## Plugin-owned artifact sequence
 
@@ -42,7 +44,14 @@ Treat PDF as a presentation-oriented format whose visual layout may be as import
 
 ## DOCX
 
-DOCX operations must account for package relationships and document structure, not only paragraphs. Preserve styles, numbering, headers/footers, tables, sections, media, hyperlinks, comments/notes, fields, and accessibility-related structure when those features exist and are outside the requested edit scope. Validate by reopening the generated package. A template/placeholder patching API is not evidence of lossless arbitrary existing-document editing.
+The currently supported plugin-owned existing-DOCX subset is placeholder-template work only:
+
+- `inspect_docx_template` may be used to list placeholders in a byte-detected macro-free DOCX without mutation.
+- `patch_docx_template` may replace only supplied placeholder keys that actually exist, with `expectedRevision` protection and post-patch validation.
+- Macro-enabled DOCM is outside this adapter and must be refused rather than executed, stripped, or silently converted.
+- Template patching must not be represented as arbitrary existing-DOCX text/layout CRUD.
+
+For broader DOCX work, account for package relationships and document structure, not only paragraphs. Preserve styles, numbering, headers/footers, tables, sections, media, hyperlinks, comments/notes, fields, content controls, revisions, and accessibility-related structure when those features exist and are outside the requested edit scope. Validate by reopening the generated package. A template/placeholder patching API is not evidence of lossless arbitrary existing-document editing.
 
 ## XLSX
 
