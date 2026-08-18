@@ -1,6 +1,6 @@
 import type { McpServer } from "@modelcontextprotocol/server";
 import * as z from "zod/v4";
-import { inspectPdf, updatePdfMetadata } from "./pdf.js";
+import { inspectPdf, updatePdfMetadata, type PdfMetadataUpdate } from "./pdf.js";
 import type { ArtifactMetadata, ArtifactStore } from "./types.js";
 
 const artifactMetadataSchema = z.object({
@@ -93,17 +93,35 @@ function resourceLink(metadata: ArtifactMetadata) {
     uri: metadata.uri,
     name: metadata.name,
     mimeType: metadata.mimeType,
-    description: `Artifact revision ${metadata.revision}; ${metadata.byteSize} bytes; sha256 ${metadata.sha256}`,
+    description: `Artifact ${metadata.id}, revision ${metadata.revision}, ${metadata.byteSize} bytes, sha256 ${metadata.sha256}`,
   };
+}
+
+function toPdfMetadataUpdate(metadata: {
+  title?: string | undefined;
+  author?: string | undefined;
+  subject?: string | undefined;
+  keywords?: string[] | undefined;
+  creator?: string | undefined;
+  producer?: string | undefined;
+}): PdfMetadataUpdate {
+  const update: PdfMetadataUpdate = {};
+  if (metadata.title !== undefined) update.title = metadata.title;
+  if (metadata.author !== undefined) update.author = metadata.author;
+  if (metadata.subject !== undefined) update.subject = metadata.subject;
+  if (metadata.keywords !== undefined) update.keywords = metadata.keywords;
+  if (metadata.creator !== undefined) update.creator = metadata.creator;
+  if (metadata.producer !== undefined) update.producer = metadata.producer;
+  return update;
 }
 
 export function registerPdfTools(server: McpServer, artifactStore: ArtifactStore): void {
   server.registerTool(
     "inspect_pdf",
     {
-      title: "Inspect PDF document metadata",
+      title: "Inspect PDF",
       description:
-        "Inspect page count and document-level metadata from a detected PDF artifact without modifying it. This does not extract or edit arbitrary existing page text.",
+        "Load a detected PDF and report page count plus document-level metadata without modifying it. This does not extract or edit arbitrary existing page text.",
       inputSchema: inspectPdfInputSchema,
       outputSchema: inspectPdfOutputSchema,
       annotations: {
@@ -114,19 +132,20 @@ export function registerPdfTools(server: McpServer, artifactStore: ArtifactStore
     },
     async ({ artifactUri }) => {
       try {
-        const current = await artifactStore.read(artifactIdFromUri(artifactUri));
-        const inspection = await inspectPdf(current.bytes);
+        const id = artifactIdFromUri(artifactUri);
+        const current = await artifactStore.read(id);
+        const result = await inspectPdf(current.bytes);
         return {
           structuredContent: {
             artifactUri: current.metadata.uri,
             revision: current.metadata.revision,
-            pageCount: inspection.pageCount,
-            metadata: inspection.metadata,
+            pageCount: result.pageCount,
+            metadata: result.metadata,
           },
           content: [
             {
               type: "text",
-              text: `PDF has ${inspection.pageCount} page(s). This inspection covers document metadata and page count, not arbitrary page-text extraction.`,
+              text: `PDF has ${result.pageCount} page(s). Document metadata was inspected without modifying page content.`,
             },
             resourceLink(current.metadata),
           ],
@@ -161,7 +180,7 @@ export function registerPdfTools(server: McpServer, artifactStore: ArtifactStore
           );
         }
 
-        const result = await updatePdfMetadata(current.bytes, metadata);
+        const result = await updatePdfMetadata(current.bytes, toPdfMetadataUpdate(metadata));
         const artifact = await artifactStore.replace(id, { bytes: result.bytes });
         return {
           structuredContent: {
