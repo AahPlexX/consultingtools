@@ -48,16 +48,16 @@ export function createServer(options: ConsultingServerOptions = {}): McpServer {
     },
     {
       instructions:
-        "Use capability status as a hard truth boundary. Planned, partial, provider-dependent, and unavailable capabilities must never be presented as fully executable. Prefer the smallest set of complementary consulting methods needed for the user's actual decision.",
+        "Use capability status as a hard truth boundary. Planned, partial, provider-dependent, and unavailable capabilities must never be presented as fully executable. Prefer the smallest set of complementary consulting methods needed for the user's actual decision. The consulting capability catalog is distinct from the lower-level MCP utility surface; use tools/list to inspect installed utilities.",
     },
   );
 
   server.registerTool(
     "search_consulting_capabilities",
     {
-      title: "Search consulting capabilities",
+      title: "Search consulting capability catalog",
       description:
-        "Discover consulting methods and operational capabilities in this installed version, including each capability's implementation status and prerequisites. Use this before promising a specialized file, data, SEO, research, or analysis operation when availability is uncertain.",
+        "Search the catalog of business-consulting methods and broad operational capability claims in this installed version, including implementation status and prerequisites. This catalog is not an exhaustive list of lower-level MCP utility tools; inspect tools/list for those. Use capability status before promising broad file, data, SEO, research, or analysis behavior.",
       inputSchema: searchInputSchema,
       outputSchema: searchOutputSchema,
       annotations: {
@@ -85,7 +85,7 @@ export function createServer(options: ConsultingServerOptions = {}): McpServer {
         content: [
           {
             type: "text",
-            text: `Found ${matches.length} matching capabilities out of ${capabilities.length}. Inspect status and prerequisites before committing to an operation.`,
+            text: `Found ${matches.length} matching cataloged capabilities out of ${capabilities.length}. Inspect each status and prerequisite before making a broad capability claim; lower-level installed utilities are exposed separately through tools/list.`,
           },
         ],
       };
