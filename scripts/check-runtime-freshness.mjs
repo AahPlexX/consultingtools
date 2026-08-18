@@ -14,6 +14,11 @@ const checks = [
     args: ["view", "@modelcontextprotocol/client", "dist-tags.latest", "--json"],
   },
   {
+    name: "fflate",
+    section: "dependencies",
+    args: ["view", "fflate", "dist-tags.latest", "--json"],
+  },
+  {
     name: "zod",
     section: "dependencies",
     args: ["view", "zod", "dist-tags.latest", "--json"],
