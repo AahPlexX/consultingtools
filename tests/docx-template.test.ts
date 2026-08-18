@@ -43,7 +43,7 @@ describe("DOCX template operations", () => {
         arguments: {
           name: "template.docx",
           mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-          base64: await templateBase64(),
+          dataBase64: await templateBase64(),
         },
       });
       const artifact = (imported.structuredContent as { artifact: { uri: string } }).artifact;
@@ -82,7 +82,7 @@ describe("DOCX template operations", () => {
         arguments: {
           name: "template.docx",
           mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-          base64: await templateBase64(),
+          dataBase64: await templateBase64(),
         },
       });
       const artifact = (imported.structuredContent as { artifact: { uri: string } }).artifact;
@@ -140,7 +140,7 @@ describe("DOCX template operations", () => {
         arguments: {
           name: "template.docx",
           mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-          base64: await templateBase64(),
+          dataBase64: await templateBase64(),
         },
       });
       const artifact = (imported.structuredContent as { artifact: { uri: string } }).artifact;
