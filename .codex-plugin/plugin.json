@@ -1,0 +1,51 @@
+{
+  "name": "consulting-tools",
+  "version": "0.1.0",
+  "description": "Adaptive, evidence-grounded consulting workflows with capability-aware execution.",
+  "author": {
+    "name": "AahPlexX"
+  },
+  "repository": "https://github.com/AahPlexX/consultingtools",
+  "keywords": [
+    "consulting",
+    "business-analysis",
+    "strategy",
+    "operations",
+    "seo",
+    "decision-support"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Consulting Tools",
+    "shortDescription": "Adaptive consulting toolkit",
+    "longDescription": "Selects fit-for-purpose consulting methods, grounds current claims in evidence, and exposes only the executable capabilities available in the installed version. Deliverables adapt to the user's objective instead of forcing a fixed report template.",
+    "developerName": "AahPlexX",
+    "category": "Productivity",
+    "capabilities": [
+      "Adaptive method selection",
+      "Strategy analysis",
+      "Market analysis",
+      "Competitive analysis",
+      "Customer analysis",
+      "Financial decision support",
+      "Operations analysis",
+      "Risk analysis",
+      "Organization analysis",
+      "Growth analysis",
+      "SEO audit planning",
+      "Evidence synthesis",
+      "KPI and OKR design",
+      "Scenario analysis",
+      "Prioritization",
+      "Business cases",
+      "Executive reporting",
+      "Capability discovery"
+    ],
+    "defaultPrompt": [
+      "Analyze this business problem and choose the methods that actually add decision value.",
+      "Turn these materials into an evidence-grounded consulting deliverable for the intended audience.",
+      "Assess this opportunity, show the important uncertainties, and recommend defensible next actions."
+    ]
+  }
+}
