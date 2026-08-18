@@ -1,40 +1,10 @@
 import { McpServer } from "@modelcontextprotocol/server";
-import * as z from "zod/v4";
 import { MemoryArtifactStore } from "./artifacts/memory-store.js";
 import { registerArtifactTools } from "./artifacts/register-tools.js";
 import { registerPdfTools } from "./artifacts/register-pdf-tools.js";
 import type { ArtifactStore } from "./artifacts/types.js";
-import {
-  capabilityDomains,
-  capabilities,
-  capabilityStatuses,
-  searchCapabilities,
-  type CapabilitySearch,
-} from "./catalog.js";
+import { registerCapabilityTools } from "./catalog/register-tools.js";
 import { registerFinanceTools } from "./finance/register-tools.js";
-
-const capabilitySchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  domain: z.enum(capabilityDomains),
-  mode: z.enum(["reasoning", "research", "artifact", "data", "external"]),
-  status: z.enum(capabilityStatuses),
-  summary: z.string(),
-  requires: z.string().optional(),
-});
-
-const searchInputSchema = z.object({
-  query: z.string().trim().min(1).max(200).optional(),
-  status: z.enum(capabilityStatuses).optional(),
-  domain: z.enum(capabilityDomains).optional(),
-  limit: z.number().int().min(1).max(50).optional(),
-});
-
-const searchOutputSchema = z.object({
-  count: z.number().int().nonnegative(),
-  totalCatalogSize: z.number().int().positive(),
-  capabilities: z.array(capabilitySchema),
-});
 
 export interface ConsultingServerOptions {
   artifactStore?: ArtifactStore;
@@ -50,49 +20,11 @@ export function createServer(options: ConsultingServerOptions = {}): McpServer {
     },
     {
       instructions:
-        "Use capability status as a hard truth boundary. Planned, partial, provider-dependent, and unavailable capabilities must never be presented as fully executable. Prefer the smallest set of complementary consulting methods needed for the user's actual decision. The consulting capability catalog is distinct from the lower-level MCP utility surface; use tools/list to inspect installed utilities. Prefer deterministic finance tools over hand arithmetic when their formulas match the requested definition.",
+        "Natural-language semantic interpretation belongs to the consulting orchestration workflow. Select candidate capability IDs from the catalog, validate substantive multi-capability plans before presenting them as executable, treat capability status and open-access limits as hard truth boundaries, and use epistemic labels plus applicable QA gates instead of invented confidence percentages. The consulting capability catalog is distinct from lower-level MCP utilities exposed through tools/list. Prefer deterministic tools over hand arithmetic when their definitions match the requested calculation.",
     },
   );
 
-  server.registerTool(
-    "search_consulting_capabilities",
-    {
-      title: "Search consulting capability catalog",
-      description:
-        "Search the catalog of business-consulting methods and broad operational capability claims in this installed version, including implementation status and prerequisites. This catalog is not an exhaustive list of lower-level MCP utility tools; inspect tools/list for those. Use capability status before promising broad file, data, SEO, research, or analysis behavior.",
-      inputSchema: searchInputSchema,
-      outputSchema: searchOutputSchema,
-      annotations: {
-        readOnlyHint: true,
-        openWorldHint: false,
-        destructiveHint: false,
-      },
-    },
-    async ({ query, status, domain, limit }) => {
-      const filters: CapabilitySearch = {};
-      if (query !== undefined) filters.query = query;
-      if (status !== undefined) filters.status = status;
-      if (domain !== undefined) filters.domain = domain;
-      if (limit !== undefined) filters.limit = limit;
-
-      const matches = searchCapabilities(filters);
-      const result = {
-        count: matches.length,
-        totalCatalogSize: capabilities.length,
-        capabilities: matches,
-      };
-
-      return {
-        structuredContent: result,
-        content: [
-          {
-            type: "text",
-            text: `Found ${matches.length} matching cataloged capabilities out of ${capabilities.length}. Inspect each status and prerequisite before making a broad capability claim; lower-level installed utilities are exposed separately through tools/list.`,
-          },
-        ],
-      };
-    },
-  );
+  registerCapabilityTools(server);
 
   const artifactOptions =
     options.maxInlineArtifactBytes === undefined
