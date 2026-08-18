@@ -23,7 +23,7 @@ The repository uses a hybrid plugin architecture:
 
 ## Capability platform foundation
 
-The capability layer is now being migrated from a monolithic catalog into typed, composable contracts:
+The capability layer is modularized behind typed, composable contracts:
 
 - `src/catalog/types.ts` defines canonical domains, modes, statuses, output modalities, artifact formats, access boundaries, risk classes, and QA gate identifiers;
 - `src/catalog/legacy.ts` preserves current stable capability IDs while explicitly marking those entries as not yet fully routing-ready;
@@ -121,9 +121,9 @@ This is intentionally **not** described as a production deployment. A public HTT
 
 ## Development status
 
-The repository is being built incrementally toward the approved Universal Consulting Capability Engine architecture. The source now includes the modular capability/routing/epistemic/quality foundation in addition to the previously established plugin packaging, guarded MCP transport, versioned artifact storage, DOCX template operations, bounded PDF metadata operations, and deterministic break-even/simple-ROI calculators.
+The repository is being built incrementally toward the approved Universal Consulting Capability Engine architecture. **Subproject 1 — Capability Platform Foundation is verified complete**: GitHub Actions `npm run verify` passed on commit `16e5d2938c0645df996c25982213952ed53916cb`, covering the modular capability/routing/epistemic/quality foundation alongside all preserved regression tests.
 
-Runtime verification for the current foundation HEAD must still pass before Subproject 1 is recorded as verified complete. The 100+ capability baseline, expanded finance/FP&A, statistics/forecasting, project/operations/supply-chain engines, CSV/XLSX/DOCX/PDF/PPTX artifact expansion, visualization, anonymous public research/fact checking/SEO, executive workflows, production remote MCP, and marketplace submission remain separate milestones.
+The next milestone is Subproject 2 — the 100+ materially distinct capability baseline with full routing metadata. Expanded finance/FP&A, statistics/forecasting, project/operations/supply-chain engines, CSV/XLSX/DOCX/PDF/PPTX artifact expansion, visualization, anonymous public research/fact checking/SEO, executive workflows, production remote MCP, and marketplace submission remain separate later milestones.
 
 ## Branch policy
 
