@@ -18,6 +18,7 @@ describe("detectArtifactFormat", () => {
       format: "pdf",
       detectedMimeType: "application/pdf",
       container: "pdf",
+      macroEnabled: false,
     });
   });
 
@@ -45,6 +46,19 @@ describe("detectArtifactFormat", () => {
       format,
       detectedMimeType: mimeType,
       container: "zip",
+      macroEnabled: false,
+    });
+  });
+
+  it.each([
+    ["docm", "word/document.xml", "application/vnd.ms-word.document.macroEnabled.main+xml"],
+    ["xlsm", "xl/workbook.xml", "application/vnd.ms-excel.sheet.macroEnabled.main+xml"],
+    ["pptm", "ppt/presentation.xml", "application/vnd.ms-powerpoint.presentation.macroEnabled.main+xml"],
+  ] as const)("flags %s as macro-enabled instead of treating it as ordinary OOXML", (format, mainPart, contentType) => {
+    expect(detectArtifactFormat(officePackage(mainPart, contentType))).toMatchObject({
+      format,
+      container: "zip",
+      macroEnabled: true,
     });
   });
 
@@ -54,6 +68,7 @@ describe("detectArtifactFormat", () => {
       format: "zip",
       detectedMimeType: "application/zip",
       container: "zip",
+      macroEnabled: false,
     });
   });
 
@@ -62,6 +77,7 @@ describe("detectArtifactFormat", () => {
       format: "unknown",
       detectedMimeType: "application/octet-stream",
       container: "binary",
+      macroEnabled: false,
     });
   });
 });
