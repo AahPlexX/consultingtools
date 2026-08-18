@@ -15,6 +15,10 @@ const artifactFormatSource = readFileSync(
   new URL("../src/artifacts/format.ts", import.meta.url),
   "utf8",
 );
+const docxTemplateSource = readFileSync(
+  new URL("../src/artifacts/docx-template.ts", import.meta.url),
+  "utf8",
+);
 
 describe("current runtime baseline", () => {
   it("uses the stable MCP v2 server package instead of the legacy monolithic SDK", () => {
@@ -41,6 +45,12 @@ describe("current runtime baseline", () => {
     expect(artifactFormatSource).toContain('from "fflate"');
     expect(artifactFormatSource).toContain('file.name === "[Content_Types].xml"');
     expect(artifactFormatSource).toContain("file.originalSize <= MAX_CONTENT_TYPES_BYTES");
+  });
+
+  it("uses the governed DOCX package only for placeholder-driven document patching", () => {
+    expect(packageJson.dependencies?.docx).toBe("9.7.1");
+    expect(docxTemplateSource).toContain("patchDetector");
+    expect(docxTemplateSource).toContain("patchDocument");
   });
 
   it("pins the verified supporting toolchain", () => {
