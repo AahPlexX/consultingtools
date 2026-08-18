@@ -4,6 +4,7 @@ import {
   ResourceTemplate,
 } from "@modelcontextprotocol/server";
 import * as z from "zod/v4";
+import { detectArtifactFormat } from "./artifacts/format.js";
 import {
   ArtifactNotFoundError,
   ArtifactSizeLimitError,
@@ -59,6 +60,13 @@ const artifactMetadataSchema = z.object({
   modifiedAt: z.string(),
 });
 
+const detectedArtifactFormatSchema = z.object({
+  format: z.enum(["pdf", "docx", "xlsx", "pptx", "docm", "xlsm", "pptm", "zip", "unknown"]),
+  detectedMimeType: z.string(),
+  container: z.enum(["pdf", "zip", "binary"]),
+  macroEnabled: z.boolean(),
+});
+
 const artifactUriSchema = z.string().trim().min(1).max(512);
 const expectedRevisionSchema = z.number().int().positive();
 
@@ -87,6 +95,12 @@ const deleteArtifactInputSchema = z.object({
 
 const artifactOutputSchema = z.object({
   artifact: artifactMetadataSchema,
+});
+
+const artifactFormatOutputSchema = z.object({
+  artifact: artifactMetadataSchema,
+  detected: detectedArtifactFormatSchema,
+  declaredMimeMatches: z.boolean().nullable(),
 });
 
 const deleteArtifactOutputSchema = z.object({
@@ -154,6 +168,11 @@ function assertExpectedRevision(actual: number, expected: number): void {
   if (actual !== expected) {
     throw new Error(`Artifact revision conflict: expected ${expected}, current revision is ${actual}. Re-inspect the artifact before retrying.`);
   }
+}
+
+function declaredMimeMatches(declared: string, detected: string): boolean | null {
+  if (declared.toLowerCase() === "application/octet-stream") return null;
+  return declared.toLowerCase() === detected.toLowerCase();
 }
 
 function toolError(error: unknown) {
@@ -285,6 +304,48 @@ export function createServer(options: ConsultingServerOptions = {}): McpServer {
             {
               type: "text",
               text: `${snapshot.metadata.name} is revision ${snapshot.metadata.revision}, ${snapshot.metadata.byteSize} bytes, sha256 ${snapshot.metadata.sha256}.`,
+            },
+            resourceLink(snapshot.metadata),
+          ],
+        };
+      } catch (error) {
+        return toolError(error);
+      }
+    },
+  );
+
+  server.registerTool(
+    "inspect_artifact_format",
+    {
+      title: "Inspect artifact format",
+      description:
+        "Detect the actual binary/package format of a plugin-owned artifact independently of its filename or declared MIME type. Recognizes PDF, ordinary OOXML Word/Excel/PowerPoint packages, macro-enabled Office variants, generic ZIP, and unknown binary content. This tool never executes macros or embedded active content.",
+      inputSchema: inspectArtifactInputSchema,
+      outputSchema: artifactFormatOutputSchema,
+      annotations: {
+        readOnlyHint: true,
+        openWorldHint: false,
+        destructiveHint: false,
+      },
+    },
+    async ({ artifactUri }) => {
+      try {
+        const snapshot = await artifactStore.read(artifactIdFromUri(artifactUri));
+        const detected = detectArtifactFormat(snapshot.bytes);
+        const mimeMatch = declaredMimeMatches(snapshot.metadata.mimeType, detected.detectedMimeType);
+        const safety = detected.macroEnabled
+          ? " This is a macro-enabled Office package. Consulting Tools must not execute its macros or treat it as an ordinary macro-free OOXML document."
+          : "";
+        return {
+          structuredContent: {
+            artifact: snapshot.metadata,
+            detected,
+            declaredMimeMatches: mimeMatch,
+          },
+          content: [
+            {
+              type: "text",
+              text: `Detected ${detected.format} (${detected.detectedMimeType}); declared MIME ${mimeMatch === null ? "is generic and was not treated as a match claim" : mimeMatch ? "matches" : "does not match"}.${safety}`,
             },
             resourceLink(snapshot.metadata),
           ],
