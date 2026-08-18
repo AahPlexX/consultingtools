@@ -57,7 +57,8 @@ The current pinned baseline is:
 | --- | --- | --- |
 | `@modelcontextprotocol/server` | `2.0.0` | Current stable MCP server package |
 | `@modelcontextprotocol/client` | `2.0.0` | Matching stable client used for protocol tests |
-| `fflate` | `0.8.3` | Current ZIP/DEFLATE utility used only for bounded package inspection at this stage |
+| `docx` | `9.7.1` | Current DOCX engine used only for explicit placeholder detection/patching in macro-free DOCX templates |
+| `fflate` | `0.8.3` | Current ZIP/DEFLATE utility used for bounded package inspection and validation fixtures |
 | `zod` | `4.4.3` | Current stable release used by MCP schemas |
 | `typescript` | `7.0.2` | Current stable compiler |
 | `vitest` | `4.1.10` | Current stable test runner |
@@ -94,12 +95,33 @@ Authoritative sources:
 - https://learn.microsoft.com/en-us/openspecs/office_standards/ms-xlsx/
 - https://learn.microsoft.com/en-us/openspecs/office_standards/ms-pptx/
 
+## DOCX template boundary
+
+`docx@9.7.1` is installed for one explicitly bounded existing-document workflow:
+
+- `patchDetector` lists placeholder keys from an existing DOCX template.
+- `patchDocument` replaces caller-supplied placeholder keys with paragraph-inline text content and can retain original placeholder styles.
+- The plugin rejects any package that byte-detection does not classify as macro-free DOCX before calling the patch engine.
+- Unknown replacement keys are rejected before mutation.
+- The patched bytes are reclassified as macro-free DOCX and scanned again to ensure each requested placeholder was actually resolved before a new artifact revision is committed.
+- MCP patch requests are bounded by placeholder count and aggregate replacement-text size, and they use the artifact `expectedRevision` precondition.
+
+This does **not** make arbitrary existing-DOCX text, relationship, field, revision, drawing, content-control, comment, or layout CRUD implemented. Full `docx-crud` remains a separate capability gate.
+
+Authoritative sources:
+
+- https://www.npmjs.com/package/docx
+- https://docx.js.org/api/functions/patchDetector.html
+- https://docx.js.org/api/functions/patchDocument.html
+- https://docx.js.org/api/types/PatchDocumentOptions.html
+- https://github.com/dolanmiu/docx/blob/master/docs/usage/templates.md
+
 ## Format-editor selection boundary
 
 Current package research does **not** justify treating one JavaScript library as a universal lossless Office/PDF editor.
 
 - `pdf-lib@1.17.1` is a viable candidate for supported PDF creation, page/object, form, and metadata operations, but its documented feature set does not provide arbitrary plain-page text extraction/editing. PDF capability promotion must therefore be operation-specific rather than claiming unrestricted text CRUD.
-- `docx@9.7.1` is a current document-generation library and exposes document patching/template functionality, but arbitrary lossless editing of every existing DOCX structure is not assumed. Any DOCX adapter must prove its preservation envelope with representative package fixtures before promotion.
+- `docx@9.7.1` is installed for the bounded template workflow above; arbitrary lossless editing of every existing DOCX structure is still not assumed.
 - `exceljs@4.4.0` can read, manipulate, and write XLSX workbooks, but the repository will not assume complete preservation of unsupported workbook structures. Formula/style/relationship/chart/comment/external-link and workbook-behavior fixtures are required before any broad XLSX CRUD claim.
 - PPTX editing engine selection remains open until preservation behavior is researched and tested against the same quality gates.
 
@@ -107,12 +129,10 @@ Candidate package sources:
 
 - https://github.com/Hopding/pdf-lib
 - https://www.npmjs.com/package/pdf-lib
-- https://github.com/dolanmiu/docx
-- https://www.npmjs.com/package/docx
 - https://github.com/exceljs/exceljs
 - https://www.npmjs.com/package/exceljs
 
-These candidate versions are research findings, not installed dependencies or capability claims. Revalidate them immediately before adoption.
+Candidate packages are research findings, not installed dependencies or capability claims. Revalidate them immediately before adoption.
 
 ## Remote deployment boundary
 
