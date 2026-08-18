@@ -1,5 +1,5 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { z } from "zod";
+import { McpServer } from "@modelcontextprotocol/server";
+import * as z from "zod/v4";
 import {
   capabilityDomains,
   capabilities,
@@ -16,6 +16,19 @@ const capabilitySchema = z.object({
   status: z.enum(capabilityStatuses),
   summary: z.string(),
   requires: z.string().optional(),
+});
+
+const searchInputSchema = z.object({
+  query: z.string().trim().min(1).max(200).optional(),
+  status: z.enum(capabilityStatuses).optional(),
+  domain: z.enum(capabilityDomains).optional(),
+  limit: z.number().int().min(1).max(50).optional(),
+});
+
+const searchOutputSchema = z.object({
+  count: z.number().int().nonnegative(),
+  totalCatalogSize: z.number().int().positive(),
+  capabilities: z.array(capabilitySchema),
 });
 
 export function createServer(): McpServer {
@@ -36,17 +49,8 @@ export function createServer(): McpServer {
       title: "Search consulting capabilities",
       description:
         "Discover consulting methods and operational capabilities in this installed version, including each capability's implementation status and prerequisites. Use this before promising a specialized file, data, SEO, research, or analysis operation when availability is uncertain.",
-      inputSchema: {
-        query: z.string().trim().min(1).max(200).optional(),
-        status: z.enum(capabilityStatuses).optional(),
-        domain: z.enum(capabilityDomains).optional(),
-        limit: z.number().int().min(1).max(50).optional(),
-      },
-      outputSchema: {
-        count: z.number().int().nonnegative(),
-        totalCatalogSize: z.number().int().positive(),
-        capabilities: z.array(capabilitySchema),
-      },
+      inputSchema: searchInputSchema,
+      outputSchema: searchOutputSchema,
       annotations: {
         readOnlyHint: true,
         openWorldHint: false,
