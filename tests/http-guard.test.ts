@@ -56,6 +56,21 @@ describe("guarded remote MCP HTTP boundary", () => {
     }
   });
 
+  it("rejects credential-shaped Host values even when the hostname suffix is allowed", async () => {
+    const handler = createGuardedHttpHandler({
+      allowedHosts: ["api.example.com"],
+    });
+
+    try {
+      const response = await handler.fetch(
+        mcpRequest("attacker@api.example.com"),
+      );
+      expect(response.status).toBe(403);
+    } finally {
+      await handler.close();
+    }
+  });
+
   it("rejects credential-shaped Origin values even when the hostname suffix is allowed", async () => {
     const handler = createGuardedHttpHandler({
       allowedHosts: ["api.example.com"],
