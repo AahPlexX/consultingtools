@@ -11,6 +11,7 @@ import {
   searchCapabilities,
   type CapabilitySearch,
 } from "./catalog.js";
+import { registerFinanceTools } from "./finance/register-tools.js";
 
 const capabilitySchema = z.object({
   id: z.string(),
@@ -49,7 +50,7 @@ export function createServer(options: ConsultingServerOptions = {}): McpServer {
     },
     {
       instructions:
-        "Use capability status as a hard truth boundary. Planned, partial, provider-dependent, and unavailable capabilities must never be presented as fully executable. Prefer the smallest set of complementary consulting methods needed for the user's actual decision. The consulting capability catalog is distinct from the lower-level MCP utility surface; use tools/list to inspect installed utilities.",
+        "Use capability status as a hard truth boundary. Planned, partial, provider-dependent, and unavailable capabilities must never be presented as fully executable. Prefer the smallest set of complementary consulting methods needed for the user's actual decision. The consulting capability catalog is distinct from the lower-level MCP utility surface; use tools/list to inspect installed utilities. Prefer deterministic finance tools over hand arithmetic when their formulas match the requested definition.",
     },
   );
 
@@ -99,6 +100,7 @@ export function createServer(options: ConsultingServerOptions = {}): McpServer {
       : { maxInlineArtifactBytes: options.maxInlineArtifactBytes };
   registerArtifactTools(server, artifactStore, artifactOptions);
   registerPdfTools(server, artifactStore);
+  registerFinanceTools(server);
 
   return server;
 }
