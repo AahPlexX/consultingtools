@@ -24,6 +24,11 @@ const checks = [
     args: ["view", "fflate", "dist-tags.latest", "--json"],
   },
   {
+    name: "pdf-lib",
+    section: "dependencies",
+    args: ["view", "pdf-lib", "dist-tags.latest", "--json"],
+  },
+  {
     name: "zod",
     section: "dependencies",
     args: ["view", "zod", "dist-tags.latest", "--json"],
