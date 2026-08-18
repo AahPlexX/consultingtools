@@ -1,13 +1,19 @@
 # Consulting Tools
 
-Consulting Tools is an in-development public plugin for ChatGPT and Codex that is intended to combine adaptive consulting workflows with controlled executable tools for research, analysis, and business artifacts.
+Consulting Tools is an in-development public, open-access plugin for ChatGPT and Codex that is intended to combine adaptive consulting workflows with controlled executable tools for research, analysis, and business artifacts.
+
+## Access model
+
+Consulting Tools is intentionally designed so ordinary use does **not** require a user-supplied API key, OAuth flow, account linking, or private third-party provider credential. The governing boundary is `governance/open-access-boundary.md`.
+
+The plugin may work with user-supplied files/data, plugin-owned computation, public web resources that require no user credential, and host-native capabilities already available through the active ChatGPT/Codex surface. It is not intended to become a connector hub for private cloud drives, CRMs, analytics accounts, Search Console, commercial SEO-data subscriptions, project-management systems, or private databases. A user may still upload an export from such a system as ordinary input.
 
 ## Current foundation
 
 The repository uses a hybrid plugin architecture:
 
 - **Skills** decide which consulting methods are appropriate for a user's actual objective and adapt the deliverable structure to the work rather than forcing a fixed report template.
-- **MCP tools** perform reproducible operations that require code, files, live data, or external state.
+- **MCP tools** perform reproducible operations that require code, files, public live data, or plugin-owned state.
 - **Governance** is model-agnostic and lives under `governance/`. `AGENTS.md` is the universal entry point for any LLM or agent modifying this repository.
 - **Capability status is explicit.** A capability is never presented as implemented merely because it appears on the roadmap or in the catalog.
 - **External-platform facts are dated.** `governance/platform-baseline.md` records the verified OpenAI/MCP/runtime snapshot and the events that require live revalidation.
@@ -87,11 +93,11 @@ The repository contains the **source boundary** required for remote Streamable H
 - a guarded wrapper requires an explicit allowed-host list and can enforce an allowed-origin list before MCP dispatch;
 - credential-shaped Host/Origin values are rejected before the SDK validators are invoked.
 
-This is intentionally **not** described as a production deployment. A public HTTPS endpoint, production hostname, authentication configuration, persistent multi-instance artifact store, hosting provider, runtime observability, external end-to-end verification, and OpenAI domain verification still require their own implementation and evidence.
+This is intentionally **not** described as a production deployment. A public HTTPS endpoint, production hostname, persistent multi-instance artifact store, hosting provider, runtime observability, abuse controls, external end-to-end verification, and OpenAI domain verification still require their own implementation and evidence. User authentication/OAuth is not a planned production requirement under the current open-access boundary.
 
 ## Development status
 
-This repository is being built incrementally. The current foundation establishes governance, plugin packaging, adaptive routing, a broad capability registry, capability discovery, guarded remote-MCP source transport, versioned plugin-owned artifact storage, a safe pre-mutation format-inspection gate, bounded DOCX template inspection/patching, bounded PDF inspection/metadata mutation, and deterministic break-even/simple-ROI calculations. Broad PDF/DOCX/XLSX/PPTX/CSV format CRUD, live SEO acquisition, advanced data processing, persistent production storage, production remote-MCP hosting, authentication, provider integrations, end-to-end marketplace tests, and public-directory submission remain separate milestones and must not be claimed as complete until their own verification gates pass.
+This repository is being built incrementally. The current foundation establishes governance, plugin packaging, adaptive routing, a broad capability registry, capability discovery, guarded remote-MCP source transport, versioned plugin-owned artifact storage, a safe pre-mutation format-inspection gate, bounded DOCX template inspection/patching, bounded PDF inspection/metadata mutation, and deterministic break-even/simple-ROI calculations. Broad PDF/DOCX/XLSX/PPTX/CSV format CRUD, anonymous public-web SEO acquisition, advanced data processing, persistent production storage, production remote-MCP hosting, abuse/rate controls, end-to-end marketplace tests, and public-directory submission remain separate milestones and must not be claimed as complete until their own verification gates pass.
 
 ## Branch policy
 
