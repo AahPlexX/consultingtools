@@ -27,6 +27,7 @@ describe("runtime dependency freshness", () => {
         "@modelcontextprotocol/server": "2.0.0",
         docx: "9.7.1",
         fflate: "0.8.3",
+        "pdf-lib": "1.17.1",
         zod: "4.4.3",
       },
       devDependencies: {
@@ -42,6 +43,7 @@ describe("runtime dependency freshness", () => {
       "@modelcontextprotocol/client": "2.0.0",
       docx: "9.7.1",
       fflate: "0.8.3",
+      "pdf-lib": "1.17.1",
       zod: "4.4.3",
       "@types/node": "24.13.4",
       typescript: "7.0.2",
