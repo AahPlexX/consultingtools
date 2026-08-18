@@ -19,6 +19,7 @@ const docxTemplateSource = readFileSync(
   new URL("../src/artifacts/docx-template.ts", import.meta.url),
   "utf8",
 );
+const pdfSource = readFileSync(new URL("../src/artifacts/pdf.ts", import.meta.url), "utf8");
 
 describe("current runtime baseline", () => {
   it("uses the stable MCP v2 server package instead of the legacy monolithic SDK", () => {
@@ -51,6 +52,12 @@ describe("current runtime baseline", () => {
     expect(packageJson.dependencies?.docx).toBe("9.7.1");
     expect(docxTemplateSource).toContain("patchDetector");
     expect(docxTemplateSource).toContain("patchDocument");
+  });
+
+  it("uses the governed PDF package only for bounded PDF operations", () => {
+    expect(packageJson.dependencies?.["pdf-lib"]).toBe("1.17.1");
+    expect(pdfSource).toContain("PDFDocument.load");
+    expect(pdfSource).toContain("updatePdfMetadata");
   });
 
   it("pins the verified supporting toolchain", () => {
