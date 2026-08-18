@@ -1,6 +1,10 @@
 import type { McpServer } from "@modelcontextprotocol/server";
 import * as z from "zod/v4";
-import { calculateBreakEven, calculateSimpleRoi } from "./calculations.js";
+import {
+  calculateBreakEven,
+  calculateSimpleRoi,
+  type SimpleRoiInput,
+} from "./calculations.js";
 
 const finiteNonNegative = z.number().finite().min(0);
 const finitePositive = z.number().finite().positive();
@@ -99,9 +103,11 @@ export function registerFinanceTools(server: McpServer): void {
         destructiveHint: false,
       },
     },
-    async (input) => {
+    async ({ totalBenefits, totalCosts, periodMonths }) => {
       try {
-        const result = calculateSimpleRoi(input);
+        const roiInput: SimpleRoiInput = { totalBenefits, totalCosts };
+        if (periodMonths !== undefined) roiInput.periodMonths = periodMonths;
+        const result = calculateSimpleRoi(roiInput);
         return {
           structuredContent: result,
           content: [
