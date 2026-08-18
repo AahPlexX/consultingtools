@@ -28,6 +28,7 @@ describe("runtime dependency freshness", () => {
         zod: "4.4.3",
       },
       devDependencies: {
+        "@modelcontextprotocol/client": "2.0.0",
         "@types/node": "24.13.3",
         typescript: "7.0.2",
         vitest: "4.1.10",
@@ -36,6 +37,7 @@ describe("runtime dependency freshness", () => {
 
     const latest = {
       "@modelcontextprotocol/server": "2.0.0",
+      "@modelcontextprotocol/client": "2.0.0",
       zod: "4.4.3",
       "@types/node": "24.13.4",
       typescript: "7.0.2",
