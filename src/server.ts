@@ -9,7 +9,11 @@ import {
   ArtifactSizeLimitError,
   MemoryArtifactStore,
 } from "./artifacts/memory-store.js";
-import type { ArtifactMetadata, ArtifactStore } from "./artifacts/types.js";
+import type {
+  ArtifactMetadata,
+  ArtifactReplaceInput,
+  ArtifactStore,
+} from "./artifacts/types.js";
 import {
   capabilityDomains,
   capabilities,
@@ -55,14 +59,40 @@ const artifactMetadataSchema = z.object({
   modifiedAt: z.string(),
 });
 
+const artifactUriSchema = z.string().trim().min(1).max(512);
+const expectedRevisionSchema = z.number().int().positive();
+
 const importArtifactInputSchema = z.object({
   name: z.string().trim().min(1).max(255),
   mimeType: z.string().trim().min(3).max(127),
   dataBase64: z.string().min(1),
 });
 
-const importArtifactOutputSchema = z.object({
+const inspectArtifactInputSchema = z.object({
+  artifactUri: artifactUriSchema,
+});
+
+const replaceArtifactInputSchema = z.object({
+  artifactUri: artifactUriSchema,
+  expectedRevision: expectedRevisionSchema,
+  dataBase64: z.string().min(1),
+  name: z.string().trim().min(1).max(255).optional(),
+  mimeType: z.string().trim().min(3).max(127).optional(),
+});
+
+const deleteArtifactInputSchema = z.object({
+  artifactUri: artifactUriSchema,
+  expectedRevision: expectedRevisionSchema,
+});
+
+const artifactOutputSchema = z.object({
   artifact: artifactMetadataSchema,
+});
+
+const deleteArtifactOutputSchema = z.object({
+  deleted: z.literal(true),
+  artifactUri: z.string(),
+  deletedRevision: z.number().int().positive(),
 });
 
 export interface ConsultingServerOptions {
@@ -94,6 +124,36 @@ function decodeBoundedBase64(data: string, maximum: number): Buffer {
     throw new Error("Artifact dataBase64 is malformed or non-canonical.");
   }
   return bytes;
+}
+
+function artifactIdFromUri(value: string): string {
+  let uri: URL;
+  try {
+    uri = new URL(value);
+  } catch {
+    throw new Error("artifactUri must be a valid artifact:// URI.");
+  }
+
+  if (
+    uri.protocol !== "artifact:" ||
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(uri.hostname) ||
+    uri.username !== "" ||
+    uri.password !== "" ||
+    uri.port !== "" ||
+    (uri.pathname !== "" && uri.pathname !== "/") ||
+    uri.search !== "" ||
+    uri.hash !== ""
+  ) {
+    throw new Error("artifactUri must identify exactly one artifact:// UUID without credentials, port, query, or fragment.");
+  }
+
+  return uri.hostname.toLowerCase();
+}
+
+function assertExpectedRevision(actual: number, expected: number): void {
+  if (actual !== expected) {
+    throw new Error(`Artifact revision conflict: expected ${expected}, current revision is ${actual}. Re-inspect the artifact before retrying.`);
+  }
 }
 
 function toolError(error: unknown) {
@@ -175,7 +235,7 @@ export function createServer(options: ConsultingServerOptions = {}): McpServer {
       description:
         "Import a small binary artifact whose bytes the caller can already supply as canonical base64. This creates a plugin-owned artifact resource; it does not automatically read ChatGPT/Codex attachments, local files, cloud drives, or arbitrary URLs. Use provider-specific ingress instead when available for larger or externally stored files.",
       inputSchema: importArtifactInputSchema,
-      outputSchema: importArtifactOutputSchema,
+      outputSchema: artifactOutputSchema,
       annotations: {
         readOnlyHint: false,
         openWorldHint: false,
@@ -194,6 +254,118 @@ export function createServer(options: ConsultingServerOptions = {}): McpServer {
               text: `Imported ${artifact.name} as ${artifact.uri}. Verify its digest and revision before any format mutation.`,
             },
             resourceLink(artifact),
+          ],
+        };
+      } catch (error) {
+        return toolError(error);
+      }
+    },
+  );
+
+  server.registerTool(
+    "inspect_artifact",
+    {
+      title: "Inspect artifact metadata",
+      description:
+        "Read the current name, MIME type, byte size, SHA-256 digest, and revision for a plugin-owned artifact without embedding its binary payload.",
+      inputSchema: inspectArtifactInputSchema,
+      outputSchema: artifactOutputSchema,
+      annotations: {
+        readOnlyHint: true,
+        openWorldHint: false,
+        destructiveHint: false,
+      },
+    },
+    async ({ artifactUri }) => {
+      try {
+        const snapshot = await artifactStore.read(artifactIdFromUri(artifactUri));
+        return {
+          structuredContent: { artifact: snapshot.metadata },
+          content: [
+            {
+              type: "text",
+              text: `${snapshot.metadata.name} is revision ${snapshot.metadata.revision}, ${snapshot.metadata.byteSize} bytes, sha256 ${snapshot.metadata.sha256}.`,
+            },
+            resourceLink(snapshot.metadata),
+          ],
+        };
+      } catch (error) {
+        return toolError(error);
+      }
+    },
+  );
+
+  server.registerTool(
+    "replace_artifact_inline",
+    {
+      title: "Replace artifact bytes",
+      description:
+        "Replace the current bytes of a plugin-owned artifact using canonical base64 while preserving the prior revision internally. The expectedRevision precondition prevents lost updates. This changes the active artifact state and does not automatically read external files or URLs.",
+      inputSchema: replaceArtifactInputSchema,
+      outputSchema: artifactOutputSchema,
+      annotations: {
+        readOnlyHint: false,
+        openWorldHint: false,
+        destructiveHint: true,
+      },
+    },
+    async ({ artifactUri, expectedRevision, dataBase64, name, mimeType }) => {
+      try {
+        const id = artifactIdFromUri(artifactUri);
+        const current = await artifactStore.read(id);
+        assertExpectedRevision(current.metadata.revision, expectedRevision);
+        const bytes = decodeBoundedBase64(dataBase64, maxInlineArtifactBytes);
+        const replacement: ArtifactReplaceInput = { bytes };
+        if (name !== undefined) replacement.name = name;
+        if (mimeType !== undefined) replacement.mimeType = mimeType;
+        const artifact = await artifactStore.replace(id, replacement);
+        return {
+          structuredContent: { artifact },
+          content: [
+            {
+              type: "text",
+              text: `Replaced ${artifact.name}; active revision is now ${artifact.revision}. Prior revisions remain preserved inside the artifact store until the artifact is deleted under the active retention policy.`,
+            },
+            resourceLink(artifact),
+          ],
+        };
+      } catch (error) {
+        return toolError(error);
+      }
+    },
+  );
+
+  server.registerTool(
+    "delete_artifact",
+    {
+      title: "Delete an artifact",
+      description:
+        "Delete a plugin-owned artifact after verifying its expected current revision. Deletion makes the active artifact and its revision history unavailable through the MCP resource interface.",
+      inputSchema: deleteArtifactInputSchema,
+      outputSchema: deleteArtifactOutputSchema,
+      annotations: {
+        readOnlyHint: false,
+        openWorldHint: false,
+        destructiveHint: true,
+      },
+    },
+    async ({ artifactUri, expectedRevision }) => {
+      try {
+        const id = artifactIdFromUri(artifactUri);
+        const current = await artifactStore.read(id);
+        assertExpectedRevision(current.metadata.revision, expectedRevision);
+        await artifactStore.delete(id);
+        return {
+          structuredContent: {
+            deleted: true as const,
+            artifactUri: current.metadata.uri,
+            deletedRevision: current.metadata.revision,
+          },
+          content: [
+            {
+              type: "text",
+              text: `Deleted ${current.metadata.name} at revision ${current.metadata.revision}.`,
+            },
           ],
         };
       } catch (error) {
