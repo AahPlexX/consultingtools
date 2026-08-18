@@ -59,6 +59,7 @@ The current pinned baseline is:
 | `@modelcontextprotocol/client` | `2.0.0` | Matching stable client used for protocol tests |
 | `docx` | `9.7.1` | Current DOCX engine used only for explicit placeholder detection/patching in macro-free DOCX templates |
 | `fflate` | `0.8.3` | Current ZIP/DEFLATE utility used for bounded package inspection and validation fixtures |
+| `pdf-lib` | `1.17.1` | Current PDF engine used only for the explicitly supported PDF inspection/metadata subset |
 | `zod` | `4.4.3` | Current stable release used by MCP schemas |
 | `typescript` | `7.0.2` | Current stable compiler |
 | `vitest` | `4.1.10` | Current stable test runner |
@@ -116,19 +117,34 @@ Authoritative sources:
 - https://docx.js.org/api/types/PatchDocumentOptions.html
 - https://github.com/dolanmiu/docx/blob/master/docs/usage/templates.md
 
+## PDF metadata boundary
+
+`pdf-lib@1.17.1` is installed for a deliberately narrow existing-PDF subset:
+
+- `inspect_pdf` loads a byte-detected PDF and reports page count plus document-level metadata without mutation.
+- `update_pdf_metadata` changes only explicitly supplied document metadata fields, requires the artifact `expectedRevision`, saves the document, reopens it, and rejects the result if page count changed.
+- Metadata operations cover title, author, subject, keywords, creator, and producer. Creation/modification dates are inspected but are not exposed as caller-controlled write fields in this subset.
+- The PDF adapter does not claim arbitrary extraction or editing of existing plain page text. Page-layout/content mutation remains outside this subset until operation-specific preservation and rendering gates exist.
+
+This does **not** make broad `pdf-crud` implemented. Future page, form, annotation, overlay, merge/split, or creation operations must be promoted individually only after representative fixtures and independent validation support the claim.
+
+Authoritative sources:
+
+- https://www.npmjs.com/package/pdf-lib
+- https://github.com/Hopding/pdf-lib
+- https://pdf-lib.js.org/docs/api/classes/pdfdocument
+
 ## Format-editor selection boundary
 
 Current package research does **not** justify treating one JavaScript library as a universal lossless Office/PDF editor.
 
-- `pdf-lib@1.17.1` is a viable candidate for supported PDF creation, page/object, form, and metadata operations, but its documented feature set does not provide arbitrary plain-page text extraction/editing. PDF capability promotion must therefore be operation-specific rather than claiming unrestricted text CRUD.
+- `pdf-lib@1.17.1` is installed for the bounded PDF metadata workflow above; its documented feature set still does not justify an unrestricted existing-page text-editing claim.
 - `docx@9.7.1` is installed for the bounded template workflow above; arbitrary lossless editing of every existing DOCX structure is still not assumed.
 - `exceljs@4.4.0` can read, manipulate, and write XLSX workbooks, but the repository will not assume complete preservation of unsupported workbook structures. Formula/style/relationship/chart/comment/external-link and workbook-behavior fixtures are required before any broad XLSX CRUD claim.
 - PPTX editing engine selection remains open until preservation behavior is researched and tested against the same quality gates.
 
 Candidate package sources:
 
-- https://github.com/Hopding/pdf-lib
-- https://www.npmjs.com/package/pdf-lib
 - https://github.com/exceljs/exceljs
 - https://www.npmjs.com/package/exceljs
 
