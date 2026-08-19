@@ -21,7 +21,6 @@ describe("capability implementation truth", () => {
       routingReady: true,
       deterministicEngineIds: ["calculate_payback"],
     });
-
     expect(getCapabilityById("irr")).toMatchObject({
       status: "partial",
       routingReady: true,
@@ -45,6 +44,38 @@ describe("capability implementation truth", () => {
     expect(getCapabilityById("dcf")?.status).toBe("planned");
   });
 
+  it("binds verified statistics primitives without overstating their broader consulting scope", () => {
+    const expected: Record<string, string> = {
+      "data-profiling": "profile_data_column",
+      "descriptive-statistics": "calculate_descriptive_statistics",
+      "correlation-analysis": "calculate_correlation",
+      "confidence-interval": "calculate_mean_confidence_interval",
+      "hypothesis-testing": "calculate_welch_t_test",
+    };
+    for (const [id, engine] of Object.entries(expected)) {
+      expect(getCapabilityById(id)).toMatchObject({
+        status: "partial",
+        routingReady: true,
+        deterministicEngineIds: [engine],
+      });
+    }
+  });
+
+  it("binds verified forecast baselines and evaluation primitives while keeping broad forecasting partial", () => {
+    const expected: Record<string, string> = {
+      "time-series-forecasting": "forecast_baseline",
+      "forecast-backtest": "backtest_forecast_baseline",
+      "forecast-error-metrics": "calculate_forecast_error_metrics",
+    };
+    for (const [id, engine] of Object.entries(expected)) {
+      expect(getCapabilityById(id)).toMatchObject({
+        status: "partial",
+        routingReady: true,
+        deterministicEngineIds: [engine],
+      });
+    }
+  });
+
   it("keeps broad document-format CRUD planned", () => {
     for (const id of ["pdf-crud", "docx-crud", "xlsx-crud", "csv-crud", "pptx-crud"]) {
       expect(getCapabilityById(id)?.status).toBe("planned");
@@ -52,7 +83,7 @@ describe("capability implementation truth", () => {
   });
 
   it("does not promote unrelated deterministic engines that have not been built", () => {
-    for (const id of ["critical-path", "descriptive-statistics", "bar-chart"]) {
+    for (const id of ["critical-path", "regression-analysis", "clustering-analysis", "bar-chart"]) {
       expect(getCapabilityById(id)?.status).not.toBe("implemented");
     }
   });
