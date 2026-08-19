@@ -1,5 +1,6 @@
 import { allFamilyCapabilities } from "./families/index.js";
 import type { CapabilityDefinition, CapabilityDomain, CapabilityStatus } from "./types.js";
+import { applyVerifiedCapabilityPromotions } from "./verified-promotions.js";
 
 export interface CapabilitySearch {
   query?: string;
@@ -8,7 +9,9 @@ export interface CapabilitySearch {
   limit?: number;
 }
 
-export const capabilities: readonly CapabilityDefinition[] = allFamilyCapabilities;
+export const capabilities: readonly CapabilityDefinition[] = allFamilyCapabilities.map(
+  applyVerifiedCapabilityPromotions,
+);
 const byId = new Map(capabilities.map((capability) => [capability.id, capability]));
 
 export function getCapabilityById(id: string): CapabilityDefinition | undefined {
