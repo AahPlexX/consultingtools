@@ -33,7 +33,23 @@ Use segmentation, ideal-customer-profile analysis, jobs-to-be-done, customer jou
 
 Use unit economics, break-even, ROI, cost-benefit, investment appraisal, working capital, ratios, budget variance, sensitivity, scenarios, weighted decision matrices, or multi-criteria analysis. Show formulas, units, time periods, and material assumptions.
 
-When the installed MCP surface exposes a deterministic calculator whose definition matches the requested measure, use it instead of hand arithmetic. `calculate_break_even` implements fixed-cost/unit-contribution break-even only. `calculate_simple_roi` implements undiscounted `(totalBenefits - totalCosts) / totalCosts` only. Do not relabel simple ROI as NPV, IRR, annualized return, payback, or another time-value-of-money measure.
+When the installed MCP surface exposes a deterministic calculator whose definition matches the requested measure, use it instead of hand arithmetic. Current focused finance tools include:
+
+- `calculate_break_even` for fixed-cost/unit-contribution break-even;
+- `calculate_simple_roi` for undiscounted `(totalBenefits - totalCosts) / totalCosts` only;
+- `calculate_npv` for equal-period cash flows with `cashFlows[0]` explicitly at `t=0` and a caller-supplied per-period discount rate;
+- `calculate_payback` for simple or discounted periodic payback, including a null result when recovery does not occur in the supplied horizon;
+- `calculate_irr` for a bounded periodic IRR root search that reports `unique`, `multiple`, or `none` rather than silently choosing one root;
+- `calculate_working_capital` for `currentAssets - currentLiabilities`;
+- `calculate_cash_conversion_cycle` for DIO/DSO/DPO/CCC from explicitly supplied balance, flow, and day-count bases;
+- `calculate_financial_ratios` for the named liquidity, leverage, margin, efficiency, or return formula family selected by the caller;
+- `calculate_budget_variance` for actual-minus-budget variance using an explicit higher-is-favorable or lower-is-favorable direction;
+- `compare_financial_scenarios` for deltas among already supplied comparable scenarios; it does not generate scenario assumptions;
+- `calculate_npv_sensitivity` for recalculating the same verified periodic NPV convention over caller-supplied discount rates.
+
+Do not relabel simple ROI as NPV, IRR, annualized return, or payback. Do not treat periodic NPV/IRR as irregular-date XNPV/XIRR. Do not infer a discount rate, accounting basis, day-count basis, scenario value, or missing statement amount merely to complete a calculation.
+
+The current IRR tool is a bounded numerical root search. Treat its returned roots and ambiguity warning as calculation evidence, but keep broader IRR analysis qualified: the active catalog intentionally remains `partial` rather than claiming an exhaustive mathematical guarantee for every possible root configuration.
 
 ### Operations and quality
 
@@ -52,7 +68,9 @@ Use stakeholder analysis, accountability mapping, change-readiness assessment, o
 - Do not imply causation from correlation alone.
 - Distinguish accounting measures, cash measures, forecasts, scenarios, and estimates.
 - Recalculate totals and cross-check relationships before reporting them.
-- Keep calculator outputs tied to the exact formula returned by the tool; if the user's intended definition differs, do not use the calculator as though it matched.
+- Keep calculator outputs tied to the exact formula and convention returned by the tool; if the user's intended definition differs, do not use the calculator as though it matched.
+- Treat percentage variance from a zero budget basis as undefined/null rather than forcing an infinite or fabricated percentage.
+- For scenario comparison, preserve the caller's supplied values and distinguish comparison from scenario generation.
 
 ## Recommendation discipline
 
