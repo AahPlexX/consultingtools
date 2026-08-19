@@ -66,24 +66,26 @@ The program is not complete until all of the following are true:
 
 ### Subproject 1 verification
 
-Capability Platform Foundation verified on `16e5d2938c0645df996c25982213952ed53916cb` with `npm run verify` passing through GitHub Actions run `32175704377`; the `ci/verify` commit status and the workflow verify job both concluded `success`.
-
-The foundation verification covers the modular capability registry, open-access status correction, capability relationship graph, structured workflow-plan validation, epistemic contracts, common QA contracts, MCP capability search/inspection/workflow validation, orchestrator Skill contract, and all preserved pre-existing regression tests.
+Capability Platform Foundation verified on `16e5d2938c0645df996c25982213952ed53916cb` with `npm run verify` passing through GitHub Actions run `32175704377`.
 
 ### Subproject 2 verification
 
-100+ Capability Baseline verified on `e755062819629ae1eddf0abaece21dec47810748` with `npm run verify` passing through GitHub Actions run `32295888556`; `ci/verify` concluded `success` and the Actions verify job completed successfully.
-
-The active registry uses the routing-ready family catalog instead of the legacy catalog. Verification covers the 100+ breadth floor, full routing-metadata invariants, stable-ID/status truth, open-access restrictions, duplicate and exact-overlap controls, relationship-graph integrity, ranked discovery, full capability inspection through the compact MCP surface, structured workflow blockers, MCP 2026-07-28 transport compatibility, and all preserved artifact/finance/security/runtime regressions. Routing readiness remains separate from implementation status.
+100+ Capability Baseline verified on `e755062819629ae1eddf0abaece21dec47810748` with `npm run verify` passing through GitHub Actions run `32295888556`. The active registry uses the routing-ready family catalog instead of the legacy catalog, while routing readiness remains separate from implementation status.
 
 ### Subproject 3 verification
 
-Corporate Finance & FP&A Engines verified on code commit `e036427c67c114af307aeac189d8e04f498a0e05` with `npm run verify` passing through GitHub Actions run `32298548890`; `ci/verify` concluded `success`.
+Corporate Finance & FP&A Engines verified on code commit `e036427c67c114af307aeac189d8e04f498a0e05` through GitHub Actions run `32298548890`.
 
-The verified deterministic envelope includes periodic NPV with explicit t=0 treatment; simple and discounted payback; bounded ambiguity-aware periodic IRR root search; working capital and DIO/DSO/DPO/cash-conversion-cycle calculations; explicit liquidity, leverage, margin, efficiency, and return ratio families; budget variance; comparison of already supplied financial scenarios; and NPV sensitivity across caller-supplied discount rates. The MCP verification exercises these operations through the HTTP transport and checks read-only/closed-world/non-destructive annotations, invalid-domain failures, formula conventions, and preserved legacy break-even/simple-ROI behavior.
+The verified deterministic envelope includes periodic NPV with explicit t=0 treatment; simple and discounted payback; bounded ambiguity-aware periodic IRR root search; working capital and cash-conversion calculations; explicit ratio families; budget variance; comparison of already supplied financial scenarios; and NPV sensitivity. Periodic `npv` and `payback` are implemented; broader finance workflows retain partial/planned status where their advertised scope exceeds the primitive.
 
-Catalog promotion remains deliberately narrower than tool availability. Periodic `npv` and `payback` are promoted to `implemented`; `irr` remains `partial` because the current bounded numerical root search is not claimed as an exhaustive guarantee for every possible root configuration. Broader financial-ratio interpretation, working-capital analysis, cash-conversion analysis, budget-variance diagnosis, sensitivity analysis, scenario modeling, and cash-flow forecasting remain `partial`; broad DCF valuation remains `planned`.
+### Subproject 4 verification
+
+Data, Statistics & Forecasting Engines verified on code commit `35606810a45dc4dc057451096e859053ebbd9d51` with `npm run verify` passing through GitHub Actions run `32300232978`; `ci/verify` concluded `success`.
+
+The verified statistics envelope includes non-coercive column profiling; finite-number descriptive statistics with N-1 sample variance and explicit type-7 quartiles; Pearson and tie-aware Spearman correlation; Student-t mean confidence intervals; two-sided Welch unequal-variance t-tests using Welch-Satterthwaite degrees of freedom; and ordered equally spaced lag autocorrelation. The verified forecasting envelope includes naive, caller-specified seasonal-naive, drift, and trailing moving-average baselines; signed bias/MAE/MSE/RMSE/MAPE/sMAPE with explicit zero-denominator handling; and expanding-window rolling-origin out-of-sample backtesting without random time-series shuffling or future leakage.
+
+MCP verification executes the statistics and forecasting tools through the HTTP transport and checks read-only/closed-world/non-destructive annotations and invalid-domain failures. Catalog bindings deliberately remain `partial` because broader user-visible profiling, statistical interpretation, hypothesis-testing, forecasting, and evaluation capabilities exceed the verified narrow primitives; no Subproject 4 capability was promoted to fully implemented merely because a calculator exists.
 
 ## Next detailed plan
 
-Write and execute the detailed implementation plan for Subproject 4 — **Data, Statistics & Forecasting Engines**. The next subproject must preserve input provenance, missingness, units, sample definitions, statistical assumptions, deterministic reproducibility, and out-of-sample forecast evaluation rather than treating a statistical library call as sufficient validation.
+Write and execute the detailed implementation plan for Subproject 5 — **Project, Operations & Supply-Chain Engines**. Deterministic scheduling, capacity/utilization/throughput, decision, inventory, procurement, and related engines must define units, calendars, dependency rules, feasibility conditions, and domain conventions explicitly before catalog promotion.
