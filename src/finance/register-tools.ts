@@ -5,6 +5,7 @@ import {
   calculateSimpleRoi,
   type SimpleRoiInput,
 } from "./calculations.js";
+import { registerAdvancedFinanceTools } from "./register-advanced-tools.js";
 
 const finiteNonNegative = z.number().finite().min(0);
 const finitePositive = z.number().finite().positive();
@@ -56,6 +57,12 @@ function calculationError(error: unknown) {
   };
 }
 
+const annotations = {
+  readOnlyHint: true,
+  openWorldHint: false,
+  destructiveHint: false,
+} as const;
+
 export function registerFinanceTools(server: McpServer): void {
   server.registerTool(
     "calculate_break_even",
@@ -65,11 +72,7 @@ export function registerFinanceTools(server: McpServer): void {
         "Deterministically calculate contribution margin, exact and whole-unit break-even volume, and break-even revenue from supplied fixed cost, unit price, and unit variable cost. The formulas are returned explicitly; this tool does not fetch financial data or infer missing costs.",
       inputSchema: breakEvenInputSchema,
       outputSchema: breakEvenOutputSchema,
-      annotations: {
-        readOnlyHint: true,
-        openWorldHint: false,
-        destructiveHint: false,
-      },
+      annotations,
     },
     async (input) => {
       try {
@@ -97,11 +100,7 @@ export function registerFinanceTools(server: McpServer): void {
         "Deterministically calculate simple, undiscounted ROI as (totalBenefits - totalCosts) / totalCosts from supplied totals, optionally preserving the caller's period in months. This is not NPV, IRR, annualized return, or a cash-flow timing model.",
       inputSchema: simpleRoiInputSchema,
       outputSchema: simpleRoiOutputSchema,
-      annotations: {
-        readOnlyHint: true,
-        openWorldHint: false,
-        destructiveHint: false,
-      },
+      annotations,
     },
     async ({ totalBenefits, totalCosts, periodMonths }) => {
       try {
@@ -122,4 +121,6 @@ export function registerFinanceTools(server: McpServer): void {
       }
     },
   );
+
+  registerAdvancedFinanceTools(server);
 }
