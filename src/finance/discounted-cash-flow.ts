@@ -19,6 +19,18 @@ export interface NpvResult {
   convention: string;
 }
 
+export interface NpvSensitivityInput {
+  cashFlows: readonly number[];
+  discountRatesPerPeriod: readonly number[];
+}
+
+export interface NpvSensitivityResult {
+  cashFlows: number[];
+  results: Array<{ discountRatePerPeriod: number; npv: number }>;
+  formula: string;
+  convention: string;
+}
+
 function assertFinite(value: number, label: string): void {
   if (!Number.isFinite(value)) {
     throw new Error(`${label} must be finite.`);
@@ -68,5 +80,24 @@ export function calculateNpv(input: NpvInput): NpvResult {
     formula: "NPV = sum(cashFlows[t] / (1 + discountRatePerPeriod)^t), t=0..n",
     convention:
       "cashFlows[0] occurs at t=0 and is not discounted; each later array element occurs one equal period later.",
+  };
+}
+
+export function calculateNpvSensitivity(input: NpvSensitivityInput): NpvSensitivityResult {
+  if (input.discountRatesPerPeriod.length === 0) {
+    throw new Error("discountRatesPerPeriod must contain at least one rate.");
+  }
+
+  const results = input.discountRatesPerPeriod.map((discountRatePerPeriod) => {
+    const result = calculateNpv({ cashFlows: input.cashFlows, discountRatePerPeriod });
+    return { discountRatePerPeriod, npv: result.npv };
+  });
+
+  return {
+    cashFlows: [...input.cashFlows],
+    results,
+    formula: "For each supplied rate r: NPV = sum(cashFlows[t] / (1 + r)^t), t=0..n",
+    convention:
+      "Each row is produced by calculateNpv using the same t=0 periodic cash-flow convention; caller rate order is preserved.",
   };
 }
