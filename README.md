@@ -13,30 +13,48 @@ The plugin may work with user-supplied files/data, plugin-owned computation, pub
 The repository uses a hybrid plugin architecture:
 
 - **Skills** perform natural-language consulting interpretation, method selection, sequencing, and deliverable reasoning.
-- **Capability catalog** exposes stable user-visible consulting capability identities and truthful implementation status.
+- **Capability catalog** exposes stable user-visible consulting capability identities, complete routing metadata, and truthful implementation status.
 - **MCP tools** perform reproducible validation, calculations, file operations, and other controlled executable work.
 - **Epistemic contracts** distinguish verified facts, user-supplied facts, deterministic calculations, bounded assumptions, inferences, hypotheses, estimates, scenarios, and recommendations.
 - **Quality contracts** provide machine-readable analytical, epistemic, consulting, and artifact gate results instead of decorative confidence scores.
 - **Governance** is model-agnostic and lives under `governance/`. `AGENTS.md` is the universal entry point for any LLM or agent modifying this repository.
-- **Capability status is explicit.** A capability is never presented as implemented merely because it appears on the roadmap or in the catalog.
+- **Capability status is explicit.** A capability is never presented as implemented merely because it is routing-ready or appears in the roadmap.
 - **External-platform facts are dated.** `governance/platform-baseline.md` records the verified OpenAI/MCP/runtime snapshot and the events that require live revalidation.
 
-## Capability platform foundation
+## Verified 100+ capability baseline
+
+The active registry now contains well over the required 100 materially distinct, routing-ready consulting capabilities across strategy, market, customer, growth, finance, M&A, operations, supply chain, organization, project execution, data, forecasting, research, risk, SEO, innovation, delivery, artifacts, and visualization.
+
+Every active capability is represented through the canonical routing contract and includes the fields needed to decide whether it belongs in a workflow: business questions, positive triggers, anti-triggers, required and optional inputs, methodology, deterministic-engine dependencies, evidence requirements, supported outputs, artifact formats, surface requirements, QA gates, assumption policy, failure behavior, access boundary, risk class, composition references, and evaluation-fixture IDs.
+
+**Routing-ready does not mean implemented.** Status is an independent truth boundary:
+
+- verified narrow operations such as break-even calculation, simple undiscounted ROI calculation, DOCX template patching, and PDF metadata update may be `implemented`;
+- broader reasoning or analytical outcomes may remain `partial` while they are useful but not yet fully covered by method-specific execution and evaluation gates;
+- deterministic engines that are cataloged but not yet built remain `planned`;
+- private-account or credentialed retrieval that violates the open-access boundary remains `unavailable`;
+- broad PDF/DOCX/XLSX/CSV/PPTX CRUD remains `planned` until each format's preservation and quality gates pass.
+
+Private SEO/account retrieval is deliberately separated from user-supplied export analysis. Live Search Console, proprietary keyword-provider, and proprietary backlink-index access remain unavailable under the ordinary open-access product boundary; analysis of user-supplied exports is a separate capability that does not require connecting to the source account.
+
+The 100+ baseline was verified by GitHub Actions on commit `e755062819629ae1eddf0abaece21dec47810748` through run `32295888556`, where `npm run verify` completed successfully.
+
+## Capability platform architecture
 
 The capability layer is modularized behind typed, composable contracts:
 
-- `src/catalog/types.ts` defines canonical domains, modes, statuses, output modalities, artifact formats, access boundaries, risk classes, and QA gate identifiers;
-- `src/catalog/legacy.ts` preserves current stable capability IDs while explicitly marking those entries as not yet fully routing-ready;
-- `src/catalog/registry.ts` supplies bounded search and stable-ID lookup;
-- `src/catalog/relationships.ts` encodes typed prerequisite/follow-on relationships and validates the graph for dangling/self references;
+- `src/catalog/types.ts` defines canonical domains, modes, statuses, output modalities, artifact formats, access boundaries, risk classes, surface requirements, and QA gate identifiers;
+- `src/catalog/define.ts` enforces routing-metadata and open-access invariants at definition time;
+- `src/catalog/families/` contains the active domain-family capability definitions;
+- `src/catalog/legacy.ts` is retained only as migration/reference material and no longer feeds the active registry;
+- `src/catalog/registry.ts` composes the routing-ready family baseline, provides stable-ID lookup, and ranks direct search matches ahead of weaker metadata matches;
+- `src/catalog/relationships.ts` encodes typed prerequisite/follow-on/alternative/overlap relationships and validates graph references against an explicit catalog snapshot;
 - `src/routing/` validates structured workflow selections, implementation blockers, and encoded dependencies;
 - `src/epistemics/` validates provenance requirements for material claim classes;
 - `src/quality/` determines whether required quality gates passed before a capability can be promoted;
-- MCP capability tools provide catalog search, single-capability inspection, and structured workflow validation.
+- MCP capability tools provide bounded search, full single-capability inspection, and structured workflow validation without creating one MCP tool per consulting capability.
 
 The foundation validates structured capability plans; it does not claim that a hand-written keyword classifier independently understands arbitrary consulting language. Natural-language semantic selection remains a host-model/Skill responsibility backed by the typed catalog and deterministic validation layer.
-
-The approved architecture requires at least 100 materially distinct user-visible capabilities, but that breadth milestone is a separate catalog subproject and is **not** claimed complete merely because the foundation can represent it.
 
 ## Repository map
 
@@ -46,7 +64,7 @@ The approved architecture requires at least 100 materially distinct user-visible
 - `src/server.ts` — MCP server composition.
 - `src/stdio.ts` — local protocol-negotiating stdio entry.
 - `src/http.ts` — web-standard Streamable HTTP entry plus explicit Host/Origin guard layer for a future public deployment.
-- `src/catalog/` — typed capability metadata, registry, relationships, and capability MCP tools.
+- `src/catalog/` — typed capability metadata, family registry, relationships, and capability MCP tools.
 - `src/catalog.ts` — compatibility re-export for the modular catalog package.
 - `src/routing/` — deterministic structured workflow-plan validation.
 - `src/epistemics/` — claim classification/provenance validation contracts.
@@ -55,7 +73,7 @@ The approved architecture requires at least 100 materially distinct user-visible
 - `src/finance/` — deterministic calculation engines and MCP finance tools for formulas whose definitions are fixed and explicit.
 - `scripts/check-runtime-freshness.mjs` — registry-backed check for governed runtime/toolchain pins.
 - `governance/` — source-of-truth rules for every model and contributor.
-- `tests/` — contract, protocol, security-boundary, artifact, calculation, routing, epistemic, quality, and behavior tests.
+- `tests/` — contract, protocol, security-boundary, artifact, calculation, routing, epistemic, quality, breadth, overlap, and behavior tests.
 - `docs/` — architecture and implementation documentation.
 - `.github/workflows/` — CI plus a non-branching scheduled runtime-freshness check.
 
@@ -100,13 +118,13 @@ This does **not** claim broad PDF CRUD. Page manipulation, forms, annotations, o
 
 ## Deterministic finance support
 
-The plugin exposes reproducible calculators for finance definitions that are narrow enough to make deterministic:
+The plugin currently exposes reproducible calculators for finance definitions that are narrow enough to make deterministic:
 
 - `calculate_break_even` computes unit contribution margin, contribution-margin ratio, exact and whole-unit break-even volume, and break-even revenue from supplied fixed costs, unit price, and unit variable cost;
 - `calculate_simple_roi` computes undiscounted simple ROI as `(totalBenefits - totalCosts) / totalCosts` and preserves an optional caller-supplied period in months;
 - both are read-only, closed-world tools and return their formula definitions rather than relying on opaque model arithmetic.
 
-These tools do not infer missing financial inputs, evaluate time-value-of-money cash flows, or relabel simple ROI as NPV, IRR, annualized return, or payback.
+These tools do not infer missing financial inputs, evaluate time-value-of-money cash flows, or relabel simple ROI as NPV, IRR, annualized return, or payback. Expanded corporate-finance and FP&A deterministic engines are the next implementation subproject.
 
 ## Remote MCP status
 
@@ -121,9 +139,11 @@ This is intentionally **not** described as a production deployment. A public HTT
 
 ## Development status
 
-The repository is being built incrementally toward the approved Universal Consulting Capability Engine architecture. **Subproject 1 — Capability Platform Foundation is verified complete**: GitHub Actions `npm run verify` passed on commit `16e5d2938c0645df996c25982213952ed53916cb`, covering the modular capability/routing/epistemic/quality foundation alongside all preserved regression tests.
+**Subproject 1 — Capability Platform Foundation is verified complete.** GitHub Actions `npm run verify` passed on commit `16e5d2938c0645df996c25982213952ed53916cb` through run `32175704377`.
 
-The next milestone is Subproject 2 — the 100+ materially distinct capability baseline with full routing metadata. Expanded finance/FP&A, statistics/forecasting, project/operations/supply-chain engines, CSV/XLSX/DOCX/PDF/PPTX artifact expansion, visualization, anonymous public research/fact checking/SEO, executive workflows, production remote MCP, and marketplace submission remain separate later milestones.
+**Subproject 2 — 100+ Capability Baseline is verified complete.** GitHub Actions `npm run verify` passed on commit `e755062819629ae1eddf0abaece21dec47810748` through run `32295888556`. The active registry is now the routing-ready family catalog rather than the legacy catalog, and the verification suite covers breadth, metadata invariants, status truth, duplicate/overlap controls, relationship integrity, MCP inspection/search schema compatibility, workflow blockers, and all preserved regression tests.
+
+The next milestone is **Subproject 3 — Corporate Finance & FP&A Engines**. Statistics/forecasting, project/operations/supply-chain engines, CSV/XLSX/DOCX/PDF/PPTX artifact expansion, visualization, anonymous public research/fact checking/SEO, executive workflows, production remote MCP, and marketplace submission remain later milestones.
 
 ## Branch policy
 
