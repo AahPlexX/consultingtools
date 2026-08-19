@@ -37,13 +37,12 @@ describe("capability implementation truth", () => {
       "budget-variance",
       "sensitivity",
       "scenario-modeling",
+      "cash-flow-forecast",
       "irr",
     ]) {
       expect(getCapabilityById(id)?.status).toBe("partial");
     }
-    for (const id of ["dcf", "cash-flow-forecast"]) {
-      expect(getCapabilityById(id)?.status).toBe("planned");
-    }
+    expect(getCapabilityById("dcf")?.status).toBe("planned");
   });
 
   it("keeps broad document-format CRUD planned", () => {
