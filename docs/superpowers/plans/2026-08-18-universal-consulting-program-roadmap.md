@@ -66,10 +66,16 @@ The program is not complete until all of the following are true:
 
 ### Subproject 1 verification
 
-Capability Platform Foundation verified on `16e5d2938c0645df996c25982213952ed53916cb` with `npm run verify` passing through GitHub Actions run `32175704377`; the `ci/verify` commit status and the workflow verify job both concluded `success`. Subproject 2 may begin.
+Capability Platform Foundation verified on `16e5d2938c0645df996c25982213952ed53916cb` with `npm run verify` passing through GitHub Actions run `32175704377`; the `ci/verify` commit status and the workflow verify job both concluded `success`.
 
 The foundation verification covers the modular capability registry, open-access status correction, capability relationship graph, structured workflow-plan validation, epistemic contracts, common QA contracts, MCP capability search/inspection/workflow validation, orchestrator Skill contract, and all preserved pre-existing regression tests.
 
+### Subproject 2 verification
+
+100+ Capability Baseline verified on `e755062819629ae1eddf0abaece21dec47810748` with `npm run verify` passing through GitHub Actions run `32295888556`; `ci/verify` concluded `success` and the Actions verify job completed successfully.
+
+The active registry now uses the routing-ready family catalog instead of the legacy catalog. Verification covers the 100+ breadth floor, full routing-metadata invariants, stable-ID/status truth, open-access restrictions, duplicate and exact-overlap controls, relationship-graph integrity, ranked discovery, full capability inspection through the compact MCP surface, structured workflow blockers, MCP 2026-07-28 transport compatibility, and all preserved artifact/finance/security/runtime regressions. Routing readiness remains separate from implementation status.
+
 ## Next detailed plan
 
-Write and approve the detailed implementation plan for Subproject 2 — **100+ Capability Baseline** — before changing the capability breadth catalog. Subproject 2 must use the verified Subproject 1 contracts rather than introducing a parallel taxonomy.
+Write and execute the detailed implementation plan for Subproject 3 — **Corporate Finance & FP&A Engines**. New deterministic engines must map to the verified capability IDs, expose formula definitions and domain validation, use the common epistemic/QA contracts, and promote catalog status only after their own tests and full-repository verification pass.
