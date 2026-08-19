@@ -218,8 +218,11 @@ function calculationError(error: unknown) {
   };
 }
 
-function success(result: Record<string, unknown>, text: string) {
-  return { structuredContent: result, content: [{ type: "text" as const, text }] };
+function success<T extends object>(result: T, text: string) {
+  return {
+    structuredContent: result as Record<string, unknown>,
+    content: [{ type: "text" as const, text }],
+  };
 }
 
 export function registerAdvancedFinanceTools(server: McpServer): void {
