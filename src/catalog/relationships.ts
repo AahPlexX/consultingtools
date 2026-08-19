@@ -120,7 +120,7 @@ export const capabilityRelationships: readonly CapabilityRelationship[] = [
     rationale: "A validated process map can be rendered as a process diagram for communication and review.",
   },
   {
-    from: "sensitivity-analysis",
+    from: "sensitivity",
     to: "tornado-chart",
     kind: "useful-follow-on",
     rationale: "Tornado charts visualize the ranked effects produced by one-way sensitivity analysis.",
