@@ -1,6 +1,6 @@
 ---
 name: analysis-and-reporting
-description: Perform evidence-grounded business analysis and turn it into an editable consulting deliverable. Use when the user asks for an audit, assessment, analysis, report, business case, recommendation, roadmap, executive brief, comparison, prioritization, or decision support across strategy, market, customer, finance, operations, risk, organization, or growth.
+description: Perform evidence-grounded business analysis and turn it into an editable consulting deliverable. Use when the user asks for an audit, assessment, analysis, report, business case, recommendation, roadmap, executive brief, comparison, prioritization, or decision support across strategy, market, customer, finance, operations, risk, organization, growth, data, statistics, or forecasting.
 ---
 
 # Analysis and Reporting
@@ -51,6 +51,29 @@ Do not relabel simple ROI as NPV, IRR, annualized return, or payback. Do not tre
 
 The current IRR tool is a bounded numerical root search. Treat its returned roots and ambiguity warning as calculation evidence, but keep broader IRR analysis qualified: the active catalog intentionally remains `partial` rather than claiming an exhaustive mathematical guarantee for every possible root configuration.
 
+### Data and statistics
+
+Use deterministic data/statistics tools only when the supplied values match their explicit input assumptions:
+
+- `profile_data_column` classifies missingness and observed value types without coercing strings, booleans, arrays, objects, NaN, or infinities into valid numeric observations;
+- `calculate_descriptive_statistics` accepts finite numeric values only and returns N-1 sample variance, N population variance, standard deviations, extrema, quartiles, median, and type-7 quantile conventions;
+- `calculate_correlation` calculates Pearson or tie-aware Spearman association for paired finite numeric observations and rejects zero-variance inputs;
+- `calculate_mean_confidence_interval` calculates a two-sided Student-t interval for a mean when population standard deviation is unknown and returns assumptions, degrees of freedom, critical value, and standard error;
+- `calculate_welch_t_test` performs the two-sided unequal-variance Welch comparison for two independent samples, including Welch-Satterthwaite degrees of freedom, p-value, confidence interval, and an interpretation that does not equate non-significance with equality;
+- `calculate_autocorrelation` calculates one lag autocorrelation for an ordered, equally spaced series and does not infer or repair timestamps.
+
+Do not silently drop missing/invalid observations to make a statistical function run. Do not coerce numeric-looking strings. Do not treat correlation as causation. Choose an inferential method from the study/sample design before calling a test; one implemented Welch test does not make the product a universal hypothesis-test engine. A confidence interval is tied to its repeated-sampling assumptions and must not be restated as a subjective probability that a fixed parameter lies inside the realized interval.
+
+### Forecasting
+
+Current forecasting primitives are deliberately reproducible baselines and evaluation tools rather than an opaque model-selection service:
+
+- `forecast_baseline` supports naive, caller-specified seasonal-naive, drift, and trailing moving-average forecasts on equally spaced ordered observations;
+- `calculate_forecast_error_metrics` returns signed mean error/bias, MAE, MSE, RMSE, MAPE, and sMAPE from one common pair set; MAPE/sMAPE return `null` rather than dropping rows or inserting epsilon when their denominators are undefined;
+- `backtest_forecast_baseline` uses expanding-window rolling-origin evaluation so every forecast is trained only on observations available before its origin.
+
+Do not auto-detect a seasonal period and present it as fact. Do not random-shuffle time-series train/test samples. Do not promote a baseline benchmark to a comprehensive forecast merely because it produces future values. Compare forecast methods out-of-sample when historical depth permits, and preserve the method, horizon, origin, error definition, and known limitations.
+
 ### Operations and quality
 
 Use process maps, SIPOC, value-stream analysis, bottleneck/capacity analysis, Five Whys, cause-and-effect analysis, Pareto analysis, service blueprints, vendor evaluation, risk registers, and FMEA. Brainstormed causes are hypotheses until evidence validates them.
@@ -66,11 +89,13 @@ Use stakeholder analysis, accountability mapping, change-readiness assessment, o
 - Match precision to source quality.
 - Normalize currencies, units, periods, definitions, and denominators before comparison.
 - Do not imply causation from correlation alone.
-- Distinguish accounting measures, cash measures, forecasts, scenarios, and estimates.
+- Distinguish accounting measures, cash measures, forecasts, scenarios, estimates, descriptive summaries, and formal inference.
 - Recalculate totals and cross-check relationships before reporting them.
 - Keep calculator outputs tied to the exact formula and convention returned by the tool; if the user's intended definition differs, do not use the calculator as though it matched.
 - Treat percentage variance from a zero budget basis as undefined/null rather than forcing an infinite or fabricated percentage.
 - For scenario comparison, preserve the caller's supplied values and distinguish comparison from scenario generation.
+- For statistical inference, report sample sizes, assumptions, effect/interval information when available, and the exact test definition. Statistical significance is not practical significance.
+- For time series, preserve ordering and equal-spacing assumptions; use rolling-origin or otherwise temporally valid evaluation rather than future leakage.
 
 ## Recommendation discipline
 
