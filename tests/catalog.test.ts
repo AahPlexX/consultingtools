@@ -8,8 +8,9 @@ import {
 } from "../src/catalog.js";
 
 describe("capability catalog", () => {
-  it("contains a broad consulting surface beyond the minimum requested scope", () => {
-    expect(capabilities.length).toBeGreaterThanOrEqual(70);
+  it("contains at least 100 materially cataloged routing-ready capabilities", () => {
+    expect(capabilities.length).toBeGreaterThanOrEqual(100);
+    expect(capabilities.every(({ routingReady }) => routingReady)).toBe(true);
   });
 
   it("uses unique stable ids and governed status/domain values", () => {
