@@ -10,14 +10,50 @@ describe("capability implementation truth", () => {
     expect(getCapabilityById("pdf-metadata-update")?.status).toBe("implemented");
   });
 
+  it("promotes only periodic finance capabilities whose advertised deterministic envelope is fully verified", () => {
+    expect(getCapabilityById("npv")).toMatchObject({
+      status: "implemented",
+      routingReady: true,
+      deterministicEngineIds: ["calculate_npv"],
+    });
+    expect(getCapabilityById("payback")).toMatchObject({
+      status: "implemented",
+      routingReady: true,
+      deterministicEngineIds: ["calculate_payback"],
+    });
+
+    expect(getCapabilityById("irr")).toMatchObject({
+      status: "partial",
+      routingReady: true,
+      deterministicEngineIds: ["calculate_irr"],
+    });
+  });
+
+  it("keeps broader finance outcomes partial or planned despite having useful deterministic primitives", () => {
+    for (const id of [
+      "financial-ratios",
+      "working-capital",
+      "cash-conversion-cycle",
+      "budget-variance",
+      "sensitivity",
+      "scenario-modeling",
+      "irr",
+    ]) {
+      expect(getCapabilityById(id)?.status).toBe("partial");
+    }
+    for (const id of ["dcf", "cash-flow-forecast"]) {
+      expect(getCapabilityById(id)?.status).toBe("planned");
+    }
+  });
+
   it("keeps broad document-format CRUD planned", () => {
     for (const id of ["pdf-crud", "docx-crud", "xlsx-crud", "csv-crud", "pptx-crud"]) {
       expect(getCapabilityById(id)?.status).toBe("planned");
     }
   });
 
-  it("does not promote deterministic engines that have not been built", () => {
-    for (const id of ["npv", "irr", "dcf", "critical-path", "descriptive-statistics", "bar-chart"]) {
+  it("does not promote unrelated deterministic engines that have not been built", () => {
+    for (const id of ["critical-path", "descriptive-statistics", "bar-chart"]) {
       expect(getCapabilityById(id)?.status).not.toBe("implemented");
     }
   });
