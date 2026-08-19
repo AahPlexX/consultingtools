@@ -24,7 +24,7 @@ const MAX_CASH_FLOWS = 512;
 const MINIMUM_RATE = -0.9999;
 const MAXIMUM_RATE = 1000;
 const LOG_INTERVALS = 20_000;
-const ROOT_TOLERANCE = 1e-10;
+const ROOT_TOLERANCE = 1e-12;
 const RATE_DEDUP_TOLERANCE = 1e-7;
 
 function assertFinite(value: number, label: string): void {
