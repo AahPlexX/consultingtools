@@ -15,33 +15,41 @@ export function getCapabilityById(id: string): CapabilityDefinition | undefined 
   return byId.get(id);
 }
 
-function searchableText(capability: CapabilityDefinition): string {
-  const base = [
+function normalized(value: string): string {
+  return value.toLocaleLowerCase();
+}
+
+function matchScore(capability: CapabilityDefinition, query: string): number {
+  const directFields = [
     capability.id,
     capability.name,
-    capability.domain,
-    capability.mode,
-    capability.status,
     capability.summary,
-    capability.requires ?? "",
+    capability.routingReady ? capability.subdomain : "",
   ];
+  if (normalized(directFields.join(" ")).includes(query)) return 3;
 
-  if (!capability.routingReady) return base.join(" ");
+  if (!capability.routingReady) {
+    return normalized(capability.requires ?? "").includes(query) ? 1 : 0;
+  }
 
-  return [
-    ...base,
-    capability.subdomain,
+  const decisionFields = [
     ...capability.businessQuestions,
     ...capability.triggers,
+    capability.methodology,
+  ];
+  if (normalized(decisionFields.join(" ")).includes(query)) return 2;
+
+  const supportingFields = [
     ...capability.antiTriggers,
     ...capability.requiredInputs,
     ...capability.optionalInputs,
-    capability.methodology,
     ...capability.deterministicEngineIds,
     ...capability.outputs,
     ...capability.artifactFormats,
     ...capability.surfaceRequirements,
-  ].join(" ");
+    capability.requires ?? "",
+  ];
+  return normalized(supportingFields.join(" ")).includes(query) ? 1 : 0;
 }
 
 export function searchCapabilities({
@@ -54,12 +62,15 @@ export function searchCapabilities({
   const boundedLimit = Math.min(Math.max(Math.trunc(limit), 1), 50);
 
   return capabilities
-    .filter((capability) => status === undefined || capability.status === status)
-    .filter((capability) => domain === undefined || capability.domain === domain)
-    .filter((capability) => {
-      if (!normalizedQuery) return true;
-      return searchableText(capability).toLocaleLowerCase().includes(normalizedQuery);
-    })
+    .map((capability, index) => ({
+      capability,
+      index,
+      score: normalizedQuery ? matchScore(capability, normalizedQuery) : 1,
+    }))
+    .filter(({ capability }) => status === undefined || capability.status === status)
+    .filter(({ capability }) => domain === undefined || capability.domain === domain)
+    .filter(({ score }) => score > 0)
+    .sort((left, right) => right.score - left.score || left.index - right.index)
     .slice(0, boundedLimit)
-    .map((capability) => ({ ...capability }));
+    .map(({ capability }) => ({ ...capability }));
 }
