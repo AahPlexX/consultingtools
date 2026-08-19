@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { buildWorkflowPlan } from "../src/routing/build-plan.js";
 
 describe("workflow-plan validation", () => {
-  it("builds a bounded dependency graph from host-selected capability ids", () => {
+  it("builds dependency graphs while preserving partial-capability blockers", () => {
     const plan = buildWorkflowPlan({
       objective: "Assess a new market and choose an entry approach",
       capabilityIds: ["market-attractiveness", "entry-strategy"],
@@ -13,7 +13,23 @@ describe("workflow-plan validation", () => {
       "entry-strategy",
     ]);
     expect(plan.nodes[1]?.dependsOn).toContain("market-attractiveness");
+    expect(plan.executable).toBe(false);
+    expect(plan.blockers).toEqual(
+      expect.arrayContaining([
+        { capabilityId: "market-attractiveness", reason: "partial" },
+        { capabilityId: "entry-strategy", reason: "partial" },
+      ]),
+    );
+  });
+
+  it("allows a structured workflow composed only of implemented capabilities", () => {
+    const plan = buildWorkflowPlan({
+      objective: "Calculate two bounded financial measures from supplied inputs",
+      capabilityIds: ["break-even", "simple-roi"],
+      requestedOutputs: ["text"],
+    });
     expect(plan.executable).toBe(true);
+    expect(plan.blockers).toEqual([]);
   });
 
   it("blocks an unavailable capability", () => {
