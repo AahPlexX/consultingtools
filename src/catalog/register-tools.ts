@@ -8,13 +8,18 @@ import {
   type CapabilitySearch,
 } from "./registry.js";
 import {
+  artifactFormats,
   capabilityDomains,
   capabilityStatuses,
+  evidenceLevels,
   executionModes,
   outputModalities,
+  riskClasses,
+  surfaceRequirements,
+  type CapabilityDefinition,
 } from "./types.js";
 
-const capabilitySchema = z.object({
+const capabilitySummarySchema = z.object({
   id: z.string(),
   name: z.string(),
   domain: z.enum(capabilityDomains),
@@ -23,6 +28,43 @@ const capabilitySchema = z.object({
   summary: z.string(),
   requires: z.string().optional(),
   routingReady: z.boolean(),
+});
+
+const routableCapabilitySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  domain: z.enum(capabilityDomains),
+  mode: z.enum(executionModes),
+  status: z.enum(capabilityStatuses),
+  summary: z.string(),
+  requires: z.string().optional(),
+  routingReady: z.literal(true),
+  subdomain: z.string(),
+  businessQuestions: z.array(z.string()),
+  triggers: z.array(z.string()),
+  antiTriggers: z.array(z.string()),
+  requiredInputs: z.array(z.string()),
+  optionalInputs: z.array(z.string()),
+  methodology: z.string(),
+  deterministicEngineIds: z.array(z.string()),
+  evidence: z.object({
+    level: z.enum(evidenceLevels),
+    publicResearchAllowed: z.boolean(),
+  }),
+  outputs: z.array(z.enum(outputModalities)),
+  artifactFormats: z.array(z.enum(artifactFormats)),
+  surfaceRequirements: z.array(z.enum(surfaceRequirements)),
+  qualityGates: z.array(z.string()),
+  assumptionPolicy: z.string(),
+  failureBehavior: z.string(),
+  access: z.object({
+    userCredentialRequired: z.boolean(),
+    privateAccountRequired: z.boolean(),
+  }),
+  riskClass: z.enum(riskClasses),
+  relatedCapabilityIds: z.array(z.string()),
+  conflictingCapabilityIds: z.array(z.string()),
+  evaluationFixtureIds: z.array(z.string()),
 });
 
 const searchInputSchema = z.object({
@@ -35,7 +77,7 @@ const searchInputSchema = z.object({
 const searchOutputSchema = z.object({
   count: z.number().int().nonnegative(),
   totalCatalogSize: z.number().int().positive(),
-  capabilities: z.array(capabilitySchema),
+  capabilities: z.array(capabilitySummarySchema),
 });
 
 const inspectInputSchema = z.object({
@@ -43,7 +85,7 @@ const inspectInputSchema = z.object({
 });
 
 const inspectOutputSchema = z.object({
-  capability: capabilitySchema,
+  capability: routableCapabilitySchema,
 });
 
 const validateWorkflowInputSchema = z.object({
@@ -83,13 +125,26 @@ function toolError(message: string) {
   };
 }
 
+function capabilitySummary(capability: CapabilityDefinition) {
+  return {
+    id: capability.id,
+    name: capability.name,
+    domain: capability.domain,
+    mode: capability.mode,
+    status: capability.status,
+    summary: capability.summary,
+    ...(capability.requires === undefined ? {} : { requires: capability.requires }),
+    routingReady: capability.routingReady,
+  };
+}
+
 export function registerCapabilityTools(server: McpServer): void {
   server.registerTool(
     "search_consulting_capabilities",
     {
       title: "Search consulting capability catalog",
       description:
-        "Search user-visible consulting capabilities by text, domain, status, and bounded result count. Capability status is a hard truth boundary; this catalog is distinct from lower-level MCP utilities exposed through tools/list.",
+        "Search user-visible consulting capabilities by text, domain, status, and bounded result count. Results are intentionally concise; inspect a candidate by stable ID to obtain its full routing contract. Capability status is a hard truth boundary and the catalog is distinct from lower-level MCP utilities exposed through tools/list.",
       inputSchema: searchInputSchema,
       outputSchema: searchOutputSchema,
       annotations: readOnlyAnnotations,
@@ -105,7 +160,7 @@ export function registerCapabilityTools(server: McpServer): void {
       const result = {
         count: matches.length,
         totalCatalogSize: capabilities.length,
-        capabilities: matches,
+        capabilities: matches.map(capabilitySummary),
       };
 
       return {
@@ -113,7 +168,7 @@ export function registerCapabilityTools(server: McpServer): void {
         content: [
           {
             type: "text",
-            text: `Found ${matches.length} matching cataloged capabilities out of ${capabilities.length}. Inspect status and routing readiness before promising execution.`,
+            text: `Found ${matches.length} matching cataloged capabilities out of ${capabilities.length}. Inspect promising IDs for triggers, anti-triggers, evidence needs, outputs, status, and other routing metadata before promising execution.`,
           },
         ],
       };
@@ -125,7 +180,7 @@ export function registerCapabilityTools(server: McpServer): void {
     {
       title: "Inspect consulting capability",
       description:
-        "Inspect one consulting capability by stable ID, including its current implementation status and whether full routing metadata is available.",
+        "Inspect one routing-ready consulting capability by stable ID. Returns its business questions, triggers, anti-triggers, required and optional inputs, methodology, deterministic-engine dependencies, evidence requirements, outputs, artifact formats, surface requirements, QA gates, assumptions, failure behavior, access boundary, risk class, composition references, and evaluation fixtures.",
       inputSchema: inspectInputSchema,
       outputSchema: inspectOutputSchema,
       annotations: readOnlyAnnotations,
@@ -133,13 +188,16 @@ export function registerCapabilityTools(server: McpServer): void {
     async ({ id }) => {
       const capability = getCapabilityById(id);
       if (!capability) return toolError(`Unknown capability id: ${id}`);
+      if (!capability.routingReady) {
+        return toolError(`Capability ${id} is not routing-ready in the active catalog.`);
+      }
 
       return {
         structuredContent: { capability },
         content: [
           {
             type: "text",
-            text: `${capability.name} (${capability.id}) is ${capability.status}; routingReady=${capability.routingReady}.`,
+            text: `${capability.name} (${capability.id}) is ${capability.status}. Review its triggers, anti-triggers, evidence requirements, surface requirements, and QA gates before selection.`,
           },
         ],
       };
