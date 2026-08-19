@@ -74,8 +74,16 @@ The foundation verification covers the modular capability registry, open-access 
 
 100+ Capability Baseline verified on `e755062819629ae1eddf0abaece21dec47810748` with `npm run verify` passing through GitHub Actions run `32295888556`; `ci/verify` concluded `success` and the Actions verify job completed successfully.
 
-The active registry now uses the routing-ready family catalog instead of the legacy catalog. Verification covers the 100+ breadth floor, full routing-metadata invariants, stable-ID/status truth, open-access restrictions, duplicate and exact-overlap controls, relationship-graph integrity, ranked discovery, full capability inspection through the compact MCP surface, structured workflow blockers, MCP 2026-07-28 transport compatibility, and all preserved artifact/finance/security/runtime regressions. Routing readiness remains separate from implementation status.
+The active registry uses the routing-ready family catalog instead of the legacy catalog. Verification covers the 100+ breadth floor, full routing-metadata invariants, stable-ID/status truth, open-access restrictions, duplicate and exact-overlap controls, relationship-graph integrity, ranked discovery, full capability inspection through the compact MCP surface, structured workflow blockers, MCP 2026-07-28 transport compatibility, and all preserved artifact/finance/security/runtime regressions. Routing readiness remains separate from implementation status.
+
+### Subproject 3 verification
+
+Corporate Finance & FP&A Engines verified on code commit `e036427c67c114af307aeac189d8e04f498a0e05` with `npm run verify` passing through GitHub Actions run `32298548890`; `ci/verify` concluded `success`.
+
+The verified deterministic envelope includes periodic NPV with explicit t=0 treatment; simple and discounted payback; bounded ambiguity-aware periodic IRR root search; working capital and DIO/DSO/DPO/cash-conversion-cycle calculations; explicit liquidity, leverage, margin, efficiency, and return ratio families; budget variance; comparison of already supplied financial scenarios; and NPV sensitivity across caller-supplied discount rates. The MCP verification exercises these operations through the HTTP transport and checks read-only/closed-world/non-destructive annotations, invalid-domain failures, formula conventions, and preserved legacy break-even/simple-ROI behavior.
+
+Catalog promotion remains deliberately narrower than tool availability. Periodic `npv` and `payback` are promoted to `implemented`; `irr` remains `partial` because the current bounded numerical root search is not claimed as an exhaustive guarantee for every possible root configuration. Broader financial-ratio interpretation, working-capital analysis, cash-conversion analysis, budget-variance diagnosis, sensitivity analysis, scenario modeling, and cash-flow forecasting remain `partial`; broad DCF valuation remains `planned`.
 
 ## Next detailed plan
 
-Write and execute the detailed implementation plan for Subproject 3 — **Corporate Finance & FP&A Engines**. New deterministic engines must map to the verified capability IDs, expose formula definitions and domain validation, use the common epistemic/QA contracts, and promote catalog status only after their own tests and full-repository verification pass.
+Write and execute the detailed implementation plan for Subproject 4 — **Data, Statistics & Forecasting Engines**. The next subproject must preserve input provenance, missingness, units, sample definitions, statistical assumptions, deterministic reproducibility, and out-of-sample forecast evaluation rather than treating a statistical library call as sufficient validation.
