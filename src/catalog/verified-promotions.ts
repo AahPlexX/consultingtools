@@ -9,39 +9,73 @@ interface Promotion {
   additionalQualityGates: readonly RoutableCapabilityDefinition["qualityGates"][number][];
 }
 
+const analyticalGates: readonly RoutableCapabilityDefinition["qualityGates"][number][] = [
+  "analytical.formula-correctness",
+  "analytical.internal-consistency",
+  "analytical.unit-consistency",
+];
+
+const hybridDeterministic = {
+  mode: "hybrid" as const,
+  surfaceRequirements: ["host-reasoning", "deterministic-engine"] as const,
+  additionalQualityGates: analyticalGates,
+};
+
 const verifiedPromotions: Readonly<Record<string, Promotion>> = {
   npv: {
     status: "implemented",
     deterministicEngineIds: ["calculate_npv"],
-    mode: "hybrid",
-    surfaceRequirements: ["host-reasoning", "deterministic-engine"],
-    additionalQualityGates: [
-      "analytical.formula-correctness",
-      "analytical.internal-consistency",
-      "analytical.unit-consistency",
-    ],
+    ...hybridDeterministic,
   },
   payback: {
     status: "implemented",
     deterministicEngineIds: ["calculate_payback"],
-    mode: "hybrid",
-    surfaceRequirements: ["host-reasoning", "deterministic-engine"],
-    additionalQualityGates: [
-      "analytical.formula-correctness",
-      "analytical.internal-consistency",
-      "analytical.unit-consistency",
-    ],
+    ...hybridDeterministic,
   },
   irr: {
     status: "partial",
     deterministicEngineIds: ["calculate_irr"],
-    mode: "hybrid",
-    surfaceRequirements: ["host-reasoning", "deterministic-engine"],
-    additionalQualityGates: [
-      "analytical.formula-correctness",
-      "analytical.internal-consistency",
-      "analytical.unit-consistency",
-    ],
+    ...hybridDeterministic,
+  },
+  "data-profiling": {
+    status: "partial",
+    deterministicEngineIds: ["profile_data_column"],
+    ...hybridDeterministic,
+  },
+  "descriptive-statistics": {
+    status: "partial",
+    deterministicEngineIds: ["calculate_descriptive_statistics"],
+    ...hybridDeterministic,
+  },
+  "correlation-analysis": {
+    status: "partial",
+    deterministicEngineIds: ["calculate_correlation"],
+    ...hybridDeterministic,
+  },
+  "confidence-interval": {
+    status: "partial",
+    deterministicEngineIds: ["calculate_mean_confidence_interval"],
+    ...hybridDeterministic,
+  },
+  "hypothesis-testing": {
+    status: "partial",
+    deterministicEngineIds: ["calculate_welch_t_test"],
+    ...hybridDeterministic,
+  },
+  "time-series-forecasting": {
+    status: "partial",
+    deterministicEngineIds: ["forecast_baseline"],
+    ...hybridDeterministic,
+  },
+  "forecast-backtest": {
+    status: "partial",
+    deterministicEngineIds: ["backtest_forecast_baseline"],
+    ...hybridDeterministic,
+  },
+  "forecast-error-metrics": {
+    status: "partial",
+    deterministicEngineIds: ["calculate_forecast_error_metrics"],
+    ...hybridDeterministic,
   },
 };
 
