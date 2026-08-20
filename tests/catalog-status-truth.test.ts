@@ -76,6 +76,26 @@ describe("capability implementation truth", () => {
     }
   });
 
+  it("binds verified project operations and supply-chain primitives without overstating broader diagnostics", () => {
+    const expected: Record<string, readonly string[]> = {
+      "critical-path": ["calculate_critical_path"],
+      "earned-value": ["calculate_earned_value_performance"],
+      utilization: ["calculate_capacity_utilization"],
+      throughput: ["calculate_flow_performance"],
+      "cycle-time": ["calculate_flow_performance"],
+      "weighted-selection": ["calculate_weighted_decision"],
+      "inventory-analysis": ["calculate_reorder_point", "calculate_eoq"],
+      "supplier-segmentation": ["analyze_supplier_spend"],
+    };
+    for (const [id, engines] of Object.entries(expected)) {
+      expect(getCapabilityById(id)).toMatchObject({
+        status: "partial",
+        routingReady: true,
+        deterministicEngineIds: engines,
+      });
+    }
+  });
+
   it("keeps broad document-format CRUD planned", () => {
     for (const id of ["pdf-crud", "docx-crud", "xlsx-crud", "csv-crud", "pptx-crud"]) {
       expect(getCapabilityById(id)?.status).toBe("planned");
@@ -83,7 +103,7 @@ describe("capability implementation truth", () => {
   });
 
   it("does not promote unrelated deterministic engines that have not been built", () => {
-    for (const id of ["critical-path", "regression-analysis", "clustering-analysis", "bar-chart"]) {
+    for (const id of ["regression-analysis", "clustering-analysis", "bar-chart"]) {
       expect(getCapabilityById(id)?.status).not.toBe("implemented");
     }
   });
