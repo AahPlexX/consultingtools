@@ -44,6 +44,6 @@ export function calculateFlowPerformance(input: FlowPerformanceInput) {
       averageCycleTime: "completedUnits === 0 ? null : elapsedTime / completedUnits",
     },
     convention:
-      "completedUnits and elapsedTime describe the same observation window and time basis; the result is an aggregate flow measure, not a bottleneck or queue diagnosis.",
+      "completedUnits and elapsedTime must use the same time basis and describe the same observation window; the result is an aggregate flow measure, not a bottleneck or queue diagnosis.",
   };
 }
