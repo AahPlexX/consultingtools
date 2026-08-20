@@ -208,9 +208,9 @@ function applyMutations(
 function serializationOptions(
   document: CsvDocument,
   input: {
-    spreadsheetFormulaPolicy?: CsvSpreadsheetFormulaPolicy;
-    lineEnding?: "crlf" | "lf";
-    terminalLineBreak?: boolean;
+    spreadsheetFormulaPolicy?: CsvSpreadsheetFormulaPolicy | undefined;
+    lineEnding?: "crlf" | "lf" | undefined;
+    terminalLineBreak?: boolean | undefined;
   },
 ) {
   return {
