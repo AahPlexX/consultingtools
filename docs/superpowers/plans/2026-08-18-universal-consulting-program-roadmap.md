@@ -86,6 +86,14 @@ The verified statistics envelope includes non-coercive column profiling; finite-
 
 MCP verification executes the statistics and forecasting tools through the HTTP transport and checks read-only/closed-world/non-destructive annotations and invalid-domain failures. Catalog bindings deliberately remain `partial` because broader user-visible profiling, statistical interpretation, hypothesis-testing, forecasting, and evaluation capabilities exceed the verified narrow primitives; no Subproject 4 capability was promoted to fully implemented merely because a calculator exists.
 
+### Subproject 5 verification
+
+Project, Operations & Supply-Chain Engines verified on code/catalog commit `1fea7d383537956631bd132a39f175646d5f02ac` with `npm run verify` passing through GitHub Actions run `32408792540`; `ci/verify` concluded `success`.
+
+The verified project envelope includes activity-on-node finish-to-start zero-lag critical-path scheduling with early/late timing, total float, bounded multiple critical paths, cycle/unknown-dependency validation, and zero-duration milestones; three-point weighted estimation with standard deviation/variance; and earned-value SV/CV/SPI/CPI arithmetic with null zero-denominator ratios. The verified operations envelope includes capacity utilization, aggregate throughput/average cycle time, and weighted scoring for already-comparable option scores. The verified supply-chain envelope includes caller-supplied-safety-stock reorder point, classical EOQ, and supplier-spend concentration.
+
+The MCP transport verifies all nine tools as read-only, closed-world, and non-destructive. Catalog bindings deliberately remain `partial` for `critical-path`, `earned-value`, `utilization`, `throughput`, `cycle-time`, `weighted-selection`, `inventory-analysis`, and `supplier-segmentation` because their broader user-visible outcomes exceed the deterministic primitive. The three-point estimator is directly executable but is not forced into an unrelated catalog identity. Calendar/resource-leveling scheduling, stochastic safety-stock optimization, supplier-risk inference, queue/bottleneck diagnosis, automatic criterion-scale normalization, and other unimplemented semantics remain outside the verified claim.
+
 ## Next detailed plan
 
-Write and execute the detailed implementation plan for Subproject 5 — **Project, Operations & Supply-Chain Engines**. Deterministic scheduling, capacity/utilization/throughput, decision, inventory, procurement, and related engines must define units, calendars, dependency rules, feasibility conditions, and domain conventions explicitly before catalog promotion.
+Write and execute the detailed implementation plan for Subproject 6 — **CSV & XLSX Artifact Engines**. Prioritize safe CSV CRUD and a validated managed-XLSX creation/editing envelope. Arbitrary existing-workbook XLSX mutation remains gated by `governance/xlsx-engine-decision.md` until separate preservation and security evidence justifies expansion.
