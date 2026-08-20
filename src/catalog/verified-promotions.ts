@@ -77,6 +77,46 @@ const verifiedPromotions: Readonly<Record<string, Promotion>> = {
     deterministicEngineIds: ["calculate_forecast_error_metrics"],
     ...hybridDeterministic,
   },
+  "critical-path": {
+    status: "partial",
+    deterministicEngineIds: ["calculate_critical_path"],
+    ...hybridDeterministic,
+  },
+  "earned-value": {
+    status: "partial",
+    deterministicEngineIds: ["calculate_earned_value_performance"],
+    ...hybridDeterministic,
+  },
+  utilization: {
+    status: "partial",
+    deterministicEngineIds: ["calculate_capacity_utilization"],
+    ...hybridDeterministic,
+  },
+  throughput: {
+    status: "partial",
+    deterministicEngineIds: ["calculate_flow_performance"],
+    ...hybridDeterministic,
+  },
+  "cycle-time": {
+    status: "partial",
+    deterministicEngineIds: ["calculate_flow_performance"],
+    ...hybridDeterministic,
+  },
+  "weighted-selection": {
+    status: "partial",
+    deterministicEngineIds: ["calculate_weighted_decision"],
+    ...hybridDeterministic,
+  },
+  "inventory-analysis": {
+    status: "partial",
+    deterministicEngineIds: ["calculate_reorder_point", "calculate_eoq"],
+    ...hybridDeterministic,
+  },
+  "supplier-segmentation": {
+    status: "partial",
+    deterministicEngineIds: ["analyze_supplier_spend"],
+    ...hybridDeterministic,
+  },
 };
 
 export function applyVerifiedCapabilityPromotions(
