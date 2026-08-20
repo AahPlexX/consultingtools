@@ -80,6 +80,6 @@ export function calculateWeightedDecision(input: WeightedDecisionInput) {
     options,
     formula: "weightedScore = sum(score_i * normalizedWeight_i)",
     convention:
-      "Scores must already be comparable on a common decision scale. The engine normalizes weights only; it does not convert unlike raw units or infer criterion direction, desirability, or missing scores.",
+      "Scores must be already comparable on a common decision scale. The engine normalizes weights only; it does not convert unlike raw units or infer criterion direction, desirability, or missing scores.",
   };
 }
