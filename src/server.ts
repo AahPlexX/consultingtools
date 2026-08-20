@@ -6,7 +6,10 @@ import type { ArtifactStore } from "./artifacts/types.js";
 import { registerCapabilityTools } from "./catalog/register-tools.js";
 import { registerFinanceTools } from "./finance/register-tools.js";
 import { registerForecastingTools } from "./forecasting/register-tools.js";
+import { registerOperationsTools } from "./operations/register-tools.js";
+import { registerProjectTools } from "./project/register-tools.js";
 import { registerStatisticsTools } from "./statistics/register-tools.js";
+import { registerSupplyChainTools } from "./supply-chain/register-tools.js";
 
 export interface ConsultingServerOptions {
   artifactStore?: ArtifactStore;
@@ -22,7 +25,7 @@ export function createServer(options: ConsultingServerOptions = {}): McpServer {
     },
     {
       instructions:
-        "Natural-language semantic interpretation belongs to the consulting orchestration workflow. Select candidate capability IDs from the catalog, validate substantive multi-capability plans before presenting them as executable, treat capability status and open-access limits as hard truth boundaries, and use epistemic labels plus applicable QA gates instead of invented confidence percentages. The consulting capability catalog is distinct from lower-level MCP utilities exposed through tools/list. Prefer deterministic finance, statistics, and forecasting tools over hand arithmetic when their exact definitions and assumptions match the requested analysis.",
+        "Natural-language semantic interpretation belongs to the consulting orchestration workflow. Select candidate capability IDs from the catalog, validate substantive multi-capability plans before presenting them as executable, treat capability status and open-access limits as hard truth boundaries, and use epistemic labels plus applicable QA gates instead of invented confidence percentages. The consulting capability catalog is distinct from lower-level MCP utilities exposed through tools/list. Prefer deterministic finance, statistics, forecasting, project, operations, and supply-chain tools over hand arithmetic when their exact definitions and assumptions match the requested analysis.",
     },
   );
 
@@ -37,6 +40,9 @@ export function createServer(options: ConsultingServerOptions = {}): McpServer {
   registerFinanceTools(server);
   registerStatisticsTools(server);
   registerForecastingTools(server);
+  registerProjectTools(server);
+  registerOperationsTools(server);
+  registerSupplyChainTools(server);
 
   return server;
 }
