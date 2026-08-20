@@ -58,6 +58,9 @@ Natural-language semantic selection remains a host-model/Skill responsibility ba
 - `src/finance/` — deterministic corporate-finance/FP&A engines and MCP tools.
 - `src/statistics/` — profiling, descriptive statistics, correlation, Student-t inference, and autocorrelation engines/MCP tools.
 - `src/forecasting/` — baseline forecast, forecast-error, and rolling-origin backtest engines/MCP tools.
+- `src/project/` — critical-path, three-point estimate, earned-value engines, and MCP registrations.
+- `src/operations/` — capacity/utilization, aggregate flow, weighted-decision engines, and MCP registrations.
+- `src/supply-chain/` — reorder-point, classical EOQ, supplier-spend concentration engines, and MCP registrations.
 - `scripts/`, `governance/`, `tests/`, `docs/`, `.github/workflows/` — freshness, SSOT governance, verification, design/plan docs, and CI.
 
 ## Runtime baseline
@@ -90,26 +93,37 @@ Subproject 3's full code gate passed on `e036427c67c114af307aeac189d8e04f498a0e0
 
 ## Deterministic data, statistics, and forecasting support
 
-The statistics surface now exposes:
+The statistics surface exposes non-coercive column profiling, finite-number descriptive statistics with N-1 sample variance and type-7 quantiles, Pearson/tie-aware Spearman correlation, Student-t mean confidence intervals, Welch unequal-variance t-tests, and lag autocorrelation for ordered equally spaced observations.
 
-- `profile_data_column` — explicit non-coercive missing/type profiling;
-- `calculate_descriptive_statistics` — finite-number summaries with N-1 sample variance, N population variance, and type-7 quartile/median convention;
-- `calculate_correlation` — Pearson or tie-aware Spearman correlation with zero-variance rejection;
-- `calculate_mean_confidence_interval` — two-sided Student-t mean interval with explicit assumptions and degrees of freedom;
-- `calculate_welch_t_test` — two-sided unequal-variance Welch comparison with Welch-Satterthwaite degrees of freedom, p-value, interval, and non-overstated interpretation;
-- `calculate_autocorrelation` — lag autocorrelation for ordered, equally spaced observations.
+The forecasting surface exposes naive, caller-specified seasonal-naive, drift, and trailing moving-average baselines; signed bias/MAE/MSE/RMSE/MAPE/sMAPE; and expanding-window rolling-origin backtesting without random time-series splits or future leakage.
 
-The forecasting surface exposes:
-
-- `forecast_baseline` — naive, caller-specified seasonal-naive, drift, or trailing moving-average benchmark;
-- `calculate_forecast_error_metrics` — signed mean error, MAE, MSE, RMSE, MAPE, and sMAPE using one common pair set;
-- `backtest_forecast_baseline` — expanding-window rolling-origin out-of-sample evaluation with no random time-series split.
-
-Important conventions are explicit rather than hidden. Numeric-looking strings are not coerced. Missing/non-finite values are distinguished before numeric analysis. Sample variance uses `n-1`; type-7 quantiles use linear interpolation. Formal inference exposes independence/model assumptions and does not treat failure to reject as proof of equality. Forecast observations are assumed equally spaced and ordered. MAPE is null when any actual is zero; sMAPE is null when any pair has a zero joint denominator, so rows are never silently dropped and epsilon is never substituted.
-
-Baseline forecasts remain benchmarks rather than a comprehensive forecasting claim. The active catalog binds the verified profiling/statistics/inference/baseline/backtest/error tools to relevant capabilities as `partial`; none of these broad data/forecasting capabilities was promoted to fully implemented merely because one deterministic primitive now exists.
+Important conventions are explicit rather than hidden. Numeric-looking strings are not coerced. Missing/non-finite values are distinguished before numeric analysis. MAPE/sMAPE return null when mathematically undefined instead of silently dropping rows. Baseline forecasts remain benchmarks rather than a comprehensive forecasting claim, and active catalog bindings remain `partial` where broader outcomes exceed the primitive.
 
 Subproject 4's full code gate passed on `35606810a45dc4dc057451096e859053ebbd9d51` through Actions run `32300232978`.
+
+## Deterministic project, operations, and supply-chain support
+
+The verified project MCP surface includes:
+
+- `calculate_critical_path` — finish-to-start, zero-lag activity-on-node DAG scheduling in one duration unit, including early/late timing, total float, bounded multiple critical paths, milestones, cycle detection, and unknown-dependency rejection;
+- `calculate_three_point_estimate` — PERT-style weighted expected value, standard deviation, variance, and triangular mean from explicit optimistic/most-likely/pessimistic values;
+- `calculate_earned_value_performance` — SV, CV, SPI, and CPI from supplied PV/EV/AC with null ratio outputs when denominators are zero.
+
+The verified operations MCP surface includes:
+
+- `calculate_capacity_utilization` — used capacity divided by available capacity on one explicit unit/period basis;
+- `calculate_flow_performance` — aggregate throughput and average cycle time from completed units and elapsed time;
+- `calculate_weighted_decision` — normalized non-negative weights and ranking of already-comparable option scores.
+
+The verified supply-chain MCP surface includes:
+
+- `calculate_reorder_point` — lead-time demand plus caller-supplied safety stock;
+- `calculate_eoq` — classical EOQ benchmark;
+- `analyze_supplier_spend` — supplier spend rank/share/cumulative share/top-N concentration.
+
+These primitives do not claim calendar/resource-aware scheduling, arbitrary dependency types, probabilistic schedule guarantees, EAC forecasting, queue/bottleneck diagnosis, automatic scale normalization, stochastic safety-stock design, quantity-discount optimization, or supplier-risk inference. The active catalog binds them to relevant broader project/operations/supply-chain capabilities as `partial`; no broad consulting outcome was promoted to implemented merely because one primitive exists.
+
+Subproject 5's executable and catalog-binding gate passed on `1fea7d383537956631bd132a39f175646d5f02ac` through Actions run `32408792540`. The immediately preceding integration repair `448c22ae49f046925af0324cbab5bc3ebc67fcab` also passed full verification through run `32408368386` after correcting server composition and two convention-string contract defects.
 
 ## Remote MCP status
 
@@ -123,9 +137,11 @@ The repository contains source-level remote Streamable HTTP MCP support with fre
 
 **Subproject 3 — Corporate Finance & FP&A Engines:** verified complete for its specified deterministic envelope on `e036427c67c114af307aeac189d8e04f498a0e05`, run `32298548890`.
 
-**Subproject 4 — Data, Statistics & Forecasting Engines:** verified complete for its specified deterministic envelope on `35606810a45dc4dc057451096e859053ebbd9d51`, run `32300232978`. Verification covers direct numerical fixtures, Student-t/Welch inference fixtures, profiling/correlation/autocorrelation, forecast baselines/error metrics/rolling-origin backtesting, MCP HTTP execution and annotations, catalog truth bindings, and all preserved regression tests.
+**Subproject 4 — Data, Statistics & Forecasting Engines:** verified complete for its specified deterministic envelope on `35606810a45dc4dc057451096e859053ebbd9d51`, run `32300232978`.
 
-The next milestone is **Subproject 5 — Project, Operations & Supply-Chain Engines**. CSV/XLSX/DOCX/PDF/PPTX artifact expansion, visualization, anonymous public research/fact checking/SEO, executive workflows, production remote MCP, and marketplace submission remain later milestones.
+**Subproject 5 — Project, Operations & Supply-Chain Engines:** verified complete for its specified deterministic envelope on `1fea7d383537956631bd132a39f175646d5f02ac`, run `32408792540`. Verification covers pure engine fixtures, malformed/edge conditions, MCP HTTP discovery/execution and safe annotations, truthful partial catalog bindings, and all preserved regressions.
+
+The next milestone is **Subproject 6 — CSV & XLSX Artifact Engines**. Arbitrary existing-workbook XLSX mutation remains gated; the next implementation will prioritize safe CSV CRUD and a validated managed-XLSX creation/editing envelope with explicit preservation boundaries.
 
 ## Branch policy
 
