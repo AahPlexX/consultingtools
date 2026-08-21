@@ -96,14 +96,12 @@ The MCP transport verifies all nine tools as read-only, closed-world, and non-de
 
 ### Subproject 6 verification
 
-CSV & XLSX Artifact Engines passed the executable/catalog gate on `485ec1a10f241bed3212abc3a8b8ffd9f3563e62` with `npm run verify` passing through GitHub Actions run `32491018071`; `ci/verify` concluded `success`.
+CSV & XLSX Artifact Engines are verified complete for the specified bounded envelope. The executable/catalog gate passed on `485ec1a10f241bed3212abc3a8b8ffd9f3563e62` with `npm run verify` through GitHub Actions run `32491018071`. The documentation-head closure gate passed on `bddf096f5a748fc3f8de43871518c6462d3da153` through Actions run `32491513181`, and branch enumeration confirmed that `main` is the sole branch.
 
 The verified CSV envelope includes bounded RFC-style comma-delimited parsing/serialization, no type coercion, explicit spreadsheet-formula-injection escaping by default, immutable cell/row/column mutations, artifact resources, revision preconditions, and create/inspect/patch MCP tools. `csv-crud` is promoted only to `partial` because arbitrary delimiters, schema/filter semantics, and other broader transformations remain outside the verified primitive.
 
 The verified managed-XLSX v1 envelope includes macro-free SpreadsheetML package creation, exact managed marker/part validation, literal strings/numbers/booleans/blanks, worksheet/cell/row/column mutations, a constrained formula tokenizer/parser, no fabricated cached formula values, recalculation metadata, revision-guarded create/inspect/patch MCP tools, and rejection of malformed, macro-enabled, arbitrary non-managed, traversal, oversized, external-reference, URL/DDE/add-in, and other unsupported inputs. Broad `xlsx-crud` remains `planned` and unbound because arbitrary third-party workbook styles, charts, drawings, pivots, conditional formatting, data validation, named items, comments, external links/data connections, VBA/macros, unknown parts/relationships, and full Excel formula compatibility are not preserved by managed-v1.
 
-Subproject 6 is not signed off until the documentation HEAD containing this verification record also passes a fresh full `ci/verify` and branch enumeration confirms `main` remains the sole authoritative branch.
-
 ## Next detailed plan
 
-After Subproject 6 closure, write and execute the detailed implementation plan for Subproject 7 — **DOCX & PDF Artifact Expansion**. Preserve the current bounded DOCX-template and PDF-metadata behaviors while defining independently testable creation/editing/preservation/rendering envelopes before broad capability promotion.
+Write and execute the detailed implementation plan for Subproject 7 — **DOCX & PDF Artifact Expansion**. Preserve the current bounded DOCX-template and PDF-metadata behaviors while defining independently testable creation/editing/preservation/rendering envelopes before broad capability promotion.
