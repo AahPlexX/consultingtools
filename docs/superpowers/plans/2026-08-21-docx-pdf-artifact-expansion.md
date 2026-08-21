@@ -121,28 +121,13 @@ export function validateConsultingDocument(document: ConsultingDocumentV1): Cons
 
 Use constants: maximum 500 blocks, 1,000,000 total characters, 200 list items per list, 4 key-metric items per block, 12 table columns, 500 rows per table, 20,000 total table cells, 100,000 characters per individual text value, and accent color matching exactly six hexadecimal digits.
 
-- [ ] **Step 1: Write failing closed-world validation tests.** Test a representative valid report and reject unknown block kinds, blank required text, 13-column tables, row-width mismatch, alignment-width mismatch, >4 metrics, invalid color, non-finite/negative limits where applicable, and aggregate block/character/cell overflow.
+- [x] **Step 1: Write failing closed-world validation tests.** Test a representative valid report and reject unknown block kinds, blank required text, 13-column tables, row-width mismatch, alignment-width mismatch, >4 metrics, invalid color, non-finite/negative limits where applicable, and aggregate block/character/cell overflow.
+- [x] **Step 2: Run `npm test -- tests/document-model.test.ts` and confirm RED because the document model does not exist.**
+- [x] **Step 3: Implement the type model and validator with no rendering dependencies.** Count all title/metadata/block/table/list strings in the aggregate character bound. Reject extra table row cells instead of truncating or padding them.
+- [x] **Step 4: Run focused tests and full `npm run verify`; fix only implementation defects.**
+- [x] **Step 5: Commit model + validation.**
 
-```ts
-const report: ConsultingDocumentV1 = {
-  version: 1,
-  title: "Operating Model Assessment",
-  preparedFor: "Northwind Health",
-  confidentiality: "confidential",
-  blocks: [
-    { kind: "heading", level: 1, text: "Executive findings" },
-    { kind: "paragraph", emphasis: "lead", text: "Three structural issues explain most observed delay." },
-    { kind: "key-metrics", items: [{ label: "Cycle time", value: "14.2 days", detail: "+18% vs baseline" }] },
-    { kind: "table", columns: ["Finding", "Impact"], rows: [["Queue imbalance", "High"]] },
-  ],
-};
-expect(validateConsultingDocument(report)).toMatchObject({ blockCount: 4, tableCount: 1, tableCellCount: 4 });
-```
-
-- [ ] **Step 2: Run `npm test -- tests/document-model.test.ts` and confirm RED because the document model does not exist.**
-- [ ] **Step 3: Implement the type model and validator with no rendering dependencies.** Count all title/metadata/block/table/list strings in the aggregate character bound. Reject extra table row cells instead of truncating or padding them.
-- [ ] **Step 4: Run focused tests and full `npm run verify`; fix only implementation defects.**
-- [ ] **Step 5: Commit model + validation.**
+**Evidence:** independently green on `26133b9c3e404c39b64c2c375aebbac6cdd330fd`, Actions run `32519572800`.
 
 ### Task 2: Professional DOCX Creation Engine
 
@@ -163,20 +148,13 @@ export async function createConsultingDocx(document: ConsultingDocumentV1): Prom
 
 Render one portrait Letter/A4 section using explicit paragraph styles, heading outline levels, page margins, default header/footer, current page number, a first-page title area, fixed-layout tables with a shaded header row, semantic bullet/decimal numbering, compact key-metric tables, and tone-specific callout tables. Use a brand-neutral professional default accent when `accentColorHex` is absent. Do not create hyperlinks, fields other than the page-number field, macros, images, charts, comments, or embedded files.
 
-- [ ] **Step 1: Write failing DOCX package/semantic tests.** Require detected macro-free DOCX, `word/document.xml`, styles, numbering, header/footer relationships, Heading1/2/3 usage, page-number field, title/metadata text, table headers, bullets/numbering, callout text, page break, and exact Unicode text round-trip in XML.
+- [x] **Step 1: Write failing DOCX package/semantic tests.** Require detected macro-free DOCX, `word/document.xml`, styles, numbering, header/footer relationships, Heading1/2/3 usage, page-number field, title/metadata text, table headers, bullets/numbering, callout text, page break, and exact Unicode text round-trip in XML.
+- [x] **Step 2: Confirm RED.**
+- [x] **Step 3: Implement DOCX rendering with `Document`, paragraph styles, `Header`, `Footer`, `PageNumber.CURRENT`, `Table`, fixed table layout, and `Packer.toBuffer`.** All content comes from the validated document model; no raw OOXML or arbitrary HTML is accepted.
+- [x] **Step 4: Re-open/classify the generated buffer, inspect required package parts, and reject generation if output is not macro-free DOCX.**
+- [x] **Step 5: Run focused + full verification and commit.**
 
-```ts
-const created = await createConsultingDocx(report);
-expect(detectArtifactFormat(created.bytes).format).toBe("docx");
-const parts = unzipSync(created.bytes);
-expect(Buffer.from(parts["word/document.xml"]!).toString("utf8")).toContain("Operating Model Assessment");
-expect(Buffer.from(parts["word/footer1.xml"]!).toString("utf8")).toMatch(/PAGE/);
-```
-
-- [ ] **Step 2: Confirm RED.**
-- [ ] **Step 3: Implement DOCX rendering with `Document`, paragraph styles, `Header`, `Footer`, `PageNumber.CURRENT`, `Table`, fixed table layout, and `Packer.toBuffer`.** All content comes from the validated document model; no raw OOXML or arbitrary HTML is accepted.
-- [ ] **Step 4: Re-open/classify the generated buffer, inspect required package parts, and reject generation if output is not macro-free DOCX.**
-- [ ] **Step 5: Run focused + full verification and commit.**
+**Evidence:** independently green on `db0fa9fb25f3846cc4d2fae429a1a166208441d5`, Actions run `32520282663`.
 
 ### Task 3: Deterministic PDF Layout and Professional PDF Creation
 
@@ -204,18 +182,14 @@ export async function createConsultingPdf(document: ConsultingDocumentV1): Promi
 
 Use `StandardFonts.Helvetica` and `StandardFonts.HelveticaBold` only. Preflight every rendered string by attempting standard-font encoding before creating/storing output. Use deterministic page geometry, margins, typographic sizes, spacing, accent rules, footer page numbers, and page-break logic. Tables repeat their header row after a page break and split only between rows. A single row/callout that cannot fit on an empty content page is rejected rather than clipped. Paragraphs can split across pages but must not intentionally leave one orphaned line at the top/bottom when at least two lines can be kept together.
 
-- [ ] **Step 1: Write failing pure-layout tests.** Cover long-word rejection, ordinary wrapping, blank lines, exact-boundary lines, paragraph pagination, table row height, repeated table headers, a too-tall row, page break, key metrics, and callout keep-together behavior.
-- [ ] **Step 2: Write failing PDF creation tests.** Require `%PDF-`, metadata title/author where supplied, expected page count for a multi-page fixture, all standard-font-compatible report text to encode, unsupported non-WinAnsi input such as `Δ` to fail before output, and reopened output to preserve page count.
+- [x] **Step 1: Write failing pure-layout tests.** Cover long-word rejection, ordinary wrapping, blank lines, exact-boundary lines, paragraph pagination, table row height, repeated table headers, a too-tall row, page break, key metrics, and callout keep-together behavior.
+- [x] **Step 2: Write failing PDF creation tests.** Require `%PDF-`, metadata title/author where supplied, expected page count for a multi-page fixture, all standard-font-compatible report text to encode, unsupported non-WinAnsi input such as `Δ` to fail before output, and reopened output to preserve page count.
+- [x] **Step 3: Confirm RED.**
+- [x] **Step 4: Implement pure layout helpers first, then the `pdf-lib` renderer using `PDFDocument.create`, standard-font measurement, `drawText`, `drawLine`, and `drawRectangle`.** Never call `addJavaScript`, attach embedded files, or synthesize hidden content.
+- [x] **Step 5: Save, classify, reopen with `PDFDocument.load({ updateMetadata: false })`, verify page count and metadata, then return bytes.**
+- [x] **Step 6: Run focused + full verification and commit.**
 
-```ts
-await expect(createConsultingPdf({ ...report, blocks: [{ kind: "paragraph", text: "Unsupported Δ" }] }))
-  .rejects.toThrow(/standard PDF font/i);
-```
-
-- [ ] **Step 3: Confirm RED.**
-- [ ] **Step 4: Implement pure layout helpers first, then the `pdf-lib` renderer using `PDFDocument.create`, standard-font measurement, `drawText`, `drawLine`, and `drawRectangle`.** Never call `addJavaScript`, attach embedded files, or synthesize hidden content.
-- [ ] **Step 5: Save, classify, reopen with `PDFDocument.load({ updateMetadata: false })`, verify page count and metadata, then return bytes.**
-- [ ] **Step 6: Run focused + full verification and commit.**
+**Evidence:** independently green on `b04b71ffd3b80b4a684b6ed3393cd31609b40f54`, Actions run `32520569918`.
 
 ### Task 4: Derivative PDF Page Composition
 
@@ -242,11 +216,13 @@ export async function composePdfPages(selections: readonly PdfPageSelection[]): 
 
 Limits: 20 source selections, 500 output pages, each page index zero-based and explicit; duplicate indices are allowed because duplication is a valid composition request. Every source must be detected PDF and load successfully. The operation always creates a new PDF and never mutates inputs. It copies selected pages in the exact supplied order with `copyPages`; it does not claim preservation of document-level metadata, AcroForms, outlines/bookmarks, attachments, JavaScript, signatures, or cross-document navigation.
 
-- [ ] **Step 1: Write failing composition tests.** Create source PDFs with distinct page dimensions, rotations, and visible labels; test merge, extraction, reordering, duplication, source-buffer immutability, zero selections, unknown page index, >500 output pages, malformed PDF, and encrypted/unsupported input failure where the parser reports it.
-- [ ] **Step 2: Confirm RED.**
-- [ ] **Step 3: Implement load → validate page indices → `PDFDocument.create()` → `copyPages()` → ordered add → save → reopen.** Set derivative metadata to identify Consulting Tools as creator/producer only; do not copy source document metadata and present it as preserved.
-- [ ] **Step 4: Verify copied page sizes/rotations in tests and verify all source buffers are byte-identical after composition.**
-- [ ] **Step 5: Run focused + full verification and commit.**
+- [x] **Step 1: Write failing composition tests.** Create source PDFs with distinct page dimensions, rotations, and visible labels; test merge, extraction, reordering, duplication, source-buffer immutability, zero selections, unknown page index, >500 output pages, malformed PDF, and encrypted/unsupported input failure where the parser reports it.
+- [x] **Step 2: Confirm RED.**
+- [x] **Step 3: Implement load → validate page indices → `PDFDocument.create()` → `copyPages()` → ordered add → save → reopen.** Set derivative metadata to identify Consulting Tools as creator/producer only; do not copy source document metadata and present it as preserved.
+- [x] **Step 4: Verify copied page sizes/rotations in tests and verify all source buffers are byte-identical after composition.**
+- [x] **Step 5: Run focused + full verification and commit.**
+
+**Evidence:** independently green on `ca8848011fb886ed765ff0f125a004511eeb9f3a`, Actions run `32520726004`.
 
 ### Task 5: Existing DOCX/PDF Preservation Hardening
 
@@ -258,11 +234,13 @@ Limits: 20 source selections, 500 output pages, each page index zero-based and e
 
 **Interfaces:** Preserve existing public function names and tool behavior. This task may add internal helpers only; no new broad existing-document mutation API is introduced.
 
-- [ ] **Step 1: Write DOCX preservation fixtures before changing code.** Generate a macro-free template containing a body placeholder plus unrelated header, footer, styles, numbering, table, section properties, and a tiny in-memory PNG relationship. Patch only the body placeholder and assert the unrelated semantic parts/content remain present and unchanged where byte-stable. Assert macro-enabled/non-DOCX rejection still holds.
-- [ ] **Step 2: Write PDF metadata preservation fixtures.** Require metadata update to preserve page count, page sizes, rotations, and representative drawn page content streams/resources as observable through `pdf-lib`; source bytes remain unchanged; malformed/non-PDF input remains rejected.
-- [ ] **Step 3: Run focused tests and confirm any new assertions that expose a real preservation gap are RED.** If all new assertions already pass, retain the tests as expanded evidence and do not manufacture a code change.
-- [ ] **Step 4: Make only the minimum adapter changes required by the fixtures.** Do not add arbitrary DOCX search/replace or PDF existing-page text mutation.
-- [ ] **Step 5: Run focused + full verification and commit the tests plus any required hardening.**
+- [x] **Step 1: Write DOCX preservation fixtures before changing code.** Generate a macro-free template containing a body placeholder plus unrelated header, footer, styles, numbering, table, section properties, and a tiny in-memory PNG relationship. Patch only the body placeholder and assert the unrelated semantic parts/content remain present and unchanged where byte-stable. Assert macro-enabled/non-DOCX rejection still holds.
+- [x] **Step 2: Write PDF metadata preservation fixtures.** Require metadata update to preserve page count, page sizes, rotations, and representative drawn page content streams/resources as observable through `pdf-lib`; source bytes remain unchanged; malformed/non-PDF input remains rejected.
+- [x] **Step 3: Run focused tests and confirm any new assertions that expose a real preservation gap are RED.** If all new assertions already pass, retain the tests as expanded evidence and do not manufacture a code change.
+- [x] **Step 4: Make only the minimum adapter changes required by the fixtures.** Do not add arbitrary DOCX search/replace or PDF existing-page text mutation.
+- [x] **Step 5: Run focused + full verification and commit the tests plus any required hardening.**
+
+**Evidence:** stronger fixtures passed without a production adapter rewrite on `47275da7c6cf74aafb31fbee0f2c83fbfd778e02`, Actions run `32520908752`.
 
 ### Task 6: MCP Document Creation and PDF Composition Tools
 
@@ -284,11 +262,13 @@ Limits: 20 source selections, 500 output pages, each page index zero-based and e
 
 Bounds mirror engine limits. `formats` must contain one or two unique values. If PDF preflight fails, a combined DOCX+PDF request creates neither artifact. `create_consulting_document` is a closed-world non-destructive write; `compose_pdf_artifact` is also a closed-world non-destructive write because it creates a derivative and does not alter sources.
 
-- [ ] **Step 1: Write Streamable HTTP MCP tests first.** Require both tools to be discoverable with `readOnlyHint:false`, `openWorldHint:false`, `destructiveHint:false`; create DOCX only, PDF only, both formats, atomic failure for unsupported PDF text, resource links, artifact MIME/name/revision, page composition across two sources, source revision immutability, malformed URI/page index errors, and output bounds.
-- [ ] **Step 2: Confirm RED because the tools are absent.**
-- [ ] **Step 3: Register bounded Zod schemas and compose `registerDocumentTools(server, artifactStore)` in `src/server.ts`.** Use the shared engine validators rather than duplicating business rules in Zod.
-- [ ] **Step 4: Run focused MCP tests and full verification.**
-- [ ] **Step 5: Commit.**
+- [x] **Step 1: Write Streamable HTTP MCP tests first.** Require both tools to be discoverable with `readOnlyHint:false`, `openWorldHint:false`, `destructiveHint:false`; create DOCX only, PDF only, both formats, atomic failure for unsupported PDF text, resource links, artifact MIME/name/revision, page composition across two sources, source revision immutability, malformed URI/page index errors, and output bounds.
+- [x] **Step 2: Confirm RED because the tools are absent.**
+- [x] **Step 3: Register bounded Zod schemas and compose `registerDocumentTools(server, artifactStore)` in `src/server.ts`.** Use the shared engine validators rather than duplicating business rules in Zod.
+- [x] **Step 4: Run focused MCP tests and full verification.**
+- [x] **Step 5: Commit.**
+
+**Evidence:** initial candidate correctly exposed missing server composition; integrated document-tool behavior is green on `c19c45db29c3e5934d64615f7d95f537daa6f88a`, Actions run `32535859959`.
 
 ### Task 7: Independent DOCX/PDF Rendering and Openability Gate
 
@@ -312,11 +292,13 @@ The shell validator receives that directory and must:
 4. rasterize the first and last page of each with `pdftoppm -png -f N -singlefile` and require non-empty PNG output;
 5. fail on any conversion/rasterization error.
 
-- [ ] **Step 1: Add the deterministic fixture generator and shell validator, then run unit tests locally/CI without installing new runtime npm dependencies.**
-- [ ] **Step 2: Add a CI step after the normal build that installs `libreoffice-writer` and `poppler-utils` with `apt-get`, generates fixtures, and runs the render validator.** This is CI-only; production runtime must not depend on LibreOffice/Poppler.
-- [ ] **Step 3: Confirm RED if the newly generated DOCX/PDF cannot independently convert/rasterize.** Fix the document engines, not the renderer, for legitimate output defects.
-- [ ] **Step 4: Require the entire existing `ci/verify` status to remain green with the independent render step included.** Record the exact SHA/run before catalog promotion.
-- [ ] **Step 5: Commit.**
+- [x] **Step 1: Add the deterministic fixture generator and shell validator, then run unit tests locally/CI without installing new runtime npm dependencies.**
+- [x] **Step 2: Add a CI step after the normal build that installs `libreoffice-writer` and `poppler-utils` with `apt-get`, generates fixtures, and runs the render validator.** This is CI-only; production runtime must not depend on LibreOffice/Poppler.
+- [x] **Step 3: Confirm RED if the newly generated DOCX/PDF cannot independently convert/rasterize.** Fix the document engines, not the renderer, for legitimate output defects.
+- [x] **Step 4: Require the entire existing `ci/verify` status to remain green with the independent render step included.** Record the exact SHA/run before catalog promotion.
+- [x] **Step 5: Commit.**
+
+**Evidence:** initial render integration exposed the incorrect emitted-module path and failed as intended; corrected integrated renderer is green on `c19c45db29c3e5934d64615f7d95f537daa6f88a`, Actions run `32535859959`.
 
 ### Task 8: Truthful Catalog Promotion, Documentation, and Subproject Closure
 
@@ -335,12 +317,14 @@ The shell validator receives that directory and must:
 - `docx-crud` may move from `planned` to **`partial`** only after DOCX creation, existing placeholder preservation fixtures, MCP creation, and independent LibreOffice rendering all pass. Its engine bindings may include `create_consulting_document`, `inspect_docx_template`, and `patch_docx_template`; it must not become `implemented` because arbitrary existing Word content/styles/fields/drawings remain outside the envelope.
 - `pdf-crud` may move from `planned` to **`partial`** only after PDF creation, metadata preservation fixtures, derivative page composition, MCP operations, and independent Poppler rasterization pass. Its engine bindings may include `create_consulting_document`, `inspect_pdf`, `update_pdf_metadata`, and `compose_pdf_artifact`; it must not become `implemented` because forms, annotations, arbitrary existing text/content editing, signatures, outlines, attachments, JavaScript, and full preservation remain outside the envelope.
 
-- [ ] **Step 1: Write catalog truth tests first for the exact partial statuses/bindings above and assert broad unsupported semantics remain unclaimed.**
-- [ ] **Step 2: Confirm RED, then add only those verified promotions.**
-- [ ] **Step 3: Require fresh full `ci/verify` including the independent rendering gate on the exact code/catalog SHA.**
-- [ ] **Step 4: Update Skill/governance/README/roadmap with exact supported blocks, PDF standard-font limitation, page-composition derivative semantics, excluded structures, and verified SHA/run.**
+- [x] **Step 1: Write catalog truth tests first for the exact partial statuses/bindings above and assert broad unsupported semantics remain unclaimed.**
+- [x] **Step 2: Confirm RED, then add only those verified promotions.**
+- [x] **Step 3: Require fresh full `ci/verify` including the independent rendering gate on the exact code/catalog SHA.**
+- [x] **Step 4: Update Skill/governance/README/roadmap with exact supported blocks, PDF standard-font limitation, page-composition derivative semantics, excluded structures, and verified SHA/run.**
 - [ ] **Step 5: Require a second fresh successful full CI result for documentation HEAD and exhaust branch enumeration to confirm only `main`.**
 - [ ] **Step 6: Mark Subproject 7 complete only after all prior steps are evidenced; then advance the roadmap to Subproject 8 — Presentation & Visualization Engine.**
+
+**Task 8 execution evidence to date:** catalog truth RED was established on `a556912e0b6a8cc18211adb32959c031d2e26501`, Actions run `32535958844`. The first promotion candidate `be9c1666ec4289b4d2e63dd576e99e5abca92b8b` correctly failed stale broad-CRUD regressions in run `32536009129`; the next regression candidate `e7671f502c5bf558763763cda64081eaa2162b2a` exposed only an invented PDF display-name assertion in run `32536125813`. The corrected code/catalog/rendering gate is green on `1c789291e9488f1a325ddc27a0ca29966338b791`, Actions run `32536219577`. Documentation closure is intentionally still pending.
 
 ## Self-Review
 
@@ -348,4 +332,4 @@ The shell validator receives that directory and must:
 - **Placeholder scan:** No TBD/TODO/"similar to" instructions appear. Each task names exact files, interfaces, bounds, failure behavior, focused tests, full verification, and commit boundary.
 - **Type consistency:** `ConsultingDocumentV1` and `ConsultingDocumentMetrics` are defined once in Task 1 and consumed unchanged by both renderers and MCP. PDF composition is intentionally byte/page based and does not depend on the report model. Creation tools return new artifacts; existing mutation tools preserve `expectedRevision` semantics.
 - **Scope boundary:** Arbitrary existing DOCX text/layout CRUD, arbitrary existing PDF text removal/replacement, PDF forms/annotations/signatures, document JavaScript, attachments, outlines/bookmarks, tagged PDF/PDF-UA, custom fonts, arbitrary HTML/CSS, images/logos, charts, and full Word/PDF fidelity are intentionally excluded rather than silently approximated.
-- **Independent validation:** DOCX is independently opened/rendered through LibreOffice Writer; both LibreOffice-rendered DOCX output and native PDF are independently parsed/rasterized through Poppler in CI. This validates renderability, not pixel parity with Microsoft Word/Adobe Acrobat, and documentation must state that distinction.
+- **Independent validation:** DOCX is independently opened/rendered through LibreOffice Writer; both LibreOffice-rendered DOCX output and native PDF are independently parsed/rasterized through Poppler in CI. This validates renderability, not pixel parity with Microsoft Word/Adobe Acrobat, and documentation states that distinction.
