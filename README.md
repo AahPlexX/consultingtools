@@ -81,15 +81,15 @@ CSV has a verified bounded implementation for comma-delimited parsing/serializat
 
 XLSX has a verified managed-v1 implementation for Consulting Tools-owned macro-free workbooks: literal cells, worksheet/cell/row/column mutations, bounded explicit formulas, managed marker/package validation, and revision-guarded create/inspect/patch MCP operations. Arbitrary third-party workbook mutation remains unsupported; broad `xlsx-crud` stays `planned` and unbound because styles, charts, drawings, pivots, named items, comments, external links/data connections, VBA/macros, unknown parts, and full Excel formula compatibility are outside managed-v1.
 
-DOCX now has a verified professional **creation** route plus the earlier bounded existing-template route. `create_consulting_document` creates a new macro-free DOCX from the shared text-centric `ConsultingDocumentV1` model with explicit styles, heading levels, semantic lists, tables, callouts/key metrics, headers/footers, and page numbering. `inspect_docx_template` and `patch_docx_template` remain restricted to existing macro-free placeholder templates. Broad `docx-crud` is therefore `partial`, not implemented; arbitrary existing Word text/layout/style/field/drawing/comment/track-change CRUD remains unclaimed.
+DOCX has a verified professional **creation** route plus the earlier bounded existing-template route. `create_consulting_document` creates a new macro-free DOCX from the shared text-centric `ConsultingDocumentV1` model with explicit styles, heading levels, semantic lists, tables, callouts/key metrics, headers/footers, and page numbering. `inspect_docx_template` and `patch_docx_template` remain restricted to existing macro-free placeholder templates. Broad `docx-crud` is therefore `partial`, not implemented; arbitrary existing Word text/layout/style/field/drawing/comment/track-change CRUD remains unclaimed.
 
-PDF now has a verified professional **creation** route, existing metadata subset, and derivative page-composition route. `create_consulting_document` creates standard-font PDF reports from the same shared model; unsupported standard-font text fails explicitly. `inspect_pdf` and `update_pdf_metadata` retain the bounded metadata path. `compose_pdf_artifact` creates a new PDF from explicitly selected source pages without revising source artifacts. Broad `pdf-crud` is therefore `partial`, not implemented; forms, annotations, arbitrary existing page-text editing, signatures, outlines, attachments, JavaScript, tagged-PDF/PDF-UA, custom fonts, and full source-level structure preservation remain outside the envelope.
+PDF has a verified professional **creation** route, existing metadata subset, and derivative page-composition route. `create_consulting_document` creates standard-font PDF reports from the same shared model; unsupported standard-font text fails explicitly. `inspect_pdf` and `update_pdf_metadata` retain the bounded metadata path. `compose_pdf_artifact` creates a new PDF from explicitly selected source pages without revising source artifacts. Broad `pdf-crud` is therefore `partial`, not implemented; forms, annotations, arbitrary existing page-text editing, signatures, outlines, attachments, JavaScript, tagged-PDF/PDF-UA, custom fonts, and full source-level structure preservation remain outside the envelope.
 
 Representative generated DOCX/PDF output is independently validated in CI: LibreOffice Writer converts the DOCX to PDF; Poppler `pdfinfo` parses the converted and native PDFs; and `pdftoppm` rasterizes first/last pages. This is openability/renderability evidence, not pixel parity with Microsoft Word or Adobe Acrobat.
 
 The CSV/managed-XLSX executable and catalog gate passed on commit `485ec1a10f241bed3212abc3a8b8ffd9f3563e62` through Actions run `32491018071`.
 
-The DOCX/PDF executable/catalog/rendering gate passed on commit `1c789291e9488f1a325ddc27a0ca29966338b791` through Actions run `32536219577`.
+The DOCX/PDF executable/catalog/rendering gate passed on commit `1c789291e9488f1a325ddc27a0ca29966338b791` through Actions run `32536219577`. The documentation-head closure gate then passed on `5a3b44806d3303854b803ef3e2e8a23abf7863d4` through run `32536569796`, and exhaustive branch enumeration returned only `main` with no continuation results.
 
 ## Deterministic corporate-finance and FP&A support
 
@@ -161,9 +161,9 @@ The repository contains source-level remote Streamable HTTP MCP support with fre
 
 **Subproject 6 — CSV & XLSX Artifact Engines:** verified complete for its specified bounded envelope. The executable/catalog gate passed on `485ec1a10f241bed3212abc3a8b8ffd9f3563e62`, run `32491018071`; the documentation-head closure gate passed on `bddf096f5a748fc3f8de43871518c6462d3da153`, run `32491513181`; branch enumeration confirmed `main` is the sole branch.
 
-**Subproject 7 — DOCX & PDF Artifact Expansion:** code/catalog/rendering gate verified on `1c789291e9488f1a325ddc27a0ca29966338b791`, run `32536219577`. Professional DOCX/PDF creation, bounded existing-file operations, derivative PDF composition, preservation fixtures, MCP lifecycle tests, and independent LibreOffice/Poppler rendering are green. **Final subproject closure is still pending the documentation-head CI and branch-integrity gate; do not treat this line as completion until that second gate passes.**
+**Subproject 7 — DOCX & PDF Artifact Expansion:** verified complete for its explicitly bounded envelope. The executable/catalog/rendering gate passed on `1c789291e9488f1a325ddc27a0ca29966338b791`, run `32536219577`; the documentation-head gate passed on `5a3b44806d3303854b803ef3e2e8a23abf7863d4`, run `32536569796`; exhaustive branch enumeration returned only `main`. The closure-record commit containing this statement must itself remain green before external signoff.
 
-The current milestone remains **Subproject 7 — DOCX & PDF Artifact Expansion** until its documentation-head closure gate passes. After verified closure, the next milestone is **Subproject 8 — Presentation & Visualization Engine**.
+The next milestone is **Subproject 8 — Presentation & Visualization Engine**.
 
 ## Branch policy
 
