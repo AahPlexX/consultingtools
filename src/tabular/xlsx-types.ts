@@ -34,7 +34,7 @@ export type ManagedXlsxMutation =
       type: "insert-row";
       sheetName: string;
       rowIndex: number;
-      values?: ManagedCellValue[];
+      values?: ManagedCellValue[] | undefined;
     }
   | {
       type: "delete-row";
@@ -45,7 +45,7 @@ export type ManagedXlsxMutation =
       type: "insert-column";
       sheetName: string;
       columnIndex: number;
-      values?: ManagedCellValue[];
+      values?: ManagedCellValue[] | undefined;
     }
   | {
       type: "delete-column";
@@ -55,8 +55,8 @@ export type ManagedXlsxMutation =
   | {
       type: "add-worksheet";
       name: string;
-      index?: number;
-      rows?: ManagedCellValue[][];
+      index?: number | undefined;
+      rows?: ManagedCellValue[][] | undefined;
     }
   | {
       type: "delete-worksheet";
