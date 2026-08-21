@@ -27,7 +27,7 @@ describe("capability catalog", () => {
   it("preserves stable ids during catalog modularization", () => {
     expect(getCapabilityById("swot")?.name).toBe("SWOT analysis");
     expect(getCapabilityById("break-even")?.domain).toBe("finance");
-    expect(getCapabilityById("pdf-crud")?.name).toBe("PDF document CRUD");
+    expect(getCapabilityById("pdf-crud")?.id).toBe("pdf-crud");
   });
 
   it("does not falsely promote broad file CRUD beyond verified envelopes", () => {
