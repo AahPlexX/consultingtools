@@ -150,9 +150,9 @@ The repository contains source-level remote Streamable HTTP MCP support with fre
 
 **Subproject 5 — Project, Operations & Supply-Chain Engines:** verified complete for its specified deterministic envelope on `1fea7d383537956631bd132a39f175646d5f02ac`, run `32408792540`. Verification covers pure engine fixtures, malformed/edge conditions, MCP HTTP discovery/execution and safe annotations, truthful partial catalog bindings, and all preserved regressions.
 
-**Subproject 6 — CSV & XLSX Artifact Engines:** the specified executable/catalog envelope passed on `485ec1a10f241bed3212abc3a8b8ffd9f3563e62`, run `32491018071`. Closure requires a fresh successful `ci/verify` on the documentation HEAD containing this record; until that gate passes, the subproject is not signed off.
+**Subproject 6 — CSV & XLSX Artifact Engines:** verified complete for its specified bounded envelope. The executable/catalog gate passed on `485ec1a10f241bed3212abc3a8b8ffd9f3563e62`, run `32491018071`; the documentation-head closure gate passed on `bddf096f5a748fc3f8de43871518c6462d3da153`, run `32491513181`; branch enumeration confirmed `main` is the sole branch.
 
-The next planned milestone after Subproject 6 closure is **Subproject 7 — DOCX & PDF Artifact Expansion**.
+The next milestone is **Subproject 7 — DOCX & PDF Artifact Expansion**.
 
 ## Branch policy
 
