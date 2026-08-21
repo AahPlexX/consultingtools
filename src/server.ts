@@ -4,6 +4,7 @@ import { registerArtifactTools } from "./artifacts/register-tools.js";
 import { registerPdfTools } from "./artifacts/register-pdf-tools.js";
 import type { ArtifactStore } from "./artifacts/types.js";
 import { registerCapabilityTools } from "./catalog/register-tools.js";
+import { registerDocumentTools } from "./documents/register-tools.js";
 import { registerFinanceTools } from "./finance/register-tools.js";
 import { registerForecastingTools } from "./forecasting/register-tools.js";
 import { registerOperationsTools } from "./operations/register-tools.js";
@@ -27,7 +28,7 @@ export function createServer(options: ConsultingServerOptions = {}): McpServer {
     },
     {
       instructions:
-        "Natural-language semantic interpretation belongs to the consulting orchestration workflow. Select candidate capability IDs from the catalog, validate substantive multi-capability plans before presenting them as executable, treat capability status and open-access limits as hard truth boundaries, and use epistemic labels plus applicable QA gates instead of invented confidence percentages. The consulting capability catalog is distinct from lower-level MCP utilities exposed through tools/list. Prefer deterministic finance, statistics, forecasting, project, operations, supply-chain, and tabular artifact tools over hand arithmetic or ad hoc file rewriting when their exact definitions and assumptions match the requested work. Managed XLSX tools operate only on the explicit Consulting Tools managed workbook envelope; never present them as arbitrary third-party Excel preservation or CRUD.",
+        "Natural-language semantic interpretation belongs to the consulting orchestration workflow. Select candidate capability IDs from the catalog, validate substantive multi-capability plans before presenting them as executable, treat capability status and open-access limits as hard truth boundaries, and use epistemic labels plus applicable QA gates instead of invented confidence percentages. The consulting capability catalog is distinct from lower-level MCP utilities exposed through tools/list. Prefer deterministic finance, statistics, forecasting, project, operations, supply-chain, and governed artifact tools over hand arithmetic or ad hoc file rewriting when their exact definitions and assumptions match the requested work. Managed XLSX tools operate only on the explicit Consulting Tools managed workbook envelope; never present them as arbitrary third-party Excel preservation or CRUD. Consulting document creation uses the bounded ConsultingDocumentV1 model; derivative PDF composition copies selected pages into a new artifact and does not imply arbitrary existing-document editing.",
     },
   );
 
@@ -39,6 +40,7 @@ export function createServer(options: ConsultingServerOptions = {}): McpServer {
       : { maxInlineArtifactBytes: options.maxInlineArtifactBytes };
   registerArtifactTools(server, artifactStore, artifactOptions);
   registerPdfTools(server, artifactStore);
+  registerDocumentTools(server, artifactStore);
   registerTabularTools(server, artifactStore);
   registerManagedXlsxTools(server, artifactStore);
   registerFinanceTools(server);
