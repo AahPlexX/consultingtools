@@ -1,7 +1,9 @@
 import { strToU8, unzipSync, zipSync } from "fflate";
+import { validateManagedFormula } from "./xlsx-formula.js";
 import {
   MANAGED_XLSX_LIMITS,
   type ManagedCellValue,
+  type ManagedFormulaCell,
   type ManagedWorkbook,
   type ManagedWorksheet,
   type ManagedXlsxInspection,
@@ -87,6 +89,13 @@ function assertWorksheetName(name: string): void {
   }
 }
 
+function isManagedFormulaCell(value: unknown): value is ManagedFormulaCell {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
+  const record = value as Record<string, unknown>;
+  const keys = Object.keys(record).sort();
+  return keys.length === 2 && keys[0] === "formula" && keys[1] === "kind" && record.kind === "formula" && typeof record.formula === "string";
+}
+
 function assertWorkbook(workbook: ManagedWorkbook): void {
   if (workbook.version !== 1) throw new Error("Managed workbook version must be exactly 1.");
   if (workbook.worksheets.length < 1) throw new Error("Managed XLSX requires at least one worksheet.");
@@ -95,12 +104,16 @@ function assertWorkbook(workbook: ManagedWorkbook): void {
   }
 
   const names = new Set<string>();
-  let logicalCells = 0;
   for (const sheet of workbook.worksheets) {
     assertWorksheetName(sheet.name);
     const normalizedName = sheet.name.toLocaleLowerCase("en-US");
     if (names.has(normalizedName)) throw new Error("Worksheet names must be unique case-insensitively.");
     names.add(normalizedName);
+  }
+  const sheetNames = workbook.worksheets.map((sheet) => sheet.name);
+
+  let logicalCells = 0;
+  for (const sheet of workbook.worksheets) {
     if (sheet.rows.length > MANAGED_XLSX_LIMITS.maxRowsPerWorksheet) {
       throw new Error(`Worksheet ${sheet.name} exceeds the managed row limit.`);
     }
@@ -113,8 +126,10 @@ function assertWorkbook(workbook: ManagedWorkbook): void {
         throw new Error(`Managed XLSX exceeds the ${MANAGED_XLSX_LIMITS.maxLogicalCells}-logical-cell limit.`);
       }
       for (const value of row) {
-        if (typeof value === "number" && !Number.isFinite(value)) {
-          throw new Error("Managed XLSX numeric cells must be finite numbers.");
+        if (value === null || typeof value === "boolean") continue;
+        if (typeof value === "number") {
+          if (!Number.isFinite(value)) throw new Error("Managed XLSX numeric cells must be finite numbers.");
+          continue;
         }
         if (typeof value === "string") {
           if (value.length > MANAGED_XLSX_LIMITS.maxCellTextCharacters) {
@@ -123,7 +138,15 @@ function assertWorkbook(workbook: ManagedWorkbook): void {
           if (INVALID_XML_CONTROL.test(value)) {
             throw new Error("Managed XLSX text cells cannot contain XML control characters.");
           }
+          continue;
         }
+        if (!isManagedFormulaCell(value)) {
+          throw new Error("Managed XLSX cells must be literal values or an explicit { kind: 'formula', formula } object.");
+        }
+        if (value.formula.length > MANAGED_XLSX_LIMITS.maxFormulaCharacters) {
+          throw new Error("Managed XLSX formula cell exceeds the formula character limit.");
+        }
+        validateManagedFormula(value.formula, { sheetNames });
       }
     }
   }
@@ -151,7 +174,7 @@ function columnIndexFromName(name: string): number {
   return index;
 }
 
-function cellXml(value: ManagedCellValue, rowNumber: number, columnIndex: number): string {
+function cellXml(value: ManagedCellValue, rowNumber: number, columnIndex: number, sheetNames: readonly string[]): string {
   if (value === null) return "";
   const reference = `${columnName(columnIndex)}${rowNumber}`;
   if (typeof value === "string") {
@@ -160,13 +183,17 @@ function cellXml(value: ManagedCellValue, rowNumber: number, columnIndex: number
   if (typeof value === "boolean") {
     return `<c r="${reference}" t="b"><v>${value ? "1" : "0"}</v></c>`;
   }
-  return `<c r="${reference}"><v>${String(value)}</v></c>`;
+  if (typeof value === "number") {
+    return `<c r="${reference}"><v>${String(value)}</v></c>`;
+  }
+  const validated = validateManagedFormula(value.formula, { sheetNames });
+  return `<c r="${reference}"><f>${escapeXml(validated.normalized.slice(1))}</f></c>`;
 }
 
-function worksheetXml(sheet: ManagedWorksheet): string {
+function worksheetXml(sheet: ManagedWorksheet, sheetNames: readonly string[]): string {
   const rows = sheet.rows.map((row, rowIndex) => {
     const rowNumber = rowIndex + 1;
-    const cells = row.map((value, columnIndex) => cellXml(value, rowNumber, columnIndex)).join("");
+    const cells = row.map((value, columnIndex) => cellXml(value, rowNumber, columnIndex, sheetNames)).join("");
     const spans = row.length > 0 ? ` spans="1:${row.length}"` : "";
     return `<row r="${rowNumber}"${spans}>${cells}</row>`;
   }).join("");
@@ -177,7 +204,7 @@ function workbookXml(workbook: ManagedWorkbook): string {
   const sheets = workbook.worksheets.map((sheet, index) =>
     `<sheet name="${escapeXml(sheet.name)}" sheetId="${index + 1}" r:id="rId${index + 1}"/>`,
   ).join("");
-  return `${XML_HEADER}<workbook xmlns="${SPREADSHEET_NS}" xmlns:r="${RELATIONSHIP_NS}"><sheets>${sheets}</sheets></workbook>`;
+  return `${XML_HEADER}<workbook xmlns="${SPREADSHEET_NS}" xmlns:r="${RELATIONSHIP_NS}"><sheets>${sheets}</sheets><calcPr calcMode="auto" forceFullCalc="1" fullCalcOnLoad="1"/></workbook>`;
 }
 
 function workbookRelationshipsXml(sheetCount: number): string {
@@ -347,8 +374,15 @@ function parseRowWidth(attributes: string): number {
   return width;
 }
 
-function parseCellBody(type: string | undefined, body: string): ManagedCellValue {
-  if (/<f\b/i.test(body)) throw new Error("Managed XLSX literal-cell v1 does not permit formulas.");
+function parseCellBody(type: string | undefined, body: string, sheetNames: readonly string[]): ManagedCellValue {
+  const formulaMatch = /^<f>([\s\S]*?)<\/f>$/.exec(body);
+  if (formulaMatch) {
+    if (type !== undefined) throw new Error("Managed XLSX formula cells cannot carry a literal cell type.");
+    const formula = `=${decodeXml(formulaMatch[1] ?? "")}`;
+    validateManagedFormula(formula, { sheetNames });
+    return { kind: "formula", formula };
+  }
+  if (/<f\b/i.test(body)) throw new Error("Managed XLSX contains malformed or cached formula cell content.");
   if (type === "inlineStr") {
     const match = /^<is><t xml:space="preserve">([\s\S]*?)<\/t><\/is>$/.exec(body);
     if (!match) throw new Error("Managed XLSX contains malformed inline-string cell content.");
@@ -374,7 +408,7 @@ function parseCellBody(type: string | undefined, body: string): ManagedCellValue
   return value;
 }
 
-function parseWorksheet(xml: string, expectedSheetIndex: number): ManagedCellValue[][] {
+function parseWorksheet(xml: string, expectedSheetIndex: number, sheetNames: readonly string[]): ManagedCellValue[][] {
   const sheetData = /<sheetData>([\s\S]*?)<\/sheetData>/.exec(xml);
   if (!sheetData) throw new Error("Managed XLSX worksheet is missing sheetData.");
   const rows: ManagedCellValue[][] = [];
@@ -405,10 +439,10 @@ function parseWorksheet(xml: string, expectedSheetIndex: number): ManagedCellVal
       if (column <= previousColumn) throw new Error("Managed XLSX cell references must be strictly increasing within a row.");
       if (column >= width) throw new Error("Managed XLSX cell reference exceeds the row span.");
       previousColumn = column;
-      row[column] = parseCellBody(readAttribute(cellAttributes, "t"), cellMatch[2] ?? "");
+      row[column] = parseCellBody(readAttribute(cellAttributes, "t"), cellMatch[2] ?? "", sheetNames);
     }
     if (encounteredCell && width === 0) throw new Error("Managed XLSX row with cells must declare its logical span.");
-    if (/<c\b[^>]*\/>/.test(body)) throw new Error("Managed XLSX literal-cell v1 does not use empty cell elements.");
+    if (/<c\b[^>]*\/>/.test(body)) throw new Error("Managed XLSX v1 does not use empty cell elements.");
     rows.push(row);
     if (rows.length > MANAGED_XLSX_LIMITS.maxRowsPerWorksheet) {
       throw new Error(`Managed XLSX worksheet ${expectedSheetIndex} exceeds the managed row limit.`);
@@ -464,6 +498,7 @@ function parseManagedPackage(bytes: Uint8Array): ParsedManagedPackage | undefine
     throw new Error("Managed XLSX contains parts outside the exact managed v1 envelope.");
   }
 
+  const sheetNames = sheets.map((sheet) => sheet.name);
   const worksheets: ManagedWorksheet[] = sheets.map((sheet, index) => {
     const path = `xl/worksheets/sheet${index + 1}.xml`;
     if (!contentTypes.includes(`PartName="/${path}"`) || !contentTypes.includes(WORKSHEET_CONTENT_TYPE)) {
@@ -471,7 +506,7 @@ function parseManagedPackage(bytes: Uint8Array): ParsedManagedPackage | undefine
     }
     return {
       name: sheet.name,
-      rows: parseWorksheet(xmlPart(files, path), index + 1),
+      rows: parseWorksheet(xmlPart(files, path), index + 1, sheetNames),
     };
   });
 
@@ -482,6 +517,7 @@ function parseManagedPackage(bytes: Uint8Array): ParsedManagedPackage | undefine
 
 export function createManagedXlsx(workbook: ManagedWorkbook): Buffer {
   assertWorkbook(workbook);
+  const sheetNames = workbook.worksheets.map((sheet) => sheet.name);
   const parts: Record<string, Uint8Array> = {
     "[Content_Types].xml": strToU8(contentTypesXml(workbook.worksheets.length)),
     "_rels/.rels": strToU8(rootRelationshipsXml()),
@@ -490,7 +526,7 @@ export function createManagedXlsx(workbook: ManagedWorkbook): Buffer {
     "xl/workbook.xml": strToU8(workbookXml(workbook)),
   };
   workbook.worksheets.forEach((sheet, index) => {
-    parts[`xl/worksheets/sheet${index + 1}.xml`] = strToU8(worksheetXml(sheet));
+    parts[`xl/worksheets/sheet${index + 1}.xml`] = strToU8(worksheetXml(sheet, sheetNames));
   });
   const bytes = Buffer.from(zipSync(parts));
   if (bytes.byteLength > MANAGED_XLSX_LIMITS.maxArchiveBytes) {
