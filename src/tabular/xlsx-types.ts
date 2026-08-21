@@ -1,4 +1,9 @@
-export type ManagedCellValue = string | number | boolean | null;
+export interface ManagedFormulaCell {
+  kind: "formula";
+  formula: string;
+}
+
+export type ManagedCellValue = string | number | boolean | null | ManagedFormulaCell;
 
 export interface ManagedWorksheet {
   name: string;
@@ -73,5 +78,6 @@ export const MANAGED_XLSX_LIMITS = {
   maxColumnsPerWorksheet: 16_384,
   maxLogicalCells: 500_000,
   maxCellTextCharacters: 100_000,
+  maxFormulaCharacters: 8_192,
   maxMutations: 1_000,
 } as const;
