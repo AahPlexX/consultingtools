@@ -108,7 +108,7 @@
 - [x] Repair stale catalog regression expectations without weakening the broad-file-CRUD boundary.
 - [x] Require a fresh full code/catalog gate: `485ec1a10f241bed3212abc3a8b8ffd9f3563e62` passed `ci/verify` through Actions run `32491018071`.
 - [x] Update governance, Skill, README, roadmap, runtime baseline, and this execution record with the exact supported CSV/managed-XLSX envelope and arbitrary-XLSX prohibition.
-- [ ] Require the final fresh successful CI result for documentation HEAD and confirm branch enumeration contains only `main`.
+- [x] Final documentation-head/branch closure gate passed on `bddf096f5a748fc3f8de43871518c6462d3da153` through Actions run `32491513181`; exhaustive branch enumeration returned only `main`.
 
 ## Execution Notes
 
@@ -116,10 +116,11 @@
 - The managed-XLSX implementation is not a fallback editor for ordinary `.xlsx` files. It rejects any workbook outside the exact managed-v1 envelope rather than normalizing unknown OOXML and silently discarding unsupported structures.
 - The broad catalog identity `xlsx-crud` remains `planned`; `csv-crud` is only `partial` because the active user-facing definition exceeds the verified comma-CSV subset.
 - The repository's `.mcp.json` direct server map remains valid under current OpenAI plugin packaging guidance. MCP protocol/runtime V2 is determined by the split v2 SDK and `serveStdio`, not by wrapping the launcher map in `mcp_servers`.
+- Documentation-head closure passed on `bddf096f5a748fc3f8de43871518c6462d3da153` through Actions run `32491513181`; branch enumeration exhausted all result pages and found only `main`.
 
 ## Self-Review
 
 - Spec coverage: CSV CRUD, XLSX creation/editing, formulas, preservation, security, artifact revisions, MCP surface, truthful catalog state, and documentation closure each have an execution record.
-- Placeholder scan: no implementation TODO/TBD remains inside Tasks 1–7; the only open checklist item is the required final documentation-head/branch closure gate.
+- Placeholder scan: no implementation TODO/TBD or open checklist item remains; closure evidence is recorded above.
 - Type consistency: CSV codec feeds CSV mutations/tools; managed workbook types feed XLSX package/mutation/formula/tools; all artifact writes use existing `ArtifactStore` and revision semantics.
 - Scope boundary: arbitrary third-party XLSX mutation, macros, charts, pivots, drawings, conditional formatting, data validation, external links/data connections, VBA, and full Excel formula compatibility remain intentionally excluded from managed v1 rather than silently lost.
