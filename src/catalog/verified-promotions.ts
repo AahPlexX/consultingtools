@@ -21,6 +21,12 @@ const hybridDeterministic = {
   additionalQualityGates: analyticalGates,
 };
 
+const artifactDeterministic = {
+  mode: "artifact" as const,
+  surfaceRequirements: ["deterministic-engine", "artifact-input", "artifact-output"] as const,
+  additionalQualityGates: ["artifact.openability", "artifact.preservation"] as const,
+};
+
 const verifiedPromotions: Readonly<Record<string, Promotion>> = {
   npv: {
     status: "implemented",
@@ -116,6 +122,11 @@ const verifiedPromotions: Readonly<Record<string, Promotion>> = {
     status: "partial",
     deterministicEngineIds: ["analyze_supplier_spend"],
     ...hybridDeterministic,
+  },
+  "csv-crud": {
+    status: "partial",
+    deterministicEngineIds: ["create_csv_artifact", "inspect_csv_artifact", "patch_csv_artifact"],
+    ...artifactDeterministic,
   },
 };
 
