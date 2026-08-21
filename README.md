@@ -47,7 +47,7 @@ Natural-language semantic selection remains a host-model/Skill responsibility ba
 ## Repository map
 
 - `.codex-plugin/plugin.json` — plugin package manifest.
-- `.mcp.json` — bundled local MCP server configuration.
+- `.mcp.json` — bundled local MCP server launcher configuration.
 - `skills/` — adaptive consulting workflows and semantic orchestration guidance.
 - `src/server.ts` — MCP server composition.
 - `src/stdio.ts` — local protocol-negotiating stdio entry.
@@ -55,6 +55,7 @@ Natural-language semantic selection remains a host-model/Skill responsibility ba
 - `src/catalog/` — typed capability metadata, registry, verified promotions, relationships, and catalog MCP tools.
 - `src/routing/`, `src/epistemics/`, `src/quality/` — workflow and truth/QA contracts.
 - `src/artifacts/` — versioned artifact storage and bounded format-specific adapters.
+- `src/tabular/` — safe CSV plus managed-XLSX codecs, mutations, formula validation, and MCP registration.
 - `src/finance/` — deterministic corporate-finance/FP&A engines and MCP tools.
 - `src/statistics/` — profiling, descriptive statistics, correlation, Student-t inference, and autocorrelation engines/MCP tools.
 - `src/forecasting/` — baseline forecast, forecast-error, and rolling-origin backtest engines/MCP tools.
@@ -65,13 +66,21 @@ Natural-language semantic selection remains a host-model/Skill responsibility ba
 
 ## Runtime baseline
 
-The MCP foundation targets the stable split TypeScript v2 packages and MCP 2026-07-28 protocol line. Exact dated dependency pins and revalidation rules live in `governance/platform-baseline.md`; versions in prose are not permanent claims.
+The MCP foundation targets the stable split TypeScript v2 packages and the MCP 2026-07-28 protocol line. The bundled `.mcp.json` currently uses OpenAI's supported direct server-map shape; the alternative wrapped `mcp_servers` shape is also accepted, and the two configuration shapes are **not** MCP protocol V1 versus V2. Protocol/runtime V2 is established by the pinned `@modelcontextprotocol/server@2.0.0` package and `serveStdio(() => createServer())` entry, which can negotiate the modern 2026-07-28 stdio era while retaining legacy compatibility unless explicitly rejected. Do not rewrite the valid direct-map `.mcp.json` merely to make it look newer.
+
+Exact dated dependency pins and revalidation rules live in `governance/platform-baseline.md`; versions in prose are not permanent claims.
 
 ## Artifact workspace
 
 The repository has a format-neutral plugin-owned artifact substrate with bounded inline import, `artifact://` binary resources, SHA-256/MIME/size/revision metadata, optimistic revision preconditions, destructive deletion semantics, and read-only binary format detection for PDF, ordinary/macro-enabled Office Open XML packages, generic ZIP, and unknown binaries.
 
-Artifact-storage CRUD is **not** document-format CRUD. Current Word support is bounded placeholder inspection/patching for macro-free DOCX templates. Current PDF support is bounded inspection/document-metadata mutation. Broad PDF/DOCX/XLSX/CSV/PPTX CRUD remains separately gated.
+Artifact-storage CRUD is **not** document-format CRUD. Current Word support is bounded placeholder inspection/patching for macro-free DOCX templates. Current PDF support is bounded inspection/document-metadata mutation.
+
+CSV now has a verified bounded implementation for comma-delimited parsing/serialization, explicit row/column/cell CRUD, revision-guarded MCP artifact operations, and spreadsheet-formula-injection escaping by default. The broader `csv-crud` capability is therefore `partial`, because its advertised scope also includes delimiter/schema/filter behavior not yet implemented.
+
+XLSX now has a verified managed-v1 implementation for Consulting Tools-owned macro-free workbooks: literal cells, worksheet/cell/row/column mutations, bounded explicit formulas, managed marker/package validation, and revision-guarded create/inspect/patch MCP operations. Arbitrary third-party workbook mutation remains unsupported; broad `xlsx-crud` stays `planned` and unbound because styles, charts, drawings, pivots, named items, comments, external links/data connections, VBA/macros, unknown parts, and full Excel formula compatibility are outside managed-v1.
+
+The CSV/managed-XLSX executable and catalog gate passed on commit `485ec1a10f241bed3212abc3a8b8ffd9f3563e62` through Actions run `32491018071`.
 
 ## Deterministic corporate-finance and FP&A support
 
@@ -141,7 +150,9 @@ The repository contains source-level remote Streamable HTTP MCP support with fre
 
 **Subproject 5 — Project, Operations & Supply-Chain Engines:** verified complete for its specified deterministic envelope on `1fea7d383537956631bd132a39f175646d5f02ac`, run `32408792540`. Verification covers pure engine fixtures, malformed/edge conditions, MCP HTTP discovery/execution and safe annotations, truthful partial catalog bindings, and all preserved regressions.
 
-The next milestone is **Subproject 6 — CSV & XLSX Artifact Engines**. Arbitrary existing-workbook XLSX mutation remains gated; the next implementation will prioritize safe CSV CRUD and a validated managed-XLSX creation/editing envelope with explicit preservation boundaries.
+**Subproject 6 — CSV & XLSX Artifact Engines:** the specified executable/catalog envelope passed on `485ec1a10f241bed3212abc3a8b8ffd9f3563e62`, run `32491018071`. Closure requires a fresh successful `ci/verify` on the documentation HEAD containing this record; until that gate passes, the subproject is not signed off.
+
+The next planned milestone after Subproject 6 closure is **Subproject 7 — DOCX & PDF Artifact Expansion**.
 
 ## Branch policy
 
