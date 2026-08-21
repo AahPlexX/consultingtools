@@ -1,6 +1,6 @@
 # Platform and Runtime Baseline
 
-**Verified:** 2026-08-18 (America/Chicago)
+**Verified:** 2026-08-21 (America/Chicago)
 
 This file records the externally verified platform/runtime assumptions that implementation work is currently allowed to rely on. It is a dated snapshot, not permanent truth. Any material release, dependency migration, plugin-submission change, new external integration, or capability promotion must revalidate the affected facts against authoritative current sources before implementation or publication.
 
@@ -11,6 +11,7 @@ Current authoritative OpenAI documentation establishes the following baseline:
 - The public Plugin Directory is the primary distribution/discovery surface for workflow capabilities across ChatGPT and Codex.
 - A plugin can package Skills and can depend on apps/MCP-backed capabilities; the appropriate shape is the smallest architecture that fully supports the workflow.
 - Every packaged plugin uses `.codex-plugin/plugin.json` as its manifest. `skills/` and a bundled `.mcp.json` are supported package components.
+- `mcpServers` may point to an `.mcp.json` containing either a direct server map or a wrapped `mcp_servers` object. These are both currently supported configuration shapes; they are not MCP protocol V1 versus V2.
 - Public plugins are published to the universal plugin directory shared by ChatGPT and Codex, while actual installation/invocation can vary by plan, workspace settings, role, region, supported surface, and app availability.
 - A public submission using MCP requires a public production MCP server URL. Universal MCP URLs are the normal case; template URLs require OpenAI approval for the applicable use case.
 - Public submission requires a verified developer or business identity and production listing materials including website, support, privacy, and terms URLs.
@@ -32,7 +33,9 @@ Current authoritative Model Context Protocol sources establish this runtime base
 - This repository targets `@modelcontextprotocol/server@2.0.0`, which implements the MCP 2026-07-28 protocol line.
 - The matching `@modelcontextprotocol/client@2.0.0` package is used only as a test harness to verify the real remote protocol boundary.
 - The old monolithic `@modelcontextprotocol/sdk` v1 server import path is not the repository baseline.
-- For stdio, this repository uses `serveStdio(() => createServer())` from `@modelcontextprotocol/server/stdio` so protocol negotiation is not locked to a legacy direct-transport path.
+- For stdio, this repository uses `serveStdio(() => createServer())` from `@modelcontextprotocol/server/stdio`. Current v2 guidance identifies `serveStdio(factory)` as the entry required to serve/negotiate the 2026-07-28 modern protocol era over stdio; directly connecting an `McpServer` to `StdioServerTransport` remains a 2025-era/legacy path unless the higher-level serving entry is used.
+- The repository's direct-map `.mcp.json` is only a launcher/configuration shape (`command` plus `args`). It does not determine MCP wire-protocol generation. Do not migrate it to the wrapped `mcp_servers` form merely to make it appear "V2"; change configuration shape only for a concrete supported need.
+- `serveStdio` can support both modern and legacy openings by default. Do not set `legacy: "reject"` unless compatibility requirements explicitly change and corresponding tests prove the decision.
 - For remote MCP, this repository uses `createMcpHandler(() => createServer())`. This is the current web-standard v2 HTTP entry that negotiates the 2026-07-28 protocol and can also serve stateless 2025-era traffic by default.
 - The raw MCP handler does not validate `Host`, `Origin`, or bearer tokens. Production mounts must put those controls in front of MCP dispatch. The repository therefore exposes a guarded HTTP wrapper requiring an explicit allowed-host list and supporting an optional allowed-origin list.
 - MCP tool schemas use Standard Schema objects (`z.object(...)` here) rather than the deprecated raw-shape overload.
@@ -41,10 +44,11 @@ Current authoritative Model Context Protocol sources establish this runtime base
 Authoritative sources:
 
 - https://github.com/modelcontextprotocol/typescript-sdk
+- https://ts.sdk.modelcontextprotocol.io/v2/migration/upgrade-to-v2
+- https://ts.sdk.modelcontextprotocol.io/v2/migration/support-2026-07-28
+- https://ts.sdk.modelcontextprotocol.io/v2/protocol-versions
 - https://github.com/modelcontextprotocol/typescript-sdk/blob/main/docs/serving/http.md
 - https://github.com/modelcontextprotocol/typescript-sdk/blob/main/docs/serving/web-standard.md
-- https://github.com/modelcontextprotocol/typescript-sdk/blob/main/docs/migration/support-2026-07-28.md
-- https://github.com/modelcontextprotocol/typescript-sdk/blob/main/docs/server.md
 - https://www.npmjs.com/package/@modelcontextprotocol/server
 - https://www.npmjs.com/package/@modelcontextprotocol/client
 - https://modelcontextprotocol.io/specification/2026-07-28
@@ -140,15 +144,10 @@ Current package research does **not** justify treating one JavaScript library as
 
 - `pdf-lib@1.17.1` is installed for the bounded PDF metadata workflow above; its documented feature set still does not justify an unrestricted existing-page text-editing claim.
 - `docx@9.7.1` is installed for the bounded template workflow above; arbitrary lossless editing of every existing DOCX structure is still not assumed.
-- `exceljs@4.4.0` can read, manipulate, and write XLSX workbooks, but the repository will not assume complete preservation of unsupported workbook structures. Formula/style/relationship/chart/comment/external-link and workbook-behavior fixtures are required before any broad XLSX CRUD claim.
+- Broad arbitrary third-party XLSX mutation remains unclaimed. The repository now has a separately verified Consulting Tools managed-v1 SpreadsheetML engine; its scope is governed by `governance/xlsx-engine-decision.md` and must not be generalized into arbitrary workbook preservation.
 - PPTX editing engine selection remains open until preservation behavior is researched and tested against the same quality gates.
 
-Candidate package sources:
-
-- https://github.com/exceljs/exceljs
-- https://www.npmjs.com/package/exceljs
-
-Candidate packages are research findings, not installed dependencies or capability claims. Revalidate them immediately before adoption.
+Candidate package sources and prior research remain evidence inputs, not installed dependencies or capability claims. Revalidate candidates immediately before adoption.
 
 ## Remote deployment boundary
 
@@ -169,7 +168,7 @@ Revalidate the affected baseline before any of the following:
 
 1. Public plugin submission or resubmission.
 2. MCP SDK/server/client dependency changes.
-3. Manifest schema, submission metadata, authentication, or tool-annotation changes.
+3. Manifest schema, `.mcp.json` packaging behavior, submission metadata, authentication, or tool-annotation changes.
 4. Promotion of a capability from `planned`, `partial`, or `provider-dependent` to `implemented`.
 5. Adding a new external provider or changing provider permissions.
 6. Selecting or changing the production MCP hosting/runtime boundary.
