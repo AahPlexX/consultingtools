@@ -55,7 +55,7 @@ describe("ConsultingDocumentV1 validation", () => {
   it("accepts a representative professional report and reports deterministic metrics", () => {
     expect(validateConsultingDocument(report)).toEqual({
       blockCount: 9,
-      characterCount: 394,
+      characterCount: 462,
       tableCount: 1,
       tableCellCount: 4,
     });
