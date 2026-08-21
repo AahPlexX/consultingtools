@@ -20,6 +20,7 @@
 - Existing-workbook XLSX mutation remains gated by `governance/xlsx-engine-decision.md`; managed-v1 does not authorize arbitrary third-party workbook mutation.
 - Production public retrieval must include SSRF protections, request/resource bounds, safe logging, and abuse controls.
 - `main` is the sole authoritative branch.
+- A subproject is never complete merely because its implementation code exists: its specified full verification gate must pass, and artifact subprojects additionally require their format-specific independent validation and documentation closure gates.
 
 ## Ordered subprojects
 
@@ -102,6 +103,18 @@ The verified CSV envelope includes bounded RFC-style comma-delimited parsing/ser
 
 The verified managed-XLSX v1 envelope includes macro-free SpreadsheetML package creation, exact managed marker/part validation, literal strings/numbers/booleans/blanks, worksheet/cell/row/column mutations, a constrained formula tokenizer/parser, no fabricated cached formula values, recalculation metadata, revision-guarded create/inspect/patch MCP tools, and rejection of malformed, macro-enabled, arbitrary non-managed, traversal, oversized, external-reference, URL/DDE/add-in, and other unsupported inputs. Broad `xlsx-crud` remains `planned` and unbound because arbitrary third-party workbook styles, charts, drawings, pivots, conditional formatting, data validation, named items, comments, external links/data connections, VBA/macros, unknown parts/relationships, and full Excel formula compatibility are not preserved by managed-v1.
 
+### Subproject 7 verification — code/catalog/rendering gate passed; closure pending
+
+The DOCX & PDF Artifact Expansion executable/catalog gate passed on `1c789291e9488f1a325ddc27a0ca29966338b791` through GitHub Actions run `32536219577`. The run passed TypeScript, the full repository regression suite, build, and the independent LibreOffice/Poppler rendering step.
+
+The verified shared `ConsultingDocumentV1` model supports bounded headings, paragraphs, bullet/numbered lists, key metrics, tables, callouts, source notes, page breaks, and report metadata. Professional DOCX creation uses explicit styles, Heading 1–3 structure, numbering, fixed tables, headers/footers, and page numbering. Existing DOCX mutation remains limited to the preservation-tested macro-free placeholder-template path, so `docx-crud` is only `partial` with `create_consulting_document`, `inspect_docx_template`, and `patch_docx_template` bindings.
+
+Professional PDF creation uses deterministic layout and PDF standard Helvetica/HelveticaBold fonts with explicit encoding preflight. Existing PDF mutation remains metadata-only, while `compose_pdf_artifact` creates a new derivative from explicit page selections without revising sources or claiming preservation of forms, annotations, signatures, outlines, attachments, JavaScript, or other document-level structures. `pdf-crud` is only `partial` with `create_consulting_document`, `inspect_pdf`, `update_pdf_metadata`, and `compose_pdf_artifact` bindings.
+
+Independent rendering generates representative DOCX/PDF fixtures, converts the DOCX with headless LibreOffice Writer, parses both converted/native PDFs with Poppler `pdfinfo`, and rasterizes first/last pages with `pdftoppm`. This is representative openability/renderability evidence, not pixel parity with Microsoft Word or Adobe Acrobat.
+
+**Subproject 7 is not yet signed off complete in this record.** The remaining closure gate is a fresh successful full CI/render run on the final documentation HEAD plus exhaustive branch enumeration confirming only `main`. Only after that evidence is recorded may the roadmap advance to Subproject 8.
+
 ## Next detailed plan
 
-Write and execute the detailed implementation plan for Subproject 7 — **DOCX & PDF Artifact Expansion**. Preserve the current bounded DOCX-template and PDF-metadata behaviors while defining independently testable creation/editing/preservation/rendering envelopes before broad capability promotion.
+Finish the documentation-head closure gate for Subproject 7 — **DOCX & PDF Artifact Expansion**. After that exact HEAD passes repository verification plus independent rendering and branch integrity confirms only `main`, write and execute the detailed implementation plan for Subproject 8 — **Presentation & Visualization Engine**.
