@@ -13,7 +13,7 @@ Before promising an operation, determine whether the installed version has an im
 
 Artifact-level storage CRUD is not document-format CRUD. The existence of `artifact://` import, inspect, replace, read, or delete operations does not make PDF, DOCX, XLSX, CSV, or PPTX content mutation implemented.
 
-The broad consulting capability catalog and the low-level MCP tool surface are distinct. Use capability status for broad claims and inspect installed tools for narrower utilities such as template or metadata operations.
+The broad consulting capability catalog and the low-level MCP tool surface are distinct. Use capability status for broad claims and inspect installed tools for narrower utilities such as template, metadata, managed-workbook, document-creation, or page-composition operations.
 
 ## Plugin-owned artifact sequence
 
@@ -38,38 +38,68 @@ When the artifact workspace is available:
 7. Validate both changed content and unaffected invariants.
 8. Return the resulting artifact only after validation succeeds.
 
+## Shared consulting-document creation
+
+`create_consulting_document` is the verified plugin-owned creation route for the bounded `ConsultingDocumentV1` model. It can create DOCX, PDF, or both in one request after all requested formats preflight successfully.
+
+Supported content blocks are deliberately text-centric: headings, paragraphs, bullet lists, numbered lists, key metrics, tables, callouts, source notes, and explicit page breaks. The model also supports bounded title/subtitle/prepared-for/prepared-by/date/confidentiality/header/footer/page-size/accent metadata.
+
+Do not reinterpret this shared model as arbitrary HTML/CSS, rich Office editing, image/logo/chart insertion, footnotes, fields, comments, tracked changes, embedded files, macros, custom fonts, or universal accessibility tagging. If a combined DOCX+PDF request cannot satisfy the PDF standard-font boundary, the operation must fail before either artifact is stored.
+
 ## PDF
 
-The currently supported plugin-owned existing-PDF subset is document-level inspection and metadata mutation only:
+The verified plugin-owned PDF envelope now has three distinct behaviors:
 
-- `inspect_pdf` may report page count plus document-level metadata from a byte-detected PDF without modifying the artifact.
-- `update_pdf_metadata` may change only explicitly supplied title, author, subject, keywords, creator, or producer fields, with `expectedRevision` protection and post-save reopening/page-count validation.
-- Do not represent these tools as existing page-text extraction/editing, layout editing, page manipulation, form editing, annotation editing, merge/split, or visual validation.
+- `create_consulting_document` may create a new professional PDF from `ConsultingDocumentV1` using deterministic layout and PDF standard Helvetica/HelveticaBold fonts.
+- `inspect_pdf` reports page count plus document-level metadata from a byte-detected PDF without mutation.
+- `update_pdf_metadata` changes only explicitly supplied title, author, subject, keywords, creator, or producer fields, with `expectedRevision` protection and post-save validation.
+- `compose_pdf_artifact` creates a **new derivative PDF** from explicitly selected zero-based pages of existing PDF artifacts, preserving supplied page order and allowing deliberate duplication while never replacing its source artifacts.
 
-Treat broader PDF work as presentation-oriented: visual layout may be as important as extracted structure. For production-ready PDF operations, validate the exact promised envelope, including page count, content integrity, annotations/forms when promised, fonts/resources, links, metadata, and rendered pages. Do not call text extraction alone a formatting audit. Use visual page inspection when layout matters. Do not assume a selected PDF library can arbitrarily edit existing page text merely because it can add text, manipulate pages, or edit form fields.
+PDF creation preflights every rendered string against the supported standard-font encoding. Unsupported text is an error; never silently substitute, transliterate, drop, or hide characters. PDF v1 does not claim custom font embedding, Unicode-complete typography, tagged PDF/PDF-UA, forms, annotations, arbitrary existing text editing, signatures, outlines/bookmarks, attachments, document JavaScript, cross-document navigation preservation, or full source-document metadata preservation during page composition.
+
+Page composition is intentionally derivative. It copies selected page objects into a fresh PDF; do not describe document-level AcroForms, outlines, signatures, attachments, JavaScript, or other source-level structures as preserved. Source artifact revisions remain read-only.
+
+The broad `pdf-crud` capability is therefore `partial`, not implemented. Its verified bindings are `create_consulting_document`, `inspect_pdf`, `update_pdf_metadata`, and `compose_pdf_artifact`.
 
 ## DOCX
 
-The currently supported plugin-owned existing-DOCX subset is placeholder-template work only:
+The verified plugin-owned DOCX envelope now has creation plus a separately bounded existing-template path:
 
-- `inspect_docx_template` may be used to list placeholders in a byte-detected macro-free DOCX without mutation.
-- `patch_docx_template` may replace only supplied placeholder keys that actually exist, with `expectedRevision` protection and post-patch validation.
-- Macro-enabled DOCM is outside this adapter and must be refused rather than executed, stripped, or silently converted.
-- Template patching must not be represented as arbitrary existing-DOCX text/layout CRUD.
+- `create_consulting_document` may create a new macro-free DOCX from `ConsultingDocumentV1` with explicit professional paragraph styles, Heading 1–3 structure, semantic bullet/decimal numbering, fixed-layout tables, key-metric/callout structures, header/footer content, and a page-number field.
+- `inspect_docx_template` lists placeholders in a byte-detected macro-free DOCX without mutation.
+- `patch_docx_template` replaces only supplied placeholder keys that actually exist, with `expectedRevision` protection and post-patch validation.
+- Macro-enabled DOCM remains outside these adapters and must be refused rather than executed, stripped, or silently converted.
 
-For broader DOCX work, account for package relationships and document structure, not only paragraphs. Preserve styles, numbering, headers/footers, tables, sections, media, hyperlinks, comments/notes, fields, content controls, revisions, and accessibility-related structure when those features exist and are outside the requested edit scope. Validate by reopening the generated package. A template/placeholder patching API is not evidence of lossless arbitrary existing-document editing.
+Creation does not imply arbitrary existing-DOCX editing. Template patching must not be represented as general search/replace, layout/style editing, tracked-change editing, content-control editing, image/drawing editing, field editing, comment editing, or lossless transformation of every WordprocessingML feature.
+
+Preservation fixtures verify that the bounded placeholder workflow retains representative unrelated header/footer, style, numbering, table, section, and image-relationship content. This is evidence for the placeholder envelope only, not a universal Word fidelity guarantee.
+
+The broad `docx-crud` capability is therefore `partial`, not implemented. Its verified bindings are `create_consulting_document`, `inspect_docx_template`, and `patch_docx_template`.
+
+## Independent DOCX/PDF renderability gate
+
+Repository CI independently validates representative generated documents rather than trusting only the creating libraries:
+
+1. generate deterministic DOCX and PDF fixtures from the built engines;
+2. convert the DOCX through headless LibreOffice Writer;
+3. require `pdfinfo` to parse both the converted DOCX PDF and the native PDF;
+4. rasterize the first and last page of each through Poppler `pdftoppm` and require non-empty PNG output.
+
+This proves representative openability/renderability through independent engines. It does **not** claim pixel parity with Microsoft Word, Adobe Acrobat, every installed font environment, or every possible document payload.
 
 ## XLSX
 
-Workbook operations must preserve formulas, number formats, styles, merged cells, worksheet order/names, tables, named ranges, validation, filters, charts, comments/notes, external links, and workbook calculation behavior when present and not intentionally changed. Treat formulas and CSV exports as potentially dangerous input/output; prevent formula injection where appropriate. Never replace a formula with its cached value unless requested. Do not promote workbook CRUD until representative round-trip fixtures prove the supported preservation envelope.
+Workbook operations must preserve formulas, number formats, styles, merged cells, worksheet order/names, tables, named ranges, validation, filters, charts, comments/notes, external links, and workbook calculation behavior when present and not intentionally changed before arbitrary third-party workbook CRUD can be claimed. Treat formulas and CSV exports as potentially dangerous input/output; prevent formula injection where appropriate. Never replace a formula with its cached value unless requested.
+
+The current managed-v1 XLSX tools are narrower: they create, inspect, and patch only Consulting Tools-managed macro-free workbooks that pass the managed package marker, part, relationship, size, formula, and security checks. Never normalize an arbitrary third-party workbook into managed-v1 and call that preservation. Broad `xlsx-crud` remains planned.
 
 ## CSV and tabular text
 
-Resolve delimiter, encoding, header semantics, locale-sensitive number/date formats, quoting, and newline behavior. Prevent spreadsheet formula injection in generated exports when cell content may be interpreted as executable formula text.
+Resolve delimiter, encoding, header semantics, locale-sensitive number/date formats, quoting, and newline behavior before claiming general delimited-text work. The verified current envelope is comma-delimited CSV with explicit string preservation, immutable row/column/cell mutation, and spreadsheet-safe formula-leading output by default. Broader `csv-crud` remains partial because arbitrary delimiter/schema/filter semantics are not all implemented.
 
 ## PPTX
 
-Preserve slide size, themes/layouts, masters, notes, media, relationships, ordering, hyperlinks, and accessibility-relevant structure unless the requested change affects them. Render representative slides for visual validation when layout matters.
+Preserve slide size, themes/layouts, masters, notes, media, relationships, ordering, hyperlinks, and accessibility-relevant structure unless the requested change affects them. Render representative slides for visual validation when layout matters. Broad `pptx-crud` remains planned until an explicit engine and preservation/rendering envelope pass.
 
 ## Create versus update
 
