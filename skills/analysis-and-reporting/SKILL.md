@@ -134,6 +134,18 @@ Never route an arbitrary third-party `.xlsx` workbook through the managed mutato
 
 Subproject 6's executable/catalog gate passed on commit `485ec1a10f241bed3212abc3a8b8ffd9f3563e62` through GitHub Actions run `32491018071`.
 
+### DOCX and PDF consulting-document artifacts
+
+Use `create_consulting_document` when the requested report can be expressed through the verified `ConsultingDocumentV1` model. Its supported blocks are headings, paragraphs, bullet lists, numbered lists, key metrics, tables, callouts, source notes, and explicit page breaks, plus bounded report metadata such as title, prepared-for/prepared-by labels, date, confidentiality, header/footer labels, page size, and accent color.
+
+For DOCX creation, the engine produces a new macro-free professional document using explicit styles, Heading 1–3 structure, semantic numbering, fixed-layout tables, key-metric/callout structures, headers/footers, and page numbering. Existing DOCX mutation remains the separately verified placeholder-template path through `inspect_docx_template` and `patch_docx_template`; do not present this as arbitrary existing Word editing. The active `docx-crud` capability is `partial` with exactly those verified creation/template bindings.
+
+For PDF creation, the engine uses deterministic layout with PDF standard Helvetica/HelveticaBold fonts. Preflight every requested PDF report through the engine: text outside the supported standard-font encoding must fail rather than being silently substituted, transliterated, or dropped. PDF v1 does not claim custom font embedding, Unicode-complete typography, tagged PDF/PDF-UA, forms, annotations, arbitrary existing page-text editing, signatures, outlines/bookmarks, attachments, JavaScript, or universal document-level preservation.
+
+Use `compose_pdf_artifact` only for a derivative page-selection operation. It creates a new PDF from explicitly selected zero-based source pages and leaves sources unchanged; page copying is not evidence that source metadata, forms, outlines, signatures, attachments, JavaScript, or cross-document navigation survive. Existing metadata-only operations remain `inspect_pdf` and `update_pdf_metadata`. The active `pdf-crud` capability is `partial` with exactly these verified creation/inspection/metadata/composition bindings.
+
+The integrated DOCX/PDF code-and-catalog gate passed on commit `1c789291e9488f1a325ddc27a0ca29966338b791` through Actions run `32536219577`. That run included independent LibreOffice Writer conversion of a generated DOCX plus Poppler parsing/rasterization of both the converted DOCX output and native PDF. Treat this as representative openability/renderability evidence, not pixel parity with Microsoft Word or Adobe Acrobat.
+
 ## Quantitative discipline
 
 - Never invent missing numbers to make a model complete.
