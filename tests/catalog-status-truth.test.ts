@@ -11,34 +11,13 @@ describe("capability implementation truth", () => {
   });
 
   it("promotes only periodic finance capabilities whose advertised deterministic envelope is fully verified", () => {
-    expect(getCapabilityById("npv")).toMatchObject({
-      status: "implemented",
-      routingReady: true,
-      deterministicEngineIds: ["calculate_npv"],
-    });
-    expect(getCapabilityById("payback")).toMatchObject({
-      status: "implemented",
-      routingReady: true,
-      deterministicEngineIds: ["calculate_payback"],
-    });
-    expect(getCapabilityById("irr")).toMatchObject({
-      status: "partial",
-      routingReady: true,
-      deterministicEngineIds: ["calculate_irr"],
-    });
+    expect(getCapabilityById("npv")).toMatchObject({ status: "implemented", routingReady: true, deterministicEngineIds: ["calculate_npv"] });
+    expect(getCapabilityById("payback")).toMatchObject({ status: "implemented", routingReady: true, deterministicEngineIds: ["calculate_payback"] });
+    expect(getCapabilityById("irr")).toMatchObject({ status: "partial", routingReady: true, deterministicEngineIds: ["calculate_irr"] });
   });
 
-  it("keeps broader finance outcomes partial or planned despite having useful deterministic primitives", () => {
-    for (const id of [
-      "financial-ratios",
-      "working-capital",
-      "cash-conversion-cycle",
-      "budget-variance",
-      "sensitivity",
-      "scenario-modeling",
-      "cash-flow-forecast",
-      "irr",
-    ]) {
+  it("keeps broader finance outcomes partial or planned despite useful deterministic primitives", () => {
+    for (const id of ["financial-ratios", "working-capital", "cash-conversion-cycle", "budget-variance", "sensitivity", "scenario-modeling", "cash-flow-forecast", "irr"]) {
       expect(getCapabilityById(id)?.status).toBe("partial");
     }
     expect(getCapabilityById("dcf")?.status).toBe("planned");
@@ -53,11 +32,7 @@ describe("capability implementation truth", () => {
       "hypothesis-testing": "calculate_welch_t_test",
     };
     for (const [id, engine] of Object.entries(expected)) {
-      expect(getCapabilityById(id)).toMatchObject({
-        status: "partial",
-        routingReady: true,
-        deterministicEngineIds: [engine],
-      });
+      expect(getCapabilityById(id)).toMatchObject({ status: "partial", routingReady: true, deterministicEngineIds: [engine] });
     }
   });
 
@@ -68,11 +43,7 @@ describe("capability implementation truth", () => {
       "forecast-error-metrics": "calculate_forecast_error_metrics",
     };
     for (const [id, engine] of Object.entries(expected)) {
-      expect(getCapabilityById(id)).toMatchObject({
-        status: "partial",
-        routingReady: true,
-        deterministicEngineIds: [engine],
-      });
+      expect(getCapabilityById(id)).toMatchObject({ status: "partial", routingReady: true, deterministicEngineIds: [engine] });
     }
   });
 
@@ -88,11 +59,7 @@ describe("capability implementation truth", () => {
       "supplier-segmentation": ["analyze_supplier_spend"],
     };
     for (const [id, engines] of Object.entries(expected)) {
-      expect(getCapabilityById(id)).toMatchObject({
-        status: "partial",
-        routingReady: true,
-        deterministicEngineIds: engines,
-      });
+      expect(getCapabilityById(id)).toMatchObject({ status: "partial", routingReady: true, deterministicEngineIds: engines });
     }
   });
 
@@ -104,15 +71,27 @@ describe("capability implementation truth", () => {
     });
   });
 
-  it("keeps broad third-party XLSX and other document-format CRUD planned", () => {
-    for (const id of ["pdf-crud", "docx-crud", "xlsx-crud", "pptx-crud"]) {
+  it("binds only the independently verified DOCX and PDF envelopes as partial", () => {
+    expect(getCapabilityById("docx-crud")).toMatchObject({
+      status: "partial",
+      routingReady: true,
+      deterministicEngineIds: ["create_consulting_document", "inspect_docx_template", "patch_docx_template"],
+    });
+    expect(getCapabilityById("pdf-crud")).toMatchObject({
+      status: "partial",
+      routingReady: true,
+      deterministicEngineIds: ["create_consulting_document", "inspect_pdf", "update_pdf_metadata", "compose_pdf_artifact"],
+    });
+  });
+
+  it("keeps broad unsupported document semantics unclaimed", () => {
+    for (const id of ["docx-crud", "pdf-crud"]) {
+      expect(getCapabilityById(id)?.status).not.toBe("implemented");
+    }
+    for (const id of ["xlsx-crud", "pptx-crud"]) {
       expect(getCapabilityById(id)?.status).toBe("planned");
     }
-    expect(getCapabilityById("xlsx-crud")).toMatchObject({
-      status: "planned",
-      routingReady: true,
-      deterministicEngineIds: [],
-    });
+    expect(getCapabilityById("xlsx-crud")).toMatchObject({ status: "planned", routingReady: true, deterministicEngineIds: [] });
   });
 
   it("does not promote unrelated deterministic engines that have not been built", () => {
