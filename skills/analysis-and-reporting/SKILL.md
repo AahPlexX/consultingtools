@@ -110,6 +110,30 @@ Do not infer safety stock, service level, stochastic demand distributions, quant
 
 Use stakeholder analysis, accountability mapping, change-readiness assessment, organization design, KPI trees, OKRs, balanced scorecards, and prioritization methods when they connect strategy to ownership and measurable execution.
 
+### CSV and managed XLSX artifacts
+
+Use the verified tabular artifact tools only inside their exact envelope.
+
+For CSV:
+
+- `create_csv_artifact` creates comma-delimited RFC-style CSV from explicit string rows;
+- `inspect_csv_artifact` parses and previews bounded CSV without coercing values to numbers, dates, booleans, or formulas;
+- `patch_csv_artifact` performs explicit cell/row/column mutations under an `expectedRevision` precondition;
+- spreadsheet-targeted serialization escapes formula-leading values by default; raw preservation is an explicit opt-in policy.
+
+The broader `csv-crud` capability is `partial`, not fully implemented, because its advertised scope also covers arbitrary delimiters, schema behavior, filtering, and other transformations that the current verified envelope does not claim.
+
+For XLSX:
+
+- `create_managed_xlsx` creates a macro-free Consulting Tools managed-v1 workbook;
+- `inspect_managed_xlsx` inspects only the validated managed-v1 package envelope;
+- `patch_managed_xlsx` applies explicit cell/row/column/worksheet mutations only to a managed-v1 artifact and requires `expectedRevision`;
+- explicit formula objects use the constrained managed formula grammar; formula-looking ordinary strings remain literal text.
+
+Never route an arbitrary third-party `.xlsx` workbook through the managed mutator. Broad `xlsx-crud` remains `planned` because managed-v1 does not claim lossless preservation of unknown styles, charts, drawings, pivots, named items, comments, external links/data connections, macros, or other unsupported workbook structures. If the user's request depends on those features, report the limitation rather than normalizing the workbook into managed-v1 and silently losing content.
+
+Subproject 6's executable/catalog gate passed on commit `485ec1a10f241bed3212abc3a8b8ffd9f3563e62` through GitHub Actions run `32491018071`.
+
 ## Quantitative discipline
 
 - Never invent missing numbers to make a model complete.
