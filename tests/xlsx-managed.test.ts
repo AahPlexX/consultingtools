@@ -4,9 +4,9 @@ import { detectArtifactFormat } from "../src/artifacts/format.js";
 import {
   createManagedXlsx,
   inspectManagedXlsx,
-  patchManagedXlsx,
   readManagedXlsx,
 } from "../src/tabular/xlsx-managed.js";
+import { patchManagedXlsx } from "../src/tabular/xlsx-mutations.js";
 import type { ManagedWorkbook } from "../src/tabular/xlsx-types.js";
 
 const workbook: ManagedWorkbook = {
