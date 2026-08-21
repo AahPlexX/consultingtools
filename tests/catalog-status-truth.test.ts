@@ -108,7 +108,11 @@ describe("capability implementation truth", () => {
     for (const id of ["pdf-crud", "docx-crud", "xlsx-crud", "pptx-crud"]) {
       expect(getCapabilityById(id)?.status).toBe("planned");
     }
-    expect(getCapabilityById("xlsx-crud")?.deterministicEngineIds).toEqual([]);
+    expect(getCapabilityById("xlsx-crud")).toMatchObject({
+      status: "planned",
+      routingReady: true,
+      deterministicEngineIds: [],
+    });
   });
 
   it("does not promote unrelated deterministic engines that have not been built", () => {
