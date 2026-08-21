@@ -61,9 +61,9 @@ The current pinned baseline is:
 | --- | --- | --- |
 | `@modelcontextprotocol/server` | `2.0.0` | Current stable MCP server package |
 | `@modelcontextprotocol/client` | `2.0.0` | Matching stable client used for protocol tests |
-| `docx` | `9.7.1` | Current DOCX engine used only for explicit placeholder detection/patching in macro-free DOCX templates |
-| `fflate` | `0.8.3` | Current ZIP/DEFLATE utility used for bounded package inspection and validation fixtures |
-| `pdf-lib` | `1.17.1` | Current PDF engine used only for the explicitly supported PDF inspection/metadata subset |
+| `docx` | `9.7.1` | DOCX engine for governed professional creation plus bounded macro-free placeholder inspection/patching |
+| `fflate` | `0.8.3` | ZIP/DEFLATE utility used for bounded package inspection, managed XLSX, and preservation fixtures |
+| `pdf-lib` | `1.17.1` | PDF engine for governed native creation, inspection/metadata mutation, and derivative page composition |
 | `zod` | `4.4.3` | Current stable release used by MCP schemas |
 | `typescript` | `7.0.2` | Current stable compiler |
 | `vitest` | `4.1.10` | Current stable test runner |
@@ -100,51 +100,100 @@ Authoritative sources:
 - https://learn.microsoft.com/en-us/openspecs/office_standards/ms-xlsx/
 - https://learn.microsoft.com/en-us/openspecs/office_standards/ms-pptx/
 
-## DOCX template boundary
+## Consulting document creation boundary
 
-`docx@9.7.1` is installed for one explicitly bounded existing-document workflow:
+`ConsultingDocumentV1` is the verified format-neutral creation model for bounded text-centric consulting reports. It supports headings, paragraphs, bullet lists, numbered lists, key metrics, tables, callouts, source notes, explicit page breaks, and bounded report metadata such as title, prepared-for/prepared-by labels, date, confidentiality, header/footer labels, page size, and accent color.
+
+`create_consulting_document` can create DOCX, PDF, or both. All requested formats are generated/preflighted before storage so a combined request does not intentionally leave a partial result when one requested format cannot be produced. This model does not accept arbitrary HTML/CSS, images/logos, charts, footnotes, comments, tracked changes, embedded files, macros, custom fonts, or arbitrary Office/PDF object graphs.
+
+The executable/catalog envelope was verified on `1c789291e9488f1a325ddc27a0ca29966338b791` through GitHub Actions run `32536219577`, including independent LibreOffice/Poppler rendering.
+
+## DOCX creation and template boundary
+
+`docx@9.7.1` is used for two distinct bounded workflows.
+
+New-document creation:
+
+- `create_consulting_document` may create a macro-free professional DOCX from `ConsultingDocumentV1`.
+- Generated documents use explicit paragraph styles, Heading 1–3 outline structure, bullet/decimal numbering, fixed-layout tables, key-metric/callout structures, headers/footers, and a page-number field.
+- Generated output is reclassified as macro-free DOCX before being accepted.
+
+Existing-template operation:
 
 - `patchDetector` lists placeholder keys from an existing DOCX template.
 - `patchDocument` replaces caller-supplied placeholder keys with paragraph-inline text content and can retain original placeholder styles.
 - The plugin rejects any package that byte-detection does not classify as macro-free DOCX before calling the patch engine.
 - Unknown replacement keys are rejected before mutation.
-- The patched bytes are reclassified as macro-free DOCX and scanned again to ensure each requested placeholder was actually resolved before a new artifact revision is committed.
-- MCP patch requests are bounded by placeholder count and aggregate replacement-text size, and they use the artifact `expectedRevision` precondition.
+- Patched bytes are reclassified as macro-free DOCX and scanned again to ensure each requested placeholder was resolved before a new artifact revision is committed.
+- MCP patch requests are bounded by placeholder count and aggregate replacement-text size and use the artifact `expectedRevision` precondition.
+- Preservation fixtures cover representative unrelated header, footer, styles, numbering, table, section properties, and image relationships around a body placeholder.
 
-This does **not** make arbitrary existing-DOCX text, relationship, field, revision, drawing, content-control, comment, or layout CRUD implemented. Full `docx-crud` remains a separate capability gate.
+This does **not** make arbitrary existing-DOCX text, relationship, field, revision, drawing, content-control, comment, tracked-change, or layout CRUD implemented. Broad `docx-crud` is `partial` only, with verified bindings `create_consulting_document`, `inspect_docx_template`, and `patch_docx_template`.
 
 Authoritative sources:
 
 - https://www.npmjs.com/package/docx
+- https://docx.js.org/api/classes/File.html
+- https://docx.js.org/api/classes/Table.html
+- https://docx.js.org/api/types/ISectionOptions.html
 - https://docx.js.org/api/functions/patchDetector.html
 - https://docx.js.org/api/functions/patchDocument.html
 - https://docx.js.org/api/types/PatchDocumentOptions.html
-- https://github.com/dolanmiu/docx/blob/master/docs/usage/templates.md
 
-## PDF metadata boundary
+## PDF creation, metadata, and derivative-composition boundary
 
-`pdf-lib@1.17.1` is installed for a deliberately narrow existing-PDF subset:
+`pdf-lib@1.17.1` is used for three distinct bounded workflows.
+
+New-document creation:
+
+- `create_consulting_document` may create a professional PDF from `ConsultingDocumentV1` using deterministic page geometry/layout and PDF standard Helvetica/HelveticaBold fonts.
+- Every rendered string is preflighted against the selected standard font. Unsupported characters fail explicitly; they are not silently substituted or dropped.
+- PDF creation reopens output and verifies page count/metadata before return.
+- PDF v1 does not claim custom font embedding, Unicode-complete typography, tagged PDF/PDF-UA, forms, annotations, attachments, outlines, signatures, or JavaScript.
+
+Existing-document metadata:
 
 - `inspect_pdf` loads a byte-detected PDF and reports page count plus document-level metadata without mutation.
-- `update_pdf_metadata` changes only explicitly supplied document metadata fields, requires the artifact `expectedRevision`, saves the document, reopens it, and rejects the result if page count changed.
-- Metadata operations cover title, author, subject, keywords, creator, and producer. Creation/modification dates are inspected but are not exposed as caller-controlled write fields in this subset.
-- The PDF adapter does not claim arbitrary extraction or editing of existing plain page text. Page-layout/content mutation remains outside this subset until operation-specific preservation and rendering gates exist.
+- `update_pdf_metadata` changes only explicitly supplied document metadata fields, requires the artifact `expectedRevision`, saves/reopens the document, and rejects the result if page count changed.
+- Metadata operations cover title, author, subject, keywords, creator, and producer. Creation/modification dates are inspected but are not caller-controlled write fields in this subset.
+- Preservation fixtures verify representative page count, page geometry/rotation, and observable content/resource references alongside source-buffer immutability.
 
-This does **not** make broad `pdf-crud` implemented. Future page, form, annotation, overlay, merge/split, or creation operations must be promoted individually only after representative fixtures and independent validation support the claim.
+Derivative page composition:
+
+- `compose_pdf_artifact` creates a new PDF from explicitly selected zero-based pages of existing PDF artifacts.
+- Supplied source order and page order are preserved; deliberate duplicate page selections are allowed.
+- Source artifacts remain read-only and are not revised by composition.
+- This operation does not claim preservation of source document-level metadata, AcroForms, annotations, outlines/bookmarks, attachments, signatures, JavaScript, or cross-document navigation.
+
+This does **not** make broad existing-PDF editing implemented. Broad `pdf-crud` is `partial` only, with verified bindings `create_consulting_document`, `inspect_pdf`, `update_pdf_metadata`, and `compose_pdf_artifact`.
 
 Authoritative sources:
 
 - https://www.npmjs.com/package/pdf-lib
 - https://github.com/Hopding/pdf-lib
 - https://pdf-lib.js.org/docs/api/classes/pdfdocument
+- https://pdf-lib.js.org/docs/api/classes/pdfpage
+
+## Independent document renderability baseline
+
+The repository CI includes an independent DOCX/PDF renderability gate after the ordinary TypeScript/test/build gate:
+
+1. generate deterministic representative DOCX and native PDF fixtures from built repository engines;
+2. convert the DOCX using headless LibreOffice Writer PDF export;
+3. parse both the converted DOCX PDF and native PDF using Poppler `pdfinfo`;
+4. rasterize the first and last pages of both using `pdftoppm` and require non-empty PNG output.
+
+The CI-only renderer dependencies are `libreoffice-writer` and `poppler-utils`; production runtime does not depend on them. A passing render gate is evidence that representative outputs independently open and render. It is **not** a claim of pixel parity with Microsoft Word or Adobe Acrobat, universal font parity, PDF/UA conformance, or exhaustive rendering proof for every possible bounded document.
+
+The integrated code/catalog render gate passed on `1c789291e9488f1a325ddc27a0ca29966338b791` through Actions run `32536219577`.
 
 ## Format-editor selection boundary
 
 Current package research does **not** justify treating one JavaScript library as a universal lossless Office/PDF editor.
 
-- `pdf-lib@1.17.1` is installed for the bounded PDF metadata workflow above; its documented feature set still does not justify an unrestricted existing-page text-editing claim.
-- `docx@9.7.1` is installed for the bounded template workflow above; arbitrary lossless editing of every existing DOCX structure is still not assumed.
-- Broad arbitrary third-party XLSX mutation remains unclaimed. The repository now has a separately verified Consulting Tools managed-v1 SpreadsheetML engine; its scope is governed by `governance/xlsx-engine-decision.md` and must not be generalized into arbitrary workbook preservation.
+- `pdf-lib@1.17.1` is installed for the bounded PDF creation/metadata/derivative-composition workflows above; its documented feature set still does not justify unrestricted existing-page text editing or full document-level preservation claims.
+- `docx@9.7.1` is installed for bounded professional creation and placeholder-template workflows; arbitrary lossless editing of every existing DOCX structure is still not assumed.
+- Broad arbitrary third-party XLSX mutation remains unclaimed. The repository has a separately verified Consulting Tools managed-v1 SpreadsheetML engine; its scope is governed by `governance/xlsx-engine-decision.md` and must not be generalized into arbitrary workbook preservation.
 - PPTX editing engine selection remains open until preservation behavior is researched and tested against the same quality gates.
 
 Candidate package sources and prior research remain evidence inputs, not installed dependencies or capability claims. Revalidate candidates immediately before adoption.
