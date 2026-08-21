@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { createConsultingDocx } from "../dist/documents/docx-create.js";
-import { createConsultingPdf } from "../dist/documents/pdf-create.js";
+import { createConsultingDocx } from "../dist/src/documents/docx-create.js";
+import { createConsultingPdf } from "../dist/src/documents/pdf-create.js";
 
 const outputDirectory = process.argv[2];
 if (!outputDirectory) {
