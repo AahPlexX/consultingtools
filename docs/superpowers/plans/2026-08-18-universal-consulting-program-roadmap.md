@@ -17,7 +17,7 @@
 - Use deterministic code for fixed mathematical definitions; expose assumptions and reject invalid domains.
 - Promote no capability to `implemented` until its execution path and required quality gates pass.
 - Existing validated PDF, DOCX, artifact, finance, MCP v2, runtime-freshness, and security-boundary behavior must be preserved unless a tested replacement is superior.
-- Existing-workbook XLSX mutation remains gated by `governance/xlsx-engine-decision.md` until preservation/security evidence supports a change.
+- Existing-workbook XLSX mutation remains gated by `governance/xlsx-engine-decision.md`; managed-v1 does not authorize arbitrary third-party workbook mutation.
 - Production public retrieval must include SSRF protections, request/resource bounds, safe logging, and abuse controls.
 - `main` is the sole authoritative branch.
 
@@ -94,6 +94,16 @@ The verified project envelope includes activity-on-node finish-to-start zero-lag
 
 The MCP transport verifies all nine tools as read-only, closed-world, and non-destructive. Catalog bindings deliberately remain `partial` for `critical-path`, `earned-value`, `utilization`, `throughput`, `cycle-time`, `weighted-selection`, `inventory-analysis`, and `supplier-segmentation` because their broader user-visible outcomes exceed the deterministic primitive. The three-point estimator is directly executable but is not forced into an unrelated catalog identity. Calendar/resource-leveling scheduling, stochastic safety-stock optimization, supplier-risk inference, queue/bottleneck diagnosis, automatic criterion-scale normalization, and other unimplemented semantics remain outside the verified claim.
 
+### Subproject 6 verification
+
+CSV & XLSX Artifact Engines passed the executable/catalog gate on `485ec1a10f241bed3212abc3a8b8ffd9f3563e62` with `npm run verify` passing through GitHub Actions run `32491018071`; `ci/verify` concluded `success`.
+
+The verified CSV envelope includes bounded RFC-style comma-delimited parsing/serialization, no type coercion, explicit spreadsheet-formula-injection escaping by default, immutable cell/row/column mutations, artifact resources, revision preconditions, and create/inspect/patch MCP tools. `csv-crud` is promoted only to `partial` because arbitrary delimiters, schema/filter semantics, and other broader transformations remain outside the verified primitive.
+
+The verified managed-XLSX v1 envelope includes macro-free SpreadsheetML package creation, exact managed marker/part validation, literal strings/numbers/booleans/blanks, worksheet/cell/row/column mutations, a constrained formula tokenizer/parser, no fabricated cached formula values, recalculation metadata, revision-guarded create/inspect/patch MCP tools, and rejection of malformed, macro-enabled, arbitrary non-managed, traversal, oversized, external-reference, URL/DDE/add-in, and other unsupported inputs. Broad `xlsx-crud` remains `planned` and unbound because arbitrary third-party workbook styles, charts, drawings, pivots, conditional formatting, data validation, named items, comments, external links/data connections, VBA/macros, unknown parts/relationships, and full Excel formula compatibility are not preserved by managed-v1.
+
+Subproject 6 is not signed off until the documentation HEAD containing this verification record also passes a fresh full `ci/verify` and branch enumeration confirms `main` remains the sole authoritative branch.
+
 ## Next detailed plan
 
-Write and execute the detailed implementation plan for Subproject 6 — **CSV & XLSX Artifact Engines**. Prioritize safe CSV CRUD and a validated managed-XLSX creation/editing envelope. Arbitrary existing-workbook XLSX mutation remains gated by `governance/xlsx-engine-decision.md` until separate preservation and security evidence justifies expansion.
+After Subproject 6 closure, write and execute the detailed implementation plan for Subproject 7 — **DOCX & PDF Artifact Expansion**. Preserve the current bounded DOCX-template and PDF-metadata behaviors while defining independently testable creation/editing/preservation/rendering envelopes before broad capability promotion.
