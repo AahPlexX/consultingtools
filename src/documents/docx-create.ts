@@ -41,7 +41,9 @@ const PAGE_SIZES = {
 const PAGE_MARGIN = 1_080;
 const CELL_MARGIN = 100;
 
-function alignment(value: ConsultingTextAlignment | undefined): typeof AlignmentType.LEFT {
+type DocxAlignment = (typeof AlignmentType)[keyof typeof AlignmentType];
+
+function alignment(value: ConsultingTextAlignment | undefined): DocxAlignment {
   switch (value) {
     case "center": return AlignmentType.CENTER;
     case "right": return AlignmentType.RIGHT;
@@ -66,10 +68,10 @@ function textParagraph(
     children: [
       new TextRun({
         text,
-        bold: options.bold,
-        color: options.color,
-        size: options.size,
-        italics: options.italics,
+        ...(options.bold === undefined ? {} : { bold: options.bold }),
+        ...(options.color === undefined ? {} : { color: options.color }),
+        ...(options.size === undefined ? {} : { size: options.size }),
+        ...(options.italics === undefined ? {} : { italics: options.italics }),
       }),
     ],
   });
@@ -126,14 +128,21 @@ function cell(
   } = {},
 ): TableCell {
   return new TableCell({
-    width: options.width === undefined ? undefined : { size: options.width, type: WidthType.DXA },
     margins: { top: CELL_MARGIN, bottom: CELL_MARGIN, left: CELL_MARGIN, right: CELL_MARGIN },
-    shading: options.fill === undefined ? undefined : { type: ShadingType.CLEAR, fill: options.fill, color: "auto" },
+    ...(options.width === undefined ? {} : { width: { size: options.width, type: WidthType.DXA } }),
+    ...(options.fill === undefined ? {} : {
+      shading: { type: ShadingType.CLEAR, fill: options.fill, color: "auto" },
+    }),
     children: [
       new Paragraph({
         alignment: alignment(options.alignment),
         spacing: { before: 0, after: 0 },
-        children: [new TextRun({ text, bold: options.bold, color: options.color, size: 18 })],
+        children: [new TextRun({
+          text,
+          size: 18,
+          ...(options.bold === undefined ? {} : { bold: options.bold }),
+          ...(options.color === undefined ? {} : { color: options.color }),
+        })],
       }),
     ],
   });
@@ -150,26 +159,28 @@ function dataTable(
   const header = new TableRow({
     tableHeader: true,
     cantSplit: true,
-    children: columns.map((column, index) =>
-      cell(column, {
+    children: columns.map((column, index) => {
+      const requestedAlignment = alignments?.[index];
+      return cell(column, {
         bold: true,
         color: "FFFFFF",
         fill: accent,
-        alignment: alignments?.[index],
         width: columnWidth,
-      }),
-    ),
+        ...(requestedAlignment === undefined ? {} : { alignment: requestedAlignment }),
+      });
+    }),
   });
   const body = rows.map((row, rowIndex) =>
     new TableRow({
       cantSplit: true,
-      children: row.map((value, columnIndex) =>
-        cell(value, {
+      children: row.map((value, columnIndex) => {
+        const requestedAlignment = alignments?.[columnIndex];
+        return cell(value, {
           fill: rowIndex % 2 === 1 ? "F7F8FA" : "FFFFFF",
-          alignment: alignments?.[columnIndex],
           width: columnWidth,
-        }),
-      ),
+          ...(requestedAlignment === undefined ? {} : { alignment: requestedAlignment }),
+        });
+      }),
     }),
   );
   return new Table({
@@ -353,7 +364,7 @@ export async function createConsultingDocx(document: ConsultingDocumentV1): Prom
   const file = new Document({
     creator: document.preparedBy ?? "Consulting Tools",
     title: document.title,
-    subject: document.subtitle,
+    ...(document.subtitle === undefined ? {} : { subject: document.subtitle }),
     styles: {
       paragraphStyles: [
         {
