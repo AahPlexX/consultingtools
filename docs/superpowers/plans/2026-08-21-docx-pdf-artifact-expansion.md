@@ -321,10 +321,10 @@ The shell validator receives that directory and must:
 - [x] **Step 2: Confirm RED, then add only those verified promotions.**
 - [x] **Step 3: Require fresh full `ci/verify` including the independent rendering gate on the exact code/catalog SHA.**
 - [x] **Step 4: Update Skill/governance/README/roadmap with exact supported blocks, PDF standard-font limitation, page-composition derivative semantics, excluded structures, and verified SHA/run.**
-- [ ] **Step 5: Require a second fresh successful full CI result for documentation HEAD and exhaust branch enumeration to confirm only `main`.**
-- [ ] **Step 6: Mark Subproject 7 complete only after all prior steps are evidenced; then advance the roadmap to Subproject 8 — Presentation & Visualization Engine.**
+- [x] **Step 5: Require a second fresh successful full CI result for documentation HEAD and exhaust branch enumeration to confirm only `main`.**
+- [x] **Step 6: Mark Subproject 7 complete only after all prior steps are evidenced; then advance the roadmap to Subproject 8 — Presentation & Visualization Engine.**
 
-**Task 8 execution evidence to date:** catalog truth RED was established on `a556912e0b6a8cc18211adb32959c031d2e26501`, Actions run `32535958844`. The first promotion candidate `be9c1666ec4289b4d2e63dd576e99e5abca92b8b` correctly failed stale broad-CRUD regressions in run `32536009129`; the next regression candidate `e7671f502c5bf558763763cda64081eaa2162b2a` exposed only an invented PDF display-name assertion in run `32536125813`. The corrected code/catalog/rendering gate is green on `1c789291e9488f1a325ddc27a0ca29966338b791`, Actions run `32536219577`. Documentation closure is intentionally still pending.
+**Task 8 execution evidence:** catalog truth RED was established on `a556912e0b6a8cc18211adb32959c031d2e26501`, Actions run `32535958844`. The first promotion candidate `be9c1666ec4289b4d2e63dd576e99e5abca92b8b` correctly failed stale broad-CRUD regressions in run `32536009129`; the next regression candidate `e7671f502c5bf558763763cda64081eaa2162b2a` exposed only an invented PDF display-name assertion in run `32536125813`. The corrected code/catalog/rendering gate passed on `1c789291e9488f1a325ddc27a0ca29966338b791`, Actions run `32536219577`. The documentation-head repository/rendering gate passed on `5a3b44806d3303854b803ef3e2e8a23abf7863d4`, Actions run `32536569796`. Exhaustive branch search returned only `main`; the continuation cursor returned no additional branches. The closure-record commit containing these checked steps must itself remain green before external signoff.
 
 ## Self-Review
 
