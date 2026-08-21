@@ -71,24 +71,26 @@ function validateList(
   kind: "bullets" | "numbered-list",
 ): void {
   assertOnlyKeys(value, ["kind", "items"], `${kind} block`);
-  assertArray(value.items, `${kind} list items`);
-  if (value.items.length < 1) throw new Error(`${kind} list must contain at least one item.`);
-  if (value.items.length > CONSULTING_DOCUMENT_LIMITS.maxListItems) {
+  const items = value.items;
+  assertArray(items, `${kind} list items`);
+  if (items.length < 1) throw new Error(`${kind} list must contain at least one item.`);
+  if (items.length > CONSULTING_DOCUMENT_LIMITS.maxListItems) {
     throw new Error(`${kind} list exceeds the ${CONSULTING_DOCUMENT_LIMITS.maxListItems}-item limit.`);
   }
-  value.items.forEach((item, index) => countText(counter, item, `${kind} list item ${index + 1}`));
+  items.forEach((item, index) => countText(counter, item, `${kind} list item ${index + 1}`));
 }
 
 function validateKeyMetrics(counter: TextCounter, value: UnknownRecord): void {
   assertOnlyKeys(value, ["kind", "items"], "key-metrics block");
-  assertArray(value.items, "key metric items");
-  if (value.items.length < 1) throw new Error("Key metric block must contain at least one key metric.");
-  if (value.items.length > CONSULTING_DOCUMENT_LIMITS.maxKeyMetricsPerBlock) {
+  const items = value.items;
+  assertArray(items, "key metric items");
+  if (items.length < 1) throw new Error("Key metric block must contain at least one key metric.");
+  if (items.length > CONSULTING_DOCUMENT_LIMITS.maxKeyMetricsPerBlock) {
     throw new Error(
       `Key metric block exceeds the ${CONSULTING_DOCUMENT_LIMITS.maxKeyMetricsPerBlock}-metric limit.`,
     );
   }
-  value.items.forEach((item, index) => {
+  items.forEach((item, index) => {
     if (!isRecord(item)) throw new Error(`Key metric ${index + 1} must be an object.`);
     assertOnlyKeys(item, ["label", "value", "detail"], `Key metric ${index + 1}`);
     countText(counter, item.label, `Key metric ${index + 1} label`);
@@ -103,34 +105,38 @@ function validateTable(
 ): { tableCells: number } {
   assertOnlyKeys(value, ["kind", "caption", "columns", "rows", "align"], "table block");
   countOptionalText(counter, value.caption, "Table caption");
-  assertArray(value.columns, "Table columns");
-  if (value.columns.length < 1) throw new Error("Table must contain at least one column.");
-  if (value.columns.length > CONSULTING_DOCUMENT_LIMITS.maxTableColumns) {
+
+  const columns = value.columns;
+  assertArray(columns, "Table columns");
+  if (columns.length < 1) throw new Error("Table must contain at least one column.");
+  if (columns.length > CONSULTING_DOCUMENT_LIMITS.maxTableColumns) {
     throw new Error(`Table column count exceeds the ${CONSULTING_DOCUMENT_LIMITS.maxTableColumns}-column limit.`);
   }
-  value.columns.forEach((column, index) => countText(counter, column, `Table column ${index + 1}`));
+  columns.forEach((column, index) => countText(counter, column, `Table column ${index + 1}`));
 
-  assertArray(value.rows, "Table rows");
-  if (value.rows.length > CONSULTING_DOCUMENT_LIMITS.maxTableRows) {
+  const rows = value.rows;
+  assertArray(rows, "Table rows");
+  if (rows.length > CONSULTING_DOCUMENT_LIMITS.maxTableRows) {
     throw new Error(`Table row count exceeds the ${CONSULTING_DOCUMENT_LIMITS.maxTableRows}-row limit.`);
   }
 
-  if (value.align !== undefined) {
-    assertArray(value.align, "Table alignment");
-    if (value.align.length !== value.columns.length) {
+  const align = value.align;
+  if (align !== undefined) {
+    assertArray(align, "Table alignment");
+    if (align.length !== columns.length) {
       throw new Error("Table alignment count must match the table column count.");
     }
-    value.align.forEach((alignment, index) =>
+    align.forEach((alignment, index) =>
       assertEnum(alignment, ["left", "center", "right"] as const, `Table alignment ${index + 1}`),
     );
   }
 
-  let tableCells = value.columns.length;
-  value.rows.forEach((row, rowIndex) => {
+  let tableCells = columns.length;
+  rows.forEach((row, rowIndex) => {
     assertArray(row, `Table row ${rowIndex + 1}`);
-    if (row.length !== value.columns.length) {
+    if (row.length !== columns.length) {
       throw new Error(
-        `Table row ${rowIndex + 1} column count must match the ${value.columns.length}-column table definition.`,
+        `Table row ${rowIndex + 1} column count must match the ${columns.length}-column table definition.`,
       );
     }
     tableCells += row.length;
@@ -238,14 +244,15 @@ export function validateConsultingDocument(document: ConsultingDocumentV1): Cons
     throw new Error("Accent color must be exactly six hexadecimal digits without a leading #.");
   }
 
-  assertArray(document.blocks, "Consulting document blocks");
-  if (document.blocks.length > CONSULTING_DOCUMENT_LIMITS.maxBlocks) {
+  const blocks = document.blocks;
+  assertArray(blocks, "Consulting document blocks");
+  if (blocks.length > CONSULTING_DOCUMENT_LIMITS.maxBlocks) {
     throw new Error(`Consulting document block count exceeds the ${CONSULTING_DOCUMENT_LIMITS.maxBlocks}-block limit.`);
   }
 
   let tableCount = 0;
   let tableCellCount = 0;
-  document.blocks.forEach((block: ConsultingDocumentBlock) => {
+  blocks.forEach((block: ConsultingDocumentBlock) => {
     const metrics = validateBlock(counter, block);
     tableCount += metrics.tableCount;
     tableCellCount += metrics.tableCells;
@@ -257,7 +264,7 @@ export function validateConsultingDocument(document: ConsultingDocumentV1): Cons
   });
 
   return {
-    blockCount: document.blocks.length,
+    blockCount: blocks.length,
     characterCount: counter.total,
     tableCount,
     tableCellCount,
