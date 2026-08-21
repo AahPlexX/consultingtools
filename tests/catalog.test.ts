@@ -30,10 +30,11 @@ describe("capability catalog", () => {
     expect(getCapabilityById("pdf-crud")?.status).toBe("planned");
   });
 
-  it("does not falsely mark file CRUD as implemented", () => {
-    for (const id of ["pdf-crud", "docx-crud", "xlsx-crud", "csv-crud", "pptx-crud"]) {
+  it("does not falsely promote broad file CRUD beyond verified envelopes", () => {
+    for (const id of ["pdf-crud", "docx-crud", "xlsx-crud", "pptx-crud"]) {
       expect(getCapabilityById(id)?.status).toBe("planned");
     }
+    expect(getCapabilityById("csv-crud")?.status).toBe("partial");
   });
 
   it("marks private-account SEO metrics unavailable under open access", () => {
