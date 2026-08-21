@@ -27,7 +27,7 @@ The active registry contains well over the required 100 materially distinct, rou
 
 Every active capability is represented through the canonical routing contract and includes the fields needed to decide whether it belongs in a workflow: business questions, positive triggers, anti-triggers, required and optional inputs, methodology, deterministic-engine dependencies, evidence requirements, supported outputs, artifact formats, surface requirements, QA gates, assumption policy, failure behavior, access boundary, risk class, composition references, and evaluation-fixture IDs.
 
-**Routing-ready does not mean implemented.** Status is an independent truth boundary. Narrow operations are promoted only after their executable path and required tests pass; broader reasoning or analytical outcomes remain `partial` when a verified primitive covers only part of the advertised workflow; unavailable credentialed/private-account retrieval remains unavailable; and broad document-format CRUD remains planned until preservation gates pass.
+**Routing-ready does not mean implemented.** Status is an independent truth boundary. Narrow operations are promoted only after their executable path and required tests pass; broader reasoning or analytical outcomes remain `partial` when a verified primitive covers only part of the advertised workflow; unavailable credentialed/private-account retrieval remains unavailable; and broad artifact-format capability claims remain `planned` or `partial` according to the exact verified preservation/creation envelope.
 
 The 100+ baseline was verified by GitHub Actions on commit `e755062819629ae1eddf0abaece21dec47810748` through run `32295888556`.
 
@@ -54,7 +54,8 @@ Natural-language semantic selection remains a host-model/Skill responsibility ba
 - `src/http.ts` — web-standard Streamable HTTP entry plus Host/Origin guards for a future public deployment.
 - `src/catalog/` — typed capability metadata, registry, verified promotions, relationships, and catalog MCP tools.
 - `src/routing/`, `src/epistemics/`, `src/quality/` — workflow and truth/QA contracts.
-- `src/artifacts/` — versioned artifact storage and bounded format-specific adapters.
+- `src/artifacts/` — versioned artifact storage and bounded existing-file adapters.
+- `src/documents/` — shared consulting-document model, professional DOCX/PDF creation, PDF layout/composition, and document MCP registration.
 - `src/tabular/` — safe CSV plus managed-XLSX codecs, mutations, formula validation, and MCP registration.
 - `src/finance/` — deterministic corporate-finance/FP&A engines and MCP tools.
 - `src/statistics/` — profiling, descriptive statistics, correlation, Student-t inference, and autocorrelation engines/MCP tools.
@@ -62,7 +63,7 @@ Natural-language semantic selection remains a host-model/Skill responsibility ba
 - `src/project/` — critical-path, three-point estimate, earned-value engines, and MCP registrations.
 - `src/operations/` — capacity/utilization, aggregate flow, weighted-decision engines, and MCP registrations.
 - `src/supply-chain/` — reorder-point, classical EOQ, supplier-spend concentration engines, and MCP registrations.
-- `scripts/`, `governance/`, `tests/`, `docs/`, `.github/workflows/` — freshness, SSOT governance, verification, design/plan docs, and CI.
+- `scripts/`, `governance/`, `tests/`, `docs/`, `.github/workflows/` — freshness, SSOT governance, verification, render checks, design/plan docs, and CI.
 
 ## Runtime baseline
 
@@ -74,13 +75,21 @@ Exact dated dependency pins and revalidation rules live in `governance/platform-
 
 The repository has a format-neutral plugin-owned artifact substrate with bounded inline import, `artifact://` binary resources, SHA-256/MIME/size/revision metadata, optimistic revision preconditions, destructive deletion semantics, and read-only binary format detection for PDF, ordinary/macro-enabled Office Open XML packages, generic ZIP, and unknown binaries.
 
-Artifact-storage CRUD is **not** document-format CRUD. Current Word support is bounded placeholder inspection/patching for macro-free DOCX templates. Current PDF support is bounded inspection/document-metadata mutation.
+Artifact-storage CRUD is **not** document-format CRUD. Capability status follows each verified format envelope independently.
 
-CSV now has a verified bounded implementation for comma-delimited parsing/serialization, explicit row/column/cell CRUD, revision-guarded MCP artifact operations, and spreadsheet-formula-injection escaping by default. The broader `csv-crud` capability is therefore `partial`, because its advertised scope also includes delimiter/schema/filter behavior not yet implemented.
+CSV has a verified bounded implementation for comma-delimited parsing/serialization, explicit row/column/cell CRUD, revision-guarded MCP artifact operations, and spreadsheet-formula-injection escaping by default. The broader `csv-crud` capability is `partial`, because its advertised scope also includes delimiter/schema/filter behavior not yet implemented.
 
-XLSX now has a verified managed-v1 implementation for Consulting Tools-owned macro-free workbooks: literal cells, worksheet/cell/row/column mutations, bounded explicit formulas, managed marker/package validation, and revision-guarded create/inspect/patch MCP operations. Arbitrary third-party workbook mutation remains unsupported; broad `xlsx-crud` stays `planned` and unbound because styles, charts, drawings, pivots, named items, comments, external links/data connections, VBA/macros, unknown parts, and full Excel formula compatibility are outside managed-v1.
+XLSX has a verified managed-v1 implementation for Consulting Tools-owned macro-free workbooks: literal cells, worksheet/cell/row/column mutations, bounded explicit formulas, managed marker/package validation, and revision-guarded create/inspect/patch MCP operations. Arbitrary third-party workbook mutation remains unsupported; broad `xlsx-crud` stays `planned` and unbound because styles, charts, drawings, pivots, named items, comments, external links/data connections, VBA/macros, unknown parts, and full Excel formula compatibility are outside managed-v1.
+
+DOCX now has a verified professional **creation** route plus the earlier bounded existing-template route. `create_consulting_document` creates a new macro-free DOCX from the shared text-centric `ConsultingDocumentV1` model with explicit styles, heading levels, semantic lists, tables, callouts/key metrics, headers/footers, and page numbering. `inspect_docx_template` and `patch_docx_template` remain restricted to existing macro-free placeholder templates. Broad `docx-crud` is therefore `partial`, not implemented; arbitrary existing Word text/layout/style/field/drawing/comment/track-change CRUD remains unclaimed.
+
+PDF now has a verified professional **creation** route, existing metadata subset, and derivative page-composition route. `create_consulting_document` creates standard-font PDF reports from the same shared model; unsupported standard-font text fails explicitly. `inspect_pdf` and `update_pdf_metadata` retain the bounded metadata path. `compose_pdf_artifact` creates a new PDF from explicitly selected source pages without revising source artifacts. Broad `pdf-crud` is therefore `partial`, not implemented; forms, annotations, arbitrary existing page-text editing, signatures, outlines, attachments, JavaScript, tagged-PDF/PDF-UA, custom fonts, and full source-level structure preservation remain outside the envelope.
+
+Representative generated DOCX/PDF output is independently validated in CI: LibreOffice Writer converts the DOCX to PDF; Poppler `pdfinfo` parses the converted and native PDFs; and `pdftoppm` rasterizes first/last pages. This is openability/renderability evidence, not pixel parity with Microsoft Word or Adobe Acrobat.
 
 The CSV/managed-XLSX executable and catalog gate passed on commit `485ec1a10f241bed3212abc3a8b8ffd9f3563e62` through Actions run `32491018071`.
+
+The DOCX/PDF executable/catalog/rendering gate passed on commit `1c789291e9488f1a325ddc27a0ca29966338b791` through Actions run `32536219577`.
 
 ## Deterministic corporate-finance and FP&A support
 
@@ -152,7 +161,9 @@ The repository contains source-level remote Streamable HTTP MCP support with fre
 
 **Subproject 6 — CSV & XLSX Artifact Engines:** verified complete for its specified bounded envelope. The executable/catalog gate passed on `485ec1a10f241bed3212abc3a8b8ffd9f3563e62`, run `32491018071`; the documentation-head closure gate passed on `bddf096f5a748fc3f8de43871518c6462d3da153`, run `32491513181`; branch enumeration confirmed `main` is the sole branch.
 
-The next milestone is **Subproject 7 — DOCX & PDF Artifact Expansion**.
+**Subproject 7 — DOCX & PDF Artifact Expansion:** code/catalog/rendering gate verified on `1c789291e9488f1a325ddc27a0ca29966338b791`, run `32536219577`. Professional DOCX/PDF creation, bounded existing-file operations, derivative PDF composition, preservation fixtures, MCP lifecycle tests, and independent LibreOffice/Poppler rendering are green. **Final subproject closure is still pending the documentation-head CI and branch-integrity gate; do not treat this line as completion until that second gate passes.**
+
+The current milestone remains **Subproject 7 — DOCX & PDF Artifact Expansion** until its documentation-head closure gate passes. After verified closure, the next milestone is **Subproject 8 — Presentation & Visualization Engine**.
 
 ## Branch policy
 
