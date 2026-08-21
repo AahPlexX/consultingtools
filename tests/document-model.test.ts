@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   CONSULTING_DOCUMENT_LIMITS,
+  type ConsultingDocumentBlock,
   type ConsultingDocumentV1,
 } from "../src/documents/types.js";
 import { validateConsultingDocument } from "../src/documents/validate.js";
@@ -123,23 +124,23 @@ describe("ConsultingDocumentV1 validation", () => {
       blocks: [{ kind: "paragraph", text: "x".repeat(CONSULTING_DOCUMENT_LIMITS.maxTextCharacters + 1) }],
     })).toThrow(/text/i);
 
-    const aggregateText = "x".repeat(Math.ceil(CONSULTING_DOCUMENT_LIMITS.maxTotalCharacters / 2));
-    expect(() => validateConsultingDocument({
-      ...report,
-      blocks: [
-        { kind: "paragraph", text: aggregateText },
-        { kind: "paragraph", text: aggregateText },
-      ],
-    })).toThrow(/character/i);
+    const aggregateBlocks: ConsultingDocumentBlock[] = Array.from({ length: 11 }, () => ({
+      kind: "paragraph",
+      text: "x".repeat(CONSULTING_DOCUMENT_LIMITS.maxTextCharacters),
+    }));
+    expect(() => validateConsultingDocument({ ...report, blocks: aggregateBlocks })).toThrow(/character/i);
 
-    const cellRows = Array.from(
-      { length: Math.ceil((CONSULTING_DOCUMENT_LIMITS.maxTableCells + 1) / 2) },
-      () => ["a", "b"],
+    const columns = Array.from({ length: CONSULTING_DOCUMENT_LIMITS.maxTableColumns }, (_, index) => `C${index}`);
+    const rows = Array.from(
+      { length: CONSULTING_DOCUMENT_LIMITS.maxTableRows },
+      () => Array.from({ length: CONSULTING_DOCUMENT_LIMITS.maxTableColumns }, () => "x"),
     );
-    expect(() => validateConsultingDocument({
-      ...report,
-      blocks: [{ kind: "table", columns: ["A", "B"], rows: cellRows }],
-    })).toThrow(/table cell/i);
+    const oversizedCellBlocks: ConsultingDocumentBlock[] = Array.from({ length: 4 }, () => ({
+      kind: "table",
+      columns,
+      rows,
+    }));
+    expect(() => validateConsultingDocument({ ...report, blocks: oversizedCellBlocks })).toThrow(/table cell/i);
   });
 
   it("rejects empty block values instead of producing invisible structure", () => {
