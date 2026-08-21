@@ -96,10 +96,19 @@ describe("capability implementation truth", () => {
     }
   });
 
-  it("keeps broad document-format CRUD planned", () => {
-    for (const id of ["pdf-crud", "docx-crud", "xlsx-crud", "csv-crud", "pptx-crud"]) {
+  it("binds the verified CSV envelope as partial while preserving the broader delimited-data claim boundary", () => {
+    expect(getCapabilityById("csv-crud")).toMatchObject({
+      status: "partial",
+      routingReady: true,
+      deterministicEngineIds: ["create_csv_artifact", "inspect_csv_artifact", "patch_csv_artifact"],
+    });
+  });
+
+  it("keeps broad third-party XLSX and other document-format CRUD planned", () => {
+    for (const id of ["pdf-crud", "docx-crud", "xlsx-crud", "pptx-crud"]) {
       expect(getCapabilityById(id)?.status).toBe("planned");
     }
+    expect(getCapabilityById("xlsx-crud")?.deterministicEngineIds).toEqual([]);
   });
 
   it("does not promote unrelated deterministic engines that have not been built", () => {
