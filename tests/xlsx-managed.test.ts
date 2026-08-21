@@ -4,6 +4,7 @@ import { detectArtifactFormat } from "../src/artifacts/format.js";
 import {
   createManagedXlsx,
   inspectManagedXlsx,
+  patchManagedXlsx,
   readManagedXlsx,
 } from "../src/tabular/xlsx-managed.js";
 import type { ManagedWorkbook } from "../src/tabular/xlsx-types.js";
@@ -110,5 +111,70 @@ describe("managed XLSX literal-cell envelope", () => {
       "docProps/custom.xml": strToU8("ConsultingToolsManagedWorkbook"),
     });
     expect(() => inspectManagedXlsx(macro)).toThrow(/macro-enabled/i);
+  });
+});
+
+describe("managed XLSX literal-cell CRUD", () => {
+  it("applies cell, row, column, add, delete, and rename worksheet mutations in order", () => {
+    const source: ManagedWorkbook = {
+      version: 1,
+      worksheets: [
+        { name: "Sheet1", rows: [["A", "B"], ["C", "D"]] },
+        { name: "Keep", rows: [[1]] },
+      ],
+    };
+    const patched = patchManagedXlsx(createManagedXlsx(source), [
+      { type: "set-cell", sheetName: "Sheet1", rowIndex: 0, columnIndex: 1, value: "B2" },
+      { type: "insert-row", sheetName: "Sheet1", rowIndex: 1, values: ["X", "Y"] },
+      { type: "insert-column", sheetName: "Sheet1", columnIndex: 1, values: [10, 20, 30] },
+      { type: "delete-row", sheetName: "Sheet1", rowIndex: 2 },
+      { type: "delete-column", sheetName: "Sheet1", columnIndex: 2 },
+      { type: "rename-worksheet", sheetName: "Keep", newName: "Renamed" },
+      { type: "add-worksheet", name: "Added", index: 1, rows: [["new"]] },
+      { type: "delete-worksheet", sheetName: "Renamed" },
+    ]);
+
+    expect(readManagedXlsx(patched)).toEqual({
+      version: 1,
+      worksheets: [
+        { name: "Sheet1", rows: [["A", 10], ["X", 20]] },
+        { name: "Added", rows: [["new"]] },
+      ],
+    });
+  });
+
+  it("does not mutate the source buffer or unaffected workbook content", () => {
+    const bytes = createManagedXlsx(workbook);
+    const before = Buffer.from(bytes);
+    const patched = patchManagedXlsx(bytes, [
+      { type: "set-cell", sheetName: "Summary", rowIndex: 1, columnIndex: 1, value: 999 },
+    ]);
+
+    expect(bytes.equals(before)).toBe(true);
+    expect(readManagedXlsx(bytes)).toEqual(workbook);
+    expect(readManagedXlsx(patched).worksheets[1]).toEqual(workbook.worksheets[1]);
+    expect(readManagedXlsx(patched).worksheets[0]?.rows[1]?.[1]).toBe(999);
+  });
+
+  it("rejects invalid mutation bounds, worksheet collisions, invalid names, and deleting the last worksheet", () => {
+    const single = createManagedXlsx({ version: 1, worksheets: [{ name: "Sheet1", rows: [["A"]] }] });
+    expect(() => patchManagedXlsx(single, [
+      { type: "set-cell", sheetName: "Sheet1", rowIndex: 3, columnIndex: 0, value: "x" },
+    ])).toThrow(/rowIndex/i);
+    expect(() => patchManagedXlsx(single, [
+      { type: "insert-row", sheetName: "Sheet1", rowIndex: 3, values: [] },
+    ])).toThrow(/rowIndex/i);
+    expect(() => patchManagedXlsx(single, [
+      { type: "rename-worksheet", sheetName: "Sheet1", newName: "bad/name" },
+    ])).toThrow(/worksheet name/i);
+    expect(() => patchManagedXlsx(single, [
+      { type: "rename-worksheet", sheetName: "Sheet1", newName: "x".repeat(32) },
+    ])).toThrow(/worksheet name/i);
+    expect(() => patchManagedXlsx(single, [
+      { type: "add-worksheet", name: "sheet1" },
+    ])).toThrow(/unique/i);
+    expect(() => patchManagedXlsx(single, [
+      { type: "delete-worksheet", sheetName: "Sheet1" },
+    ])).toThrow(/at least one worksheet/i);
   });
 });
