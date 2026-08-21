@@ -51,7 +51,7 @@ describe("managed XLSX literal-cell envelope", () => {
       managed: true,
       version: 1,
       sheetNames: ["Summary", "Second"],
-      cellCount: 10,
+      cellCount: 14,
     });
   });
 
