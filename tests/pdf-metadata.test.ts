@@ -1,6 +1,7 @@
 import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
-import { PDFDocument } from "pdf-lib";
+import { PDFDocument, PDFName, StandardFonts, degrees, rgb } from "pdf-lib";
 import { describe, expect, it } from "vitest";
+import { updatePdfMetadata } from "../src/artifacts/pdf.js";
 import { createHttpHandler } from "../src/http.js";
 
 async function connectedClient() {
@@ -18,8 +19,12 @@ async function connectedClient() {
 
 async function pdfFixture(): Promise<Buffer> {
   const pdf = await PDFDocument.create();
-  pdf.addPage([400, 500]);
-  pdf.addPage([400, 500]);
+  const font = await pdf.embedFont(StandardFonts.Helvetica);
+  const first = pdf.addPage([400, 500]);
+  first.drawText("Page one preserved content", { x: 40, y: 250, size: 16, font, color: rgb(0.1, 0.2, 0.3) });
+  const second = pdf.addPage([420, 520]);
+  second.setRotation(degrees(90));
+  second.drawText("Page two preserved content", { x: 50, y: 260, size: 14, font, color: rgb(0.2, 0.1, 0.3) });
   pdf.setTitle("Original title");
   pdf.setAuthor("Original author");
   return Buffer.from(await pdf.save());
@@ -35,6 +40,16 @@ async function importPdf(client: Client) {
     },
   });
   return (result.structuredContent as { artifact: { uri: string; revision: number } }).artifact;
+}
+
+function pageEvidence(pdf: PDFDocument) {
+  return pdf.getPages().map((page) => ({
+    width: page.getWidth(),
+    height: page.getHeight(),
+    rotation: page.getRotation().angle,
+    contents: page.node.get(PDFName.of("Contents"))?.toString() ?? null,
+    resources: page.node.get(PDFName.of("Resources"))?.toString() ?? null,
+  }));
 }
 
 describe("PDF metadata tools", () => {
@@ -106,5 +121,22 @@ describe("PDF metadata tools", () => {
       await client.close();
       await handler.close();
     }
+  });
+
+  it("preserves page geometry and observable content/resource references during metadata-only mutation", async () => {
+    const source = await pdfFixture();
+    const sourceBefore = Buffer.from(source);
+    const before = await PDFDocument.load(source, { updateMetadata: false });
+    const evidenceBefore = pageEvidence(before);
+
+    const updated = await updatePdfMetadata(source, { title: "Changed title" });
+    expect(source.equals(sourceBefore)).toBe(true);
+    expect(updated.pageCountBefore).toBe(2);
+    expect(updated.pageCount).toBe(2);
+
+    const after = await PDFDocument.load(updated.bytes, { updateMetadata: false });
+    expect(pageEvidence(after)).toEqual(evidenceBefore);
+    expect(after.getTitle()).toBe("Changed title");
+    expect(after.getAuthor()).toBe("Original author");
   });
 });
