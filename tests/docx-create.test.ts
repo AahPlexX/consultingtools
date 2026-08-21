@@ -123,7 +123,8 @@ describe("professional DOCX creation", () => {
   });
 
   it("uses a brand-neutral default accent when none is supplied", async () => {
-    const created = await createConsultingDocx({ ...report, accentColorHex: undefined });
+    const { accentColorHex: _accent, ...withoutAccent } = report;
+    const created = await createConsultingDocx(withoutAccent);
     const stylesXml = xmlPart(unzipSync(created.bytes), "word/styles.xml");
     expect(stylesXml).toContain("2F5597");
   });
