@@ -40,7 +40,7 @@ jobs:
             -H "Authorization: Bearer $GH_TOKEN" \
             -H "X-GitHub-Api-Version: 2026-03-10" \
             "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}" \
-            -d "{\"state\":\"pending\",\"target_url\":\"$STATUS_URL\",\"description\":\"npm run verify is running\",\"context\":\"ci/verify\"}"
+            -d "{\"state\":\"pending\",\"target_url\":\"$STATUS_URL\",\"description\":\"repository verification is running\",\"context\":\"ci/verify\"}"
 
       - name: Install pinned dependencies and verify types, tests, and build
         id: verify
@@ -49,19 +49,31 @@ jobs:
           npm install --ignore-scripts --no-audit --no-fund
           npm run verify
 
+      - name: Independently render generated DOCX and PDF fixtures
+        id: render
+        if: steps.verify.outcome == 'success'
+        continue-on-error: true
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends libreoffice-writer poppler-utils
+          rm -rf .render-validation
+          node scripts/generate-document-render-fixtures.mjs .render-validation
+          bash scripts/verify-document-rendering.sh .render-validation
+
       - name: Publish final verification status
         if: always() && github.event_name != 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
           VERIFY_OUTCOME: ${{ steps.verify.outcome }}
+          RENDER_OUTCOME: ${{ steps.render.outcome }}
           STATUS_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          if [ "$VERIFY_OUTCOME" = "success" ]; then
+          if [ "$VERIFY_OUTCOME" = "success" ] && [ "$RENDER_OUTCOME" = "success" ]; then
             state="success"
-            description="npm run verify passed"
+            description="repository and document rendering verification passed"
           else
             state="failure"
-            description="npm run verify failed"
+            description="repository or document rendering verification failed"
           fi
 
           curl --fail-with-body --silent --show-error -L \
@@ -73,5 +85,5 @@ jobs:
             -d "{\"state\":\"$state\",\"target_url\":\"$STATUS_URL\",\"description\":\"$description\",\"context\":\"ci/verify\"}"
 
       - name: Fail CI when verification failed
-        if: steps.verify.outcome != 'success'
+        if: steps.verify.outcome != 'success' || steps.render.outcome != 'success'
         run: exit 1
