@@ -68,6 +68,7 @@ function parseCellReferenceAt(source: string, start: number): { raw: string; end
   const raw = match[0];
   const end = start + raw.length;
   const next = source[end];
+  if (next === "!") return undefined;
   if (next !== undefined && /[A-Za-z0-9_.]/.test(next)) return undefined;
   validateCellReference(raw);
   return { raw, end };
