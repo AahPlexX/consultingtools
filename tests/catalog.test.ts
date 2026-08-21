@@ -27,14 +27,17 @@ describe("capability catalog", () => {
   it("preserves stable ids during catalog modularization", () => {
     expect(getCapabilityById("swot")?.name).toBe("SWOT analysis");
     expect(getCapabilityById("break-even")?.domain).toBe("finance");
-    expect(getCapabilityById("pdf-crud")?.status).toBe("planned");
+    expect(getCapabilityById("pdf-crud")?.name).toBe("PDF document CRUD");
   });
 
   it("does not falsely promote broad file CRUD beyond verified envelopes", () => {
-    for (const id of ["pdf-crud", "docx-crud", "xlsx-crud", "pptx-crud"]) {
+    for (const id of ["csv-crud", "pdf-crud", "docx-crud"]) {
+      expect(getCapabilityById(id)?.status).toBe("partial");
+      expect(getCapabilityById(id)?.status).not.toBe("implemented");
+    }
+    for (const id of ["xlsx-crud", "pptx-crud"]) {
       expect(getCapabilityById(id)?.status).toBe("planned");
     }
-    expect(getCapabilityById("csv-crud")?.status).toBe("partial");
   });
 
   it("marks private-account SEO metrics unavailable under open access", () => {
