@@ -96,6 +96,27 @@ export type AnalyticalExhibitJob =
   | "schedule"
   | "stage-conversion";
 
+export interface DiagramNode {
+  id: string;
+  label: string;
+  role?: "start" | "step" | "decision" | "outcome" | "milestone";
+}
+
+export interface DiagramEdge {
+  from: string;
+  to: string;
+  label?: string;
+}
+
+export type DiagramSpecV1 = {
+  version: 1;
+  kind: "process" | "dependency" | "decision-tree";
+  direction?: "LR" | "TB";
+  title: string;
+  nodes: DiagramNode[];
+  edges: DiagramEdge[];
+};
+
 export const EXHIBIT_LIMITS = {
   maxTitleCharacters: 180,
   maxAltTextCharacters: 800,
@@ -110,4 +131,12 @@ export const EXHIBIT_LIMITS = {
   maxRiskPoints: 250,
   maxGanttTasks: 250,
   maxFunnelStages: 30,
+} as const;
+
+export const DIAGRAM_LIMITS = {
+  maxNodes: 250,
+  maxEdges: 500,
+  maxTitleCharacters: 180,
+  maxIdCharacters: 200,
+  maxLabelCharacters: 1_000,
 } as const;
