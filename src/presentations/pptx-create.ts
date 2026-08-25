@@ -1,5 +1,5 @@
 import { strFromU8, unzipSync } from "fflate";
-import PptxGenJS from "pptxgenjs";
+import PptxGenJSModule from "pptxgenjs";
 import { detectArtifactFormat } from "../artifacts/format.js";
 import { contrastRatio } from "../visualization/accessibility.js";
 import { renderExhibitSvg } from "../visualization/render-exhibit.js";
@@ -10,6 +10,33 @@ export interface CreatedPptxReport {
   bytes: Buffer;
   metrics: PresentationMetrics;
 }
+
+interface PptxSlideAdapter {
+  background: { color: string };
+  addText(text: string, options: Record<string, unknown>): void;
+  addShape(shape: string, options: Record<string, unknown>): void;
+  addImage(options: Record<string, unknown>): void;
+  addNotes(notes: string): void;
+}
+
+interface PptxPresentationAdapter {
+  layout: string;
+  author: string;
+  company: string;
+  subject: string;
+  title: string;
+  lang: string;
+  addSlide(): PptxSlideAdapter;
+  write(options: Record<string, unknown>): Promise<unknown>;
+}
+
+type PptxConstructor = new () => PptxPresentationAdapter;
+
+// PptxGenJS 4.0.1 exposes a default constructor at runtime, but its UMD-style
+// declaration is interpreted as a module namespace by TypeScript NodeNext.
+// Keep that compatibility cast isolated here; generated OOXML remains subject
+// to the package/security assertions below and independent CI rendering gates.
+const PptxGenJS = PptxGenJSModule as unknown as PptxConstructor;
 
 const DEFAULT_ACCENT = "1F4E79";
 const SLIDE_W = 13.333;
@@ -23,7 +50,7 @@ function svgData(svg: string): string {
   return `data:image/svg+xml;base64,${Buffer.from(svg, "utf8").toString("base64")}`;
 }
 
-function addTitle(slide: ReturnType<PptxGenJS["addSlide"]>, title: string, accent: string): void {
+function addTitle(slide: PptxSlideAdapter, title: string, accent: string): void {
   slide.addText(title, {
     x: 0.65,
     y: 0.35,
@@ -40,7 +67,7 @@ function addTitle(slide: ReturnType<PptxGenJS["addSlide"]>, title: string, accen
   slide.addShape("line", { x: 0.65, y: 1.02, w: 12.05, h: 0, line: { color: accent, width: 1.6 } });
 }
 
-function addSource(slide: ReturnType<PptxGenJS["addSlide"]>, sourceNote: string | undefined): void {
+function addSource(slide: PptxSlideAdapter, sourceNote: string | undefined): void {
   if (!sourceNote) return;
   slide.addText(sourceNote, {
     x: 0.7,
@@ -55,7 +82,7 @@ function addSource(slide: ReturnType<PptxGenJS["addSlide"]>, sourceNote: string 
   });
 }
 
-function renderTitleSlide(pptx: PptxGenJS, slideSpec: Extract<PresentationSlideV1, { kind: "title" }>, deck: PresentationDeckV1, accent: string): void {
+function renderTitleSlide(pptx: PptxPresentationAdapter, slideSpec: Extract<PresentationSlideV1, { kind: "title" }>, deck: PresentationDeckV1, accent: string): void {
   const slide = pptx.addSlide();
   slide.background = { color: "FFFFFF" };
   slide.addShape("rect", { x: 0, y: 0, w: 0.22, h: SLIDE_H, line: { color: accent, transparency: 100 }, fill: { color: accent } });
@@ -83,7 +110,7 @@ function renderTitleSlide(pptx: PptxGenJS, slideSpec: Extract<PresentationSlideV
   }
 }
 
-function renderSectionSlide(pptx: PptxGenJS, slideSpec: Extract<PresentationSlideV1, { kind: "section" }>, accent: string): void {
+function renderSectionSlide(pptx: PptxPresentationAdapter, slideSpec: Extract<PresentationSlideV1, { kind: "section" }>, accent: string): void {
   const slide = pptx.addSlide();
   slide.background = { color: "FFFFFF" };
   slide.addShape("rect", { x: 0.75, y: 1.65, w: 0.16, h: 3.7, line: { color: accent, transparency: 100 }, fill: { color: accent } });
@@ -91,7 +118,7 @@ function renderSectionSlide(pptx: PptxGenJS, slideSpec: Extract<PresentationSlid
   if (slideSpec.subtitle) slide.addText(slideSpec.subtitle, { x: 1.27, y: 3.55, w: 10, h: 0.55, fontFace: "Aptos", fontSize: 19, color: MUTED, margin: 0, fit: "shrink" });
 }
 
-function renderSummarySlide(pptx: PptxGenJS, slideSpec: Extract<PresentationSlideV1, { kind: "summary" }>, accent: string): void {
+function renderSummarySlide(pptx: PptxPresentationAdapter, slideSpec: Extract<PresentationSlideV1, { kind: "summary" }>, accent: string): void {
   const slide = pptx.addSlide();
   slide.background = { color: "FFFFFF" };
   addTitle(slide, slideSpec.title, accent);
@@ -118,7 +145,7 @@ function renderSummarySlide(pptx: PptxGenJS, slideSpec: Extract<PresentationSlid
   addSource(slide, slideSpec.sourceNote);
 }
 
-function renderExhibitSlide(pptx: PptxGenJS, slideSpec: Extract<PresentationSlideV1, { kind: "exhibit" }>, accent: string): void {
+function renderExhibitSlide(pptx: PptxPresentationAdapter, slideSpec: Extract<PresentationSlideV1, { kind: "exhibit" }>, accent: string): void {
   const slide = pptx.addSlide();
   slide.background = { color: "FFFFFF" };
   addTitle(slide, slideSpec.title, accent);
