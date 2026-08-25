@@ -49,16 +49,18 @@ jobs:
           npm install --ignore-scripts --no-audit --no-fund
           npm run verify
 
-      - name: Independently render generated DOCX and PDF fixtures
+      - name: Independently render generated document, SVG, and PPTX fixtures
         id: render
         if: steps.verify.outcome == 'success'
         continue-on-error: true
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends libreoffice-writer poppler-utils
+          sudo apt-get install -y --no-install-recommends libreoffice-writer libreoffice-impress poppler-utils librsvg2-bin
           rm -rf .render-validation
-          node scripts/generate-document-render-fixtures.mjs .render-validation
-          bash scripts/verify-document-rendering.sh .render-validation
+          node scripts/generate-document-render-fixtures.mjs .render-validation/documents
+          bash scripts/verify-document-rendering.sh .render-validation/documents
+          node scripts/generate-presentation-render-fixtures.mjs .render-validation/presentations
+          bash scripts/verify-presentation-rendering.sh .render-validation/presentations
 
       - name: Publish final verification status
         if: always() && github.event_name != 'pull_request'
@@ -70,10 +72,10 @@ jobs:
         run: |
           if [ "$VERIFY_OUTCOME" = "success" ] && [ "$RENDER_OUTCOME" = "success" ]; then
             state="success"
-            description="repository and document rendering verification passed"
+            description="repository and independent artifact rendering verification passed"
           else
             state="failure"
-            description="repository or document rendering verification failed"
+            description="repository or independent artifact rendering verification failed"
           fi
 
           curl --fail-with-body --silent --show-error -L \
