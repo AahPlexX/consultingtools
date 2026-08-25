@@ -98,7 +98,9 @@ describe("professional consulting PPTX creation", () => {
     const names = Object.keys(parts);
     expect(names.some((name) => /vbaProject\.bin$/i.test(name))).toBe(false);
     expect(names.some((name) => /(^|\/)externalLinks\//i.test(name))).toBe(false);
-    expect(names.some((name) => /(^|\/)embeddings\//i.test(name))).toBe(false);
+    // PptxGenJS creates an empty ppt/embeddings/ directory in every package.
+    // The security boundary rejects actual entries beneath that directory.
+    expect(names.some((name) => /(^|\/)embeddings\/[^/]+/i.test(name))).toBe(false);
 
     for (const name of names.filter((entry) => entry.endsWith(".rels"))) {
       const relationships = xml(parts, name);
