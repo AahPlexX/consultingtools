@@ -27,6 +27,30 @@ const artifactDeterministic = {
   additionalQualityGates: ["artifact.openability", "artifact.preservation"] as const,
 };
 
+const visualizationArtifact = {
+  mode: "artifact" as const,
+  surfaceRequirements: ["deterministic-engine", "artifact-output"] as const,
+  additionalQualityGates: ["artifact.openability", "artifact.rendering"] as const,
+};
+
+const visualizationHybrid = {
+  mode: "hybrid" as const,
+  surfaceRequirements: ["host-reasoning", "deterministic-engine", "artifact-output"] as const,
+  additionalQualityGates: ["consulting.method-fit", "artifact.openability", "artifact.rendering"] as const,
+};
+
+const mermaidArtifact = {
+  mode: "artifact" as const,
+  surfaceRequirements: ["deterministic-engine", "artifact-output"] as const,
+  additionalQualityGates: ["artifact.openability"] as const,
+};
+
+const presentationHybrid = {
+  mode: "hybrid" as const,
+  surfaceRequirements: ["host-reasoning", "deterministic-engine", "artifact-output"] as const,
+  additionalQualityGates: ["consulting.actionability", "artifact.openability", "artifact.rendering"] as const,
+};
+
 const verifiedPromotions: Readonly<Record<string, Promotion>> = {
   npv: { status: "implemented", deterministicEngineIds: ["calculate_npv"], ...hybridDeterministic },
   payback: { status: "implemented", deterministicEngineIds: ["calculate_payback"], ...hybridDeterministic },
@@ -62,6 +86,26 @@ const verifiedPromotions: Readonly<Record<string, Promotion>> = {
     deterministicEngineIds: ["create_consulting_document", "inspect_pdf", "update_pdf_metadata", "compose_pdf_artifact"],
     ...artifactDeterministic,
   },
+  "data-visualization": {
+    status: "partial",
+    deterministicEngineIds: ["recommend_consulting_exhibit", "create_consulting_exhibit"],
+    ...visualizationHybrid,
+  },
+  "bar-chart": { status: "partial", deterministicEngineIds: ["create_consulting_exhibit"], ...visualizationArtifact },
+  "stacked-bar-chart": { status: "partial", deterministicEngineIds: ["create_consulting_exhibit"], ...visualizationArtifact },
+  "line-chart": { status: "partial", deterministicEngineIds: ["create_consulting_exhibit"], ...visualizationArtifact },
+  "scatter-plot": { status: "partial", deterministicEngineIds: ["create_consulting_exhibit"], ...visualizationArtifact },
+  "waterfall-chart": { status: "partial", deterministicEngineIds: ["create_consulting_exhibit"], ...visualizationArtifact },
+  "pareto-chart": { status: "partial", deterministicEngineIds: ["create_consulting_exhibit"], ...visualizationArtifact },
+  heatmap: { status: "partial", deterministicEngineIds: ["create_consulting_exhibit"], ...visualizationArtifact },
+  "two-by-two-matrix": { status: "partial", deterministicEngineIds: ["create_consulting_exhibit"], ...visualizationArtifact },
+  "risk-heatmap": { status: "partial", deterministicEngineIds: ["create_consulting_exhibit"], ...visualizationArtifact },
+  "gantt-visual": { status: "partial", deterministicEngineIds: ["create_consulting_exhibit"], ...visualizationArtifact },
+  "funnel-chart": { status: "partial", deterministicEngineIds: ["create_consulting_exhibit"], ...visualizationArtifact },
+  "process-diagram": { status: "partial", deterministicEngineIds: ["create_mermaid_diagram"], ...mermaidArtifact },
+  "dependency-diagram": { status: "partial", deterministicEngineIds: ["create_mermaid_diagram"], ...mermaidArtifact },
+  "decision-tree-visual": { status: "partial", deterministicEngineIds: ["create_mermaid_diagram"], ...mermaidArtifact },
+  "board-material": { status: "partial", deterministicEngineIds: ["create_consulting_presentation"], ...presentationHybrid },
 };
 
 export function applyVerifiedCapabilityPromotions(capability: CapabilityDefinition): CapabilityDefinition {
