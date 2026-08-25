@@ -62,7 +62,13 @@ export function registerVisualizationTools(server: McpServer, artifactStore: Art
     },
     async (input) => {
       try {
-        const result = recommendExhibit(input);
+        const selectorInput = {
+          job: input.job,
+          ...(input.categoryCount === undefined ? {} : { categoryCount: input.categoryCount }),
+          ...(input.seriesCount === undefined ? {} : { seriesCount: input.seriesCount }),
+          ...(input.hasNegativeValues === undefined ? {} : { hasNegativeValues: input.hasNegativeValues }),
+        };
+        const result = recommendExhibit(selectorInput);
         return {
           structuredContent: result,
           content: [{ type: "text" as const, text: `${result.kind}: ${result.rationale}` }],
