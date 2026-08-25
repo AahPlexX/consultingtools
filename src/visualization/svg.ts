@@ -43,9 +43,9 @@ export function svgText(
 }
 
 export function assertSafeSvg(svg: string): void {
-  if (
-    /<script|<foreignObject|javascript:|<a\b|\bon[a-z]+\s*=|@import|\bhref\s*=|xlink:href\s*=/i.test(svg)
-  ) {
+  const prohibitedElement = /<(?:script|foreignObject|a|image|use|style)\b/i;
+  const prohibitedAttribute = /<[^>]+\s(?:on[a-z]+|href|xlink:href)\s*=/i;
+  if (prohibitedElement.test(svg) || prohibitedAttribute.test(svg)) {
     throw new Error("Generated SVG contains a prohibited active or external construct.");
   }
 }
