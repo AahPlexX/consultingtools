@@ -53,8 +53,9 @@ describe("closed-world Mermaid source generation", () => {
     expect(source).not.toMatch(/<\/?[a-z][^>]*>/i);
     expect(source).not.toMatch(/\b(?:style|classDef)\b/i);
     expect(source).not.toContain("`");
-    expect(source).not.toContain("[");
-    expect(source).not.toContain("]");
+    expect(source).not.toContain('click A "https://evil.example"');
+    expect(source).not.toContain("end ] } |");
+    expect(source).toMatch(/#\d+;/);
   });
 
   it("rejects duplicate IDs unknown references self loops blank fields and unsupported directions", () => {
@@ -81,6 +82,6 @@ describe("closed-world Mermaid source generation", () => {
     expect(source).toMatch(/n2\{/);
     expect(source).toMatch(/n3\(\[/);
     expect(source).toContain("n0 --> n1");
-    expect(source).toMatch(/n2 --\|[^|]+\|--> n3/);
+    expect(source).toMatch(/n2 -->\|[^|]+\| n3/);
   });
 });
