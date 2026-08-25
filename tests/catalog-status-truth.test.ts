@@ -84,6 +84,57 @@ describe("capability implementation truth", () => {
     });
   });
 
+  it("binds only independently verified exhibit forms while keeping their broader analytical claims partial", () => {
+    const exhibitIds = [
+      "bar-chart",
+      "stacked-bar-chart",
+      "line-chart",
+      "scatter-plot",
+      "waterfall-chart",
+      "pareto-chart",
+      "heatmap",
+      "two-by-two-matrix",
+      "risk-heatmap",
+      "gantt-visual",
+      "funnel-chart",
+    ];
+    for (const id of exhibitIds) {
+      expect(getCapabilityById(id)).toMatchObject({
+        status: "partial",
+        routingReady: true,
+        deterministicEngineIds: ["create_consulting_exhibit"],
+      });
+    }
+    expect(getCapabilityById("data-visualization")).toMatchObject({
+      status: "partial",
+      routingReady: true,
+      deterministicEngineIds: ["recommend_consulting_exhibit", "create_consulting_exhibit"],
+    });
+  });
+
+  it("binds bounded Mermaid-source generation without claiming an interactive or arbitrary diagram renderer", () => {
+    for (const id of ["process-diagram", "dependency-diagram", "decision-tree-visual"]) {
+      expect(getCapabilityById(id)).toMatchObject({
+        status: "partial",
+        routingReady: true,
+        deterministicEngineIds: ["create_mermaid_diagram"],
+      });
+    }
+  });
+
+  it("binds governed PPTX creation to board-material while keeping broad presentation CRUD planned", () => {
+    expect(getCapabilityById("board-material")).toMatchObject({
+      status: "partial",
+      routingReady: true,
+      deterministicEngineIds: ["create_consulting_presentation"],
+    });
+    expect(getCapabilityById("pptx-crud")).toMatchObject({
+      status: "planned",
+      routingReady: true,
+      deterministicEngineIds: [],
+    });
+  });
+
   it("keeps broad unsupported document semantics unclaimed", () => {
     for (const id of ["docx-crud", "pdf-crud"]) {
       expect(getCapabilityById(id)?.status).not.toBe("implemented");
@@ -95,7 +146,7 @@ describe("capability implementation truth", () => {
   });
 
   it("does not promote unrelated deterministic engines that have not been built", () => {
-    for (const id of ["regression-analysis", "clustering-analysis", "bar-chart"]) {
+    for (const id of ["regression-analysis", "clustering-analysis", "area-chart", "histogram", "box-plot", "treemap", "timeline"]) {
       expect(getCapabilityById(id)?.status).not.toBe("implemented");
     }
   });
