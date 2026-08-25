@@ -25,14 +25,21 @@ for file in "${svg_files[@]}"; do
   svg="$output_dir/$file"
   [[ -s "$svg" ]] || { echo "Missing SVG fixture: $file" >&2; exit 1; }
 
-  if grep -Eiq '<script|<foreignObject|[[:space:]]on[a-zA-Z]+[[:space:]]*=' "$svg"; then
-    echo "SVG contains prohibited active content: $file" >&2
-    exit 1
-  fi
-  if grep -Eiq '(xlink:href|href)[[:space:]]*=[[:space:]]*["'"'](https?:|//|data:)' "$svg"; then
-    echo "SVG contains prohibited external or embedded-resource reference: $file" >&2
-    exit 1
-  fi
+  node - "$svg" <<'NODE'
+const fs = require("node:fs");
+const file = process.argv[2];
+const svg = fs.readFileSync(file, "utf8");
+const prohibitedActive = /<script\b|<foreignObject\b|\son[a-zA-Z]+\s*=/i;
+const prohibitedResource = /(?:xlink:href|href)\s*=\s*["'](?:https?:|\/\/|data:)/i;
+if (prohibitedActive.test(svg)) {
+  console.error(`SVG contains prohibited active content: ${file}`);
+  process.exit(1);
+}
+if (prohibitedResource.test(svg)) {
+  console.error(`SVG contains prohibited external or embedded-resource reference: ${file}`);
+  process.exit(1);
+}
+NODE
 
   png="$render_dir/${file%.svg}.png"
   rsvg-convert "$svg" -o "$png"
