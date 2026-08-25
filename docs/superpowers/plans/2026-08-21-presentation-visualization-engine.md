@@ -498,10 +498,10 @@ A narrower existing presentation-generation/executive-artifact capability may mo
 
 ### Closure gates
 
-- [ ] Write catalog truth tests first against exact existing IDs/descriptions and confirm RED.
-- [ ] Add only evidence-backed partial/implemented bindings.
-- [ ] Require fresh full repository + SVG/PPTX independent-rendering GREEN on exact code/catalog SHA.
-- [ ] Update Skills/governance/README/roadmap with exact supported exhibit types, PptxGenJS pin, Mermaid-source boundary, PPTX creation boundary, accessibility/rendering evidence, and excluded semantics.
+- [x] Write catalog truth tests first against exact existing IDs/descriptions and confirm RED.
+- [x] Add only evidence-backed partial/implemented bindings.
+- [x] Require fresh full repository + SVG/PPTX independent-rendering GREEN on exact code/catalog SHA.
+- [x] Update Skills/governance/README/roadmap with exact supported exhibit types, PptxGenJS pin, Mermaid-source boundary, PPTX creation boundary, accessibility/rendering evidence, and excluded semantics.
 - [ ] Require a second fresh full repository + render GREEN on final documentation HEAD.
 - [ ] Exhaust branch enumeration and confirm only `main`.
 - [ ] Write final truth-only closure record and require it to remain GREEN before externally signing off Subproject 8.
@@ -516,3 +516,10 @@ A narrower existing presentation-generation/executive-artifact capability may mo
 - **Independent rendering is mandatory:** SVG through librsvg; PPTX through LibreOffice Impress → PDF → Poppler. Library self-reopening alone is insufficient.
 - **Truthful breadth:** only exact renderer/catalog intersections get promoted; the many remaining planned visualization identities stay planned/partial until independently implemented.
 - **No stale confidence claims:** verification is exact-SHA/run based, not a confidence percentage.
+
+
+## Implementation record - 2026-08-25
+
+The Subproject 8 code/catalog/render envelope passed on `5b232c50689d4c073d4d6340e5f4afc4d6ce5e7c` through GitHub Actions run `32900049782`. The preceding catalog truth test commit `78eb05fb93c1ccfde926509355873596886f4fa7` failed exactly the three intended binding assertions while 348 pre-existing tests passed, establishing the RED state. The verified promotion commit binds only the exact supported exhibit/diagram intersections plus partial `board-material`; broad `pptx-crud` remains planned.
+
+This record does **not** close the subproject. Documentation-head validation, exhaustive `main`-only branch enumeration, and a final truth-only closure commit with its own full repository + independent-render GREEN remain required before external signoff.

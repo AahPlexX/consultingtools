@@ -97,9 +97,17 @@ The current managed-v1 XLSX tools are narrower: they create, inspect, and patch 
 
 Resolve delimiter, encoding, header semantics, locale-sensitive number/date formats, quoting, and newline behavior before claiming general delimited-text work. The verified current envelope is comma-delimited CSV with explicit string preservation, immutable row/column/cell mutation, and spreadsheet-safe formula-leading output by default. Broader `csv-crud` remains partial because arbitrary delimiter/schema/filter semantics are not all implemented.
 
+## SVG and Mermaid visualization artifacts
+
+`create_consulting_exhibit` creates new standalone SVG artifacts only from the bounded `ExhibitSpecV1` model. The verified renderer supports bar/stacked-bar, line, scatter, waterfall, Pareto, heatmap, 2x2 matrix, risk matrix, Gantt, and funnel exhibits. Generated SVGs use an explicit accessible title/description and are rejected if they contain script, `foreignObject`, event-handler attributes, or external/data resource references. This is a governed creation envelope, not arbitrary SVG editing.
+
+`create_mermaid_diagram` creates plain-text Mermaid source from the structured `DiagramSpecV1` process/dependency/decision-tree model. Do not accept arbitrary Mermaid source or describe the source generator as an interactive Mermaid renderer. Directives, frontmatter, click actions, raw HTML, links, scripts, and user-controlled Mermaid configuration remain outside the v1 interface.
+
 ## PPTX
 
-Preserve slide size, themes/layouts, masters, notes, media, relationships, ordering, hyperlinks, and accessibility-relevant structure unless the requested change affects them. Render representative slides for visual validation when layout matters. Broad `pptx-crud` remains planned until an explicit engine and preservation/rendering envelope pass.
+`create_consulting_presentation` creates a **new** professional macro-free PPTX from the bounded `PresentationDeckV1` model. It supports governed title, section, summary, and exhibit slides; exhibit figures come from the repository's deterministic SVG engine and carry explicit alt text. Slide titles are non-empty and unique, and representative PPTX output is independently converted through LibreOffice Impress then parsed/rasterized through Poppler in CI.
+
+The PPTX creator uses pinned `pptxgenjs@4.0.1`, but core analytical charts are not delegated to PptxGenJS native chart behavior. Existing third-party PPTX mutation is outside this envelope. Preserve slide size, themes/layouts, masters, notes, media, relationships, ordering, hyperlinks, and accessibility-relevant structure before any future existing-file mutation claim is promoted. Broad `pptx-crud` therefore remains `planned` and unbound.
 
 ## Create versus update
 

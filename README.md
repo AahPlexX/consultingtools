@@ -143,6 +143,16 @@ These primitives do not claim calendar/resource-aware scheduling, arbitrary depe
 
 Subproject 5's executable and catalog-binding gate passed on `1fea7d383537956631bd132a39f175646d5f02ac` through Actions run `32408792540`. The immediately preceding integration repair `448c22ae49f046925af0324cbab5bc3ebc67fcab` also passed full verification through run `32408368386` after correcting server composition and two convention-string contract defects.
 
+## Presentation and visualization envelope
+
+The verified visualization surface now includes deterministic exhibit recommendation, accessible standalone SVG creation, bounded Mermaid-source generation, and new governed PPTX creation.
+
+`recommend_consulting_exhibit` maps explicit analytical-job/data-shape metadata to one of ten verified exhibit forms. `create_consulting_exhibit` renders bar/stacked-bar, line, scatter, waterfall, Pareto, heatmap, 2x2 matrix, risk matrix, Gantt, and funnel exhibits as standalone accessible SVG. `create_mermaid_diagram` emits bounded process/dependency/decision-tree Mermaid source from structured input only. `create_consulting_presentation` creates a new macro-free PPTX from `PresentationDeckV1` with title/section/summary/exhibit slides and repository-generated SVG exhibits.
+
+This does **not** make arbitrary visualization or PowerPoint editing implemented. The supported chart/diagram identities are bound only as `partial` where their catalog wording includes analytical judgment beyond rendering; `board-material` is partial with the PPTX creation engine; and broad `pptx-crud` remains `planned` and unbound because existing presentation inspection/edit/reorder/preservation is not implemented.
+
+Representative SVG/PPTX output is independently validated in CI using librsvg for SVG and LibreOffice Impress -> PDF -> Poppler parsing/rasterization for PPTX. The code/catalog/render gate passed on `5b232c50689d4c073d4d6340e5f4afc4d6ce5e7c` through Actions run `32900049782`. Subproject 8 remains closure-pending until this documentation state and the final truth-only record also pass fresh full repository/render gates.
+
 ## Remote MCP status
 
 The repository contains source-level remote Streamable HTTP MCP support with fresh server creation, MCP client protocol tests, explicit allowed-host/origin guards, and credential-shaped Host/Origin rejection. This is **not** yet a production deployment: public HTTPS hosting, persistent multi-instance storage, abuse controls, observability, external E2E verification, domain verification, and directory submission remain future gates.
@@ -163,7 +173,7 @@ The repository contains source-level remote Streamable HTTP MCP support with fre
 
 **Subproject 7 — DOCX & PDF Artifact Expansion:** verified complete for its explicitly bounded envelope. The executable/catalog/rendering gate passed on `1c789291e9488f1a325ddc27a0ca29966338b791`, run `32536219577`; the documentation-head gate passed on `5a3b44806d3303854b803ef3e2e8a23abf7863d4`, run `32536569796`; exhaustive branch enumeration returned only `main`. The closure-record commit containing this statement must itself remain green before external signoff.
 
-The next milestone is **Subproject 8 — Presentation & Visualization Engine**.
+**Subproject 8 - Presentation & Visualization Engine:** code/catalog/render envelope verified on `5b232c50689d4c073d4d6340e5f4afc4d6ce5e7c`, run `32900049782`; documentation/final closure validation remains pending, so the subproject is not yet signed off.
 
 ## Branch policy
 

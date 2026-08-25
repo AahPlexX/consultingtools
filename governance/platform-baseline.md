@@ -187,6 +187,18 @@ The CI-only renderer dependencies are `libreoffice-writer` and `poppler-utils`; 
 
 The integrated code/catalog render gate passed on `1c789291e9488f1a325ddc27a0ca29966338b791` through Actions run `32536219577`.
 
+## Presentation and visualization engine boundary
+
+The verified Subproject 8 creation envelope is deliberately narrower than arbitrary visualization or presentation editing.
+
+- `pptxgenjs@4.0.1` is pinned for new bounded PPTX generation from `PresentationDeckV1`; it does not establish an existing-PPTX preservation/editing guarantee.
+- Core analytical exhibits are produced by the repository's own deterministic SVG engine for exactly ten v1 forms: bar/stacked-bar, line, scatter, waterfall, Pareto, heatmap, 2x2 matrix, risk matrix, Gantt, and funnel.
+- Structured Mermaid generation is limited to process, dependency, and decision-tree source. Arbitrary Mermaid input and runtime Mermaid rendering are outside the plugin-owned v1 boundary.
+- Generated SVG is independently rasterized with librsvg. Generated PPTX is independently opened/converted with LibreOffice Impress, parsed with Poppler `pdfinfo`, and rasterized with `pdftoppm` in CI.
+- The independent render gate is evidence of representative openability/renderability, not pixel parity with Microsoft PowerPoint, universal font/layout parity, arbitrary PPTX preservation, or accessibility conformance beyond the explicitly tested title/alt-text/SVG semantics.
+
+The Subproject 8 code/catalog/render gate passed on `5b232c50689d4c073d4d6340e5f4afc4d6ce5e7c` through Actions run `32900049782`. Documentation-head and final truth-only closure validation remain separate requirements before external completion signoff.
+
 ## Format-editor selection boundary
 
 Current package research does **not** justify treating one JavaScript library as a universal lossless Office/PDF editor.

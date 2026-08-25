@@ -146,6 +146,21 @@ Use `compose_pdf_artifact` only for a derivative page-selection operation. It cr
 
 The integrated DOCX/PDF code-and-catalog gate passed on commit `1c789291e9488f1a325ddc27a0ca29966338b791` through Actions run `32536219577`. That run included independent LibreOffice Writer conversion of a generated DOCX plus Poppler parsing/rasterization of both the converted DOCX output and native PDF. Treat this as representative openability/renderability evidence, not pixel parity with Microsoft Word or Adobe Acrobat.
 
+### Presentation and visualization artifacts
+
+Use the verified presentation/visualization primitives only inside their bounded models:
+
+- `recommend_consulting_exhibit` maps an explicit analytical job/data shape to one of the verified exhibit families; it is a deterministic selector, not arbitrary natural-language interpretation.
+- `create_consulting_exhibit` creates a standalone accessible SVG from the closed-world `ExhibitSpecV1` model for bar/stacked-bar, line, scatter, waterfall, Pareto, heatmap, 2x2 matrix, risk matrix, Gantt, and funnel exhibits.
+- `create_mermaid_diagram` generates bounded Mermaid **source** only from structured process, dependency, or decision-tree models. It does not accept arbitrary Mermaid source, directives, links, click actions, HTML, scripts, or user-controlled Mermaid configuration, and it is not an interactive renderer.
+- `create_consulting_presentation` creates a new macro-free PPTX from the bounded `PresentationDeckV1` model. It does not inspect, edit, reorder, or preserve arbitrary existing PowerPoint files.
+
+The active catalog binds `data-visualization`, `bar-chart`, `stacked-bar-chart`, `line-chart`, `scatter-plot`, `waterfall-chart`, `pareto-chart`, `heatmap`, `two-by-two-matrix`, `risk-heatmap`, `gantt-visual`, `funnel-chart`, `process-diagram`, `dependency-diagram`, `decision-tree-visual`, and `board-material` only as `partial` where the user-visible analytical or communication outcome exceeds the deterministic rendering primitive. Broad `pptx-crud` remains `planned` and unbound.
+
+SVGs require an accessible title/description and prohibit active/external content. Multi-series line exhibits use non-color cues as well as color. PPTX exhibit slides require explicit alt text and unique non-empty slide titles. Core exhibits are rendered by the repository SVG engine and embedded in PPTX rather than delegated to PptxGenJS native charts.
+
+The Subproject 8 code/catalog gate passed on `5b232c50689d4c073d4d6340e5f4afc4d6ce5e7c` through GitHub Actions run `32900049782`, including independent librsvg rendering of generated SVG fixtures and LibreOffice Impress -> PDF -> Poppler validation of the generated PPTX. Documentation-head closure remains a separate required gate before Subproject 8 may be signed off.
+
 ## Quantitative discipline
 
 - Never invent missing numbers to make a model complete.
