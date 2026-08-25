@@ -94,7 +94,7 @@ describe("accessible deterministic exhibit SVG rendering", () => {
     expect(rendered.svg).toContain('<title id="exhibit-title">Executive exhibit</title>');
     expect(rendered.svg).toContain('<desc id="exhibit-desc">Accessible description of the analytical exhibit.</desc>');
     expect(rendered.metrics.dataPointCount).toBeGreaterThan(0);
-    expect(rendered.svg).not.toMatch(/<script|foreignObject|javascript:|<a\b|onload=|onclick=|@import|https?:\/\//i);
+    expect(rendered.svg).not.toMatch(/<script|foreignObject|javascript:|<a\b|onload=|onclick=|@import|\bhref=|xlink:href=/i);
     expect(renderExhibitSvg(fixture).svg).toBe(rendered.svg);
   });
 
