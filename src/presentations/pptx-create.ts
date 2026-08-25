@@ -179,8 +179,11 @@ function assertGeneratedPptx(bytes: Buffer, expectedSlideCount: number): void {
   if (slideCount !== expectedSlideCount) {
     throw new Error(`Generated PPTX contains ${slideCount} slides; expected ${expectedSlideCount}.`);
   }
-  if (names.some((name) => /vbaProject\.bin$|(^|\/)externalLinks\/|(^|\/)embeddings\//i.test(name))) {
-    throw new Error("Generated PPTX contains a prohibited macro, external-link, or embedded-object package part.");
+  const prohibitedParts = names.filter((name) =>
+    /vbaProject\.bin$|(^|\/)externalLinks\/|(^|\/)embeddings\/[^/]+/i.test(name),
+  );
+  if (prohibitedParts.length > 0) {
+    throw new Error(`Generated PPTX contains prohibited package part(s): ${prohibitedParts.join(", ")}.`);
   }
   for (const name of names.filter((entry) => entry.endsWith(".rels"))) {
     const text = strFromU8(parts[name]!);
