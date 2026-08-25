@@ -22,7 +22,7 @@ export function svgText(
     size?: number;
     weight?: number;
     fill?: string;
-    rotate?: number;
+    rotate?: number | undefined;
     role?: string;
   } = {},
 ): string {
