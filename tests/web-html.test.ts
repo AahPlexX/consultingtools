@@ -51,7 +51,7 @@ describe("public HTML source extraction", () => {
       { validJson: true, types: ["Organization", "Thing"] },
       { validJson: false, types: [] },
     ]);
-    expect(page.normalizedText).toContain("Executive & Findings Primary issue Next page Hello world.");
+    expect(page.normalizedText).toContain("Executive & Findings Primary issue Next page unsafe Hello world.");
     expect(page.normalizedText).toContain("Malformed paragraph Still visible");
     expect(page.normalizedText).not.toMatch(/do not extract|secret|broken json|Operating & Model/i);
   });
