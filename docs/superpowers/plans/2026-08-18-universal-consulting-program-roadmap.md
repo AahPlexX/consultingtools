@@ -1,6 +1,6 @@
 # Universal Consulting Capability Engine — Program Roadmap
 
-> **For agentic workers:** This roadmap decomposes the approved architecture into independently testable implementation plans. Each subproject gets its own detailed plan before code execution. `main` remains the sole authoritative branch.
+> **For agentic workers:** This roadmap decomposes the approved architecture into independently testable implementation plans. Each subproject gets its own detailed plan before code execution. `main` remains the sole authoritative branch. Current project intent/state is canonical in `INTENT.md`; this roadmap records program decomposition and verification history.
 
 **Goal:** Deliver the approved Universal Consulting Capability Engine without allowing capability breadth to outrun routing, epistemic, security, artifact-preservation, or quality verification.
 
@@ -97,7 +97,7 @@ The MCP transport verifies all nine tools as read-only, closed-world, and non-de
 
 ### Subproject 6 verification
 
-CSV & XLSX Artifact Engines are verified complete for the specified bounded envelope. The executable/catalog gate passed on `485ec1a10f241bed3212abc3a8b8ffd9f3563e62` with `npm run verify` through GitHub Actions run `32491018071`. The documentation-head closure gate passed on `bddf096f5a748fc3f8de43871518c6462d3da153` through Actions run `32491513181`, and branch enumeration confirmed that `main` is the sole branch.
+CSV & XLSX Artifact Engines are verified complete for the specified bounded envelope. The executable/catalog gate passed on `485ec1a10f241bed3212abc3a8b8ffd9f3563e62` with `npm run verify` through GitHub Actions run `32491018071`. The documentation-head closure gate passed on `bddf096f5a748fc3f8de43871518c6462d3da153` through Actions run `32491513181`, and branch enumeration confirmed that `main` was the sole branch at closure.
 
 The verified CSV envelope includes bounded RFC-style comma-delimited parsing/serialization, no type coercion, explicit spreadsheet-formula-injection escaping by default, immutable cell/row/column mutations, artifact resources, revision preconditions, and create/inspect/patch MCP tools. `csv-crud` is promoted only to `partial` because arbitrary delimiters, schema/filter semantics, and other broader transformations remain outside the verified primitive.
 
@@ -105,7 +105,7 @@ The verified managed-XLSX v1 envelope includes macro-free SpreadsheetML package 
 
 ### Subproject 7 verification
 
-DOCX & PDF Artifact Expansion is verified complete for its explicitly bounded envelope. The executable/catalog gate passed on `1c789291e9488f1a325ddc27a0ca29966338b791` through GitHub Actions run `32536219577`. The documentation-head closure gate passed on `5a3b44806d3303854b803ef3e2e8a23abf7863d4` through Actions run `32536569796`, including the independent rendering step. Exhaustive branch enumeration returned only `main` and the continuation cursor returned no additional branches.
+DOCX & PDF Artifact Expansion is verified complete for its explicitly bounded envelope. The executable/catalog gate passed on `1c789291e9488f1a325ddc27a0ca29966338b791` through GitHub Actions run `32536219577`. The documentation-head closure gate passed on `5a3b44806d3303854b803ef3e2e8a23abf7863d4` through Actions run `32536569796`, including the independent rendering step. Exhaustive branch enumeration returned only `main` at closure.
 
 The verified shared `ConsultingDocumentV1` model supports bounded headings, paragraphs, bullet/numbered lists, key metrics, tables, callouts, source notes, page breaks, and report metadata. Professional DOCX creation uses explicit styles, Heading 1–3 structure, numbering, fixed tables, headers/footers, and page numbering. Existing DOCX mutation remains limited to the preservation-tested macro-free placeholder-template path, so `docx-crud` is only `partial` with `create_consulting_document`, `inspect_docx_template`, and `patch_docx_template` bindings.
 
@@ -113,20 +113,28 @@ Professional PDF creation uses deterministic layout and PDF standard Helvetica/H
 
 Independent rendering generates representative DOCX/PDF fixtures, converts the DOCX with headless LibreOffice Writer, parses both converted/native PDFs with Poppler `pdfinfo`, and rasterizes first/last pages with `pdftoppm`. This is representative openability/renderability evidence, not pixel parity with Microsoft Word or Adobe Acrobat.
 
-The closure-record commit containing this section must itself remain green before external signoff; that final truth-only validation is intentionally performed after this update.
+### Subproject 8 verification
 
-### Subproject 8 verification - code/catalog/render gate
-
-Presentation & Visualization Engine has passed its executable/catalog/render envelope on `5b232c50689d4c073d4d6340e5f4afc4d6ce5e7c` through GitHub Actions run `32900049782`. The normal repository verification and the independent artifact-render step both concluded successfully.
+Presentation & Visualization Engine is verified complete for its explicitly bounded envelope. The executable/catalog/render envelope passed on `5b232c50689d4c073d4d6340e5f4afc4d6ce5e7c` through GitHub Actions run `32900049782`. The final truth-only closure commit `87b7f29d019c6d3238ba0cb4f0eea812b0e24356` passed the full repository and independent artifact-rendering gate through Actions run `34411180832`.
 
 The verified surface includes deterministic selection among ten bounded exhibit forms; standalone accessible SVG creation for bar/stacked-bar, line, scatter, waterfall, Pareto, heatmap, 2x2 matrix, risk matrix, Gantt, and funnel exhibits; bounded Mermaid source for process/dependency/decision-tree diagrams; and new macro-free PPTX creation from `PresentationDeckV1`. PptxGenJS is pinned at `4.0.1`; core analytical figures are generated by the repository SVG renderer and embedded in PPTX rather than relying on native PptxGenJS chart semantics.
 
-Catalog promotion is intentionally narrow: the exact supported visualization identities plus `data-visualization`, three bounded diagram identities, and `board-material` receive only `partial` deterministic bindings where their broader user-visible outcome exceeds the renderer. Broad `pptx-crud` remains `planned` and unbound because arbitrary existing-presentation inspection/edit/reorder/preservation is not implemented.
+Catalog promotion remains intentionally narrow: the exact supported visualization identities plus `data-visualization`, three bounded diagram identities, and `board-material` receive only `partial` deterministic bindings where their broader user-visible outcome exceeds the renderer. Broad `pptx-crud` remains `planned` and unbound because arbitrary existing-presentation inspection/edit/reorder/preservation is not implemented.
 
 Independent artifact verification rasterizes generated SVG with librsvg and converts generated PPTX through headless LibreOffice Impress before Poppler parse/raster checks. This is representative openability/renderability evidence, not pixel parity with Microsoft PowerPoint or arbitrary presentation preservation.
 
-Subproject 8 is **not yet externally signed off**. This documentation HEAD must pass a second fresh full repository + render gate; branch enumeration must confirm only `main`; a final truth-only closure record must then pass one more fresh gate before the roadmap advances to Subproject 9.
+### Subproject 9 verification — in progress
 
-## Next detailed plan
+Public Research, Fact Check & SEO is **not complete**. The current detailed plan is `docs/superpowers/plans/2026-09-09-public-research-fact-check-seo.md`.
 
-Write and execute the detailed implementation plan for Subproject 8 — **Presentation & Visualization Engine**. Preserve the verified document and tabular artifact envelopes while adding independently validated chart/exhibit selection, SVG/Mermaid generation, PPTX creation, accessibility checks, and rendering gates before any presentation/visualization capability promotion.
+Verified completed tasks within Subproject 9:
+
+- Task 1 — bounded public HTTP(S) retrieval with URL normalization, DNS/public-IP validation, DNS-pinned socket verification, redirect/resource limits, and no implicit credentials: `9245de418b75aabaf220462f2f2d889045d801f7`, Actions run `34412170225`.
+- Task 2 — RFC 9309-style robots parsing/evaluation: `7c5f4105f249e9d1dbbf864b19c07e75977ccaa7`, Actions run `34412422881`.
+- Task 3 — bounded HTML extraction, including visible-text preservation when unsafe links are excluded from followable URLs: cumulative Task 3 HEAD `65d84da78a8ae679c370047812f530d38ad0ba48`, Actions run `34412855276`.
+
+Task 4 — bounded sitemap parsing plus robots-aware same-origin crawl — is the next unresolved implementation unit. Evidence/claim linking, SEO analysis, MCP exposure, truthful catalog promotion, and final Subproject 9 closure gates remain later tasks. No Subproject 9 completion claim may be made until the detailed plan's full verification and documentation closure requirements pass.
+
+## Current next objective
+
+Execute Subproject 9 Task 4 from `docs/superpowers/plans/2026-09-09-public-research-fact-check-seo.md` using TDD: establish RED sitemap/crawl fixtures first, add only the required XML dependency after the failing contract exists, implement bounded sitemap parsing and robots-aware same-origin crawling, and require a fresh full repository + independent artifact-rendering gate on the exact implementation SHA before Task 5 begins.
