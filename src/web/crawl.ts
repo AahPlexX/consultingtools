@@ -36,7 +36,8 @@ export interface SiteCrawlerAdapters {
 
 type RobotsPolicy =
   | { state: "rules"; robotsUrl: string; parsed: ParsedRobots }
-  | { state: "unavailable" | "unreachable"; robotsUrl: string };
+  | { state: "unavailable"; robotsUrl: string }
+  | { state: "unreachable"; robotsUrl: string };
 
 function boundedMaxPages(value: number | undefined): number {
   const resolved = value ?? DEFAULT_MAX_PAGES;
