@@ -6,15 +6,16 @@ This file is the model-agnostic entry point for any AI system or human performin
 
 Before changing repository state, read and apply:
 
-1. `governance/README.md` — SSOT directory map and precedence.
-2. `governance/north-star.md` — product mission and non-negotiable outcomes.
-3. `governance/safety-security.md` — security, privacy, authorization, and destructive-action rules.
-4. `governance/source-policy.md` — evidence and freshness requirements.
-5. `governance/capability-policy.md` — capability truthfulness and adaptive routing.
-6. `governance/execution-contract.md` — required execution sequence.
-7. `governance/quality-gates.md` — proof required before completion claims.
+1. `INTENT.md` — canonical project purpose, intended outcomes, current/target state, invariants, non-goals, open questions, and intent history.
+2. `governance/README.md` — focused governance SSOT map and precedence.
+3. `governance/north-star.md` — detailed product mission and non-negotiable outcomes.
+4. `governance/safety-security.md` — security, privacy, authorization, and destructive-action rules.
+5. `governance/source-policy.md` — evidence and freshness requirements.
+6. `governance/capability-policy.md` — capability truthfulness and adaptive routing.
+7. `governance/execution-contract.md` — required execution sequence.
+8. `governance/quality-gates.md` — proof required before completion claims.
 
-Read the nearest task-specific documentation after the governance set. Do not copy governing rules into local documents; link to the SSOT instead.
+Read the nearest task-specific documentation after the governance set. Do not copy governing rules into local documents; link to the SSOT instead. If implementation, a historical plan, or secondary documentation conflicts with `INTENT.md` or focused governance, reconcile the conflict explicitly rather than treating existing code as intent.
 
 ## Repository invariants
 
