@@ -1,6 +1,6 @@
 # Platform and Runtime Baseline
 
-**Verified:** 2026-08-21 (America/Chicago)
+**Verified:** 2026-09-09 (America/Chicago)
 
 This file records the externally verified platform/runtime assumptions that implementation work is currently allowed to rely on. It is a dated snapshot, not permanent truth. Any material release, dependency migration, plugin-submission change, new external integration, or capability promotion must revalidate the affected facts against authoritative current sources before implementation or publication.
 
@@ -66,8 +66,10 @@ The current pinned baseline is:
 | `pdf-lib` | `1.17.1` | PDF engine for governed native creation, inspection/metadata mutation, and derivative page composition |
 | `zod` | `4.4.3` | Current stable release used by MCP schemas |
 | `typescript` | `7.0.2` | Current stable compiler |
-| `vitest` | `4.1.10` | Current stable test runner |
+| `vitest` | `4.1.11` | Current stable test runner; revalidated 2026-09-09 before acceptance |
 | `@types/node` | `24.13.3` | Current verified Node 24 type line matching CI runtime |
+
+The Vitest 4.1.11 patch was checked against the current npm package and upstream Vitest release, then run against the full repository suite. The version pin becomes accepted only when the commit carrying this baseline passes both ordinary repository verification and the independent artifact-rendering gate.
 
 Package versions are snapshot facts. Re-check the authoritative package registry before changing them or claiming they are current.
 
@@ -197,7 +199,7 @@ The verified Subproject 8 creation envelope is deliberately narrower than arbitr
 - Generated SVG is independently rasterized with librsvg. Generated PPTX is independently opened/converted with LibreOffice Impress, parsed with Poppler `pdfinfo`, and rasterized with `pdftoppm` in CI.
 - The independent render gate is evidence of representative openability/renderability, not pixel parity with Microsoft PowerPoint, universal font/layout parity, arbitrary PPTX preservation, or accessibility conformance beyond the explicitly tested title/alt-text/SVG semantics.
 
-The Subproject 8 code/catalog/render gate passed on `5b232c50689d4c073d4d6340e5f4afc4d6ce5e7c` through Actions run `32900049782`. Documentation-head and final truth-only closure validation remain separate requirements before external completion signoff.
+The Subproject 8 code/catalog/render gate passed on `5b232c50689d4c073d4d6340e5f4afc4d6ce5e7c` through Actions run `32900049782`. Its final truth-only closure commit `87b7f29d019c6d3238ba0cb4f0eea812b0e24356` also passed the full repository and independent-rendering gate through Actions run `34411180832`; Subproject 8 is therefore verified complete for this bounded envelope.
 
 ## Format-editor selection boundary
 
@@ -218,23 +220,3 @@ Source-level remote MCP support is not the same thing as a public production MCP
 - No production hostname, HTTPS endpoint, authentication issuer, deployment provider, or OpenAI domain-verification token is fabricated in this repository.
 - Until an actual production service is deployed and externally exercised, remote MCP remains an implementation boundary rather than a publication-ready endpoint.
 - Any host adapter must preserve request-size/resource bounds, safe logs, request correlation, shutdown behavior, least privilege, and the guarded dispatch contract.
-
-## Host-native capability boundary
-
-ChatGPT and Codex capabilities evolve independently of this repository. The plugin may take advantage of host-native file, research, browsing, artifact, or other capabilities only when the active host actually exposes them. A capability that depends on the host or an authorized external provider must remain `provider-dependent` or otherwise explicitly conditional in the capability registry; host availability must never be generalized into a universal plugin-owned implementation claim.
-
-## Revalidation triggers
-
-Revalidate the affected baseline before any of the following:
-
-1. Public plugin submission or resubmission.
-2. MCP SDK/server/client dependency changes.
-3. Manifest schema, `.mcp.json` packaging behavior, submission metadata, authentication, or tool-annotation changes.
-4. Promotion of a capability from `planned`, `partial`, or `provider-dependent` to `implemented`.
-5. Adding a new external provider or changing provider permissions.
-6. Selecting or changing the production MCP hosting/runtime boundary.
-7. Selecting, upgrading, or changing a PDF/Office package inspection or editing engine.
-8. Expanding a file adapter's claimed preservation envelope or supported mutation types.
-9. Any claim that a package, platform behavior, API, law, price, search-engine rule, or integration is "current", "latest", or universally available.
-
-If current authoritative sources conflict with this file, the current authoritative sources win. Update this file and all affected code/tests in the same execution sequence; never preserve a stale baseline merely to avoid migration work.
