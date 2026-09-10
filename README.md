@@ -2,6 +2,8 @@
 
 Consulting Tools is an in-development public, open-access plugin for ChatGPT and Codex intended to provide a universal consulting capability and quality layer: adaptive consulting workflows, deterministic analysis, evidence controls, professional artifacts, and measurable quality gates without requiring ordinary users to connect private third-party accounts.
 
+`INTENT.md` is the canonical project-level statement of purpose, intended outcomes, current/target state, invariants, non-goals, open questions, and intent history. Focused operating rules remain authoritative under `governance/`.
+
 ## Access model
 
 Consulting Tools is intentionally designed so ordinary use does **not** require a user-supplied API key, OAuth flow, account linking, or private third-party provider credential. The governing boundary is `governance/open-access-boundary.md`.
@@ -17,7 +19,7 @@ The repository uses a hybrid plugin architecture:
 - **MCP tools** perform reproducible validation, calculations, file operations, and other controlled executable work.
 - **Epistemic contracts** distinguish verified facts, user-supplied facts, deterministic calculations, bounded assumptions, inferences, hypotheses, estimates, scenarios, and recommendations.
 - **Quality contracts** provide machine-readable analytical, epistemic, consulting, and artifact gate results instead of decorative confidence scores.
-- **Governance** is model-agnostic and lives under `governance/`. `AGENTS.md` is the universal entry point for any LLM or agent modifying this repository.
+- **Intent and governance** are model-agnostic. `INTENT.md` owns project intent/current-state truth, `governance/` owns focused operating rules, and `AGENTS.md` is the universal entry point for any LLM or human modifying the repository.
 - **Capability status is explicit.** A capability is never presented as implemented merely because it is routing-ready, has a useful primitive, or appears in the roadmap.
 - **External-platform facts are dated.** `governance/platform-baseline.md` records the verified OpenAI/MCP/runtime snapshot and the events that require live revalidation.
 
@@ -46,6 +48,7 @@ Natural-language semantic selection remains a host-model/Skill responsibility ba
 
 ## Repository map
 
+- `INTENT.md` — authoritative project intent and current-state layer.
 - `.codex-plugin/plugin.json` — plugin package manifest.
 - `.mcp.json` — bundled local MCP server launcher configuration.
 - `skills/` — adaptive consulting workflows and semantic orchestration guidance.
@@ -63,13 +66,14 @@ Natural-language semantic selection remains a host-model/Skill responsibility ba
 - `src/project/` — critical-path, three-point estimate, earned-value engines, and MCP registrations.
 - `src/operations/` — capacity/utilization, aggregate flow, weighted-decision engines, and MCP registrations.
 - `src/supply-chain/` — reorder-point, classical EOQ, supplier-spend concentration engines, and MCP registrations.
+- `src/web/` — bounded public-web URL/IP/DNS policy, HTTP retrieval, robots handling, HTML extraction, and later Subproject 9 crawl/evidence/SEO components.
 - `scripts/`, `governance/`, `tests/`, `docs/`, `.github/workflows/` — freshness, SSOT governance, verification, render checks, design/plan docs, and CI.
 
 ## Runtime baseline
 
 The MCP foundation targets the stable split TypeScript v2 packages and the MCP 2026-07-28 protocol line. The bundled `.mcp.json` currently uses OpenAI's supported direct server-map shape; the alternative wrapped `mcp_servers` shape is also accepted, and the two configuration shapes are **not** MCP protocol V1 versus V2. Protocol/runtime V2 is established by the pinned `@modelcontextprotocol/server@2.0.0` package and `serveStdio(() => createServer())` entry, which can negotiate the modern 2026-07-28 stdio era while retaining legacy compatibility unless explicitly rejected. Do not rewrite the valid direct-map `.mcp.json` merely to make it look newer.
 
-Exact dated dependency pins and revalidation rules live in `governance/platform-baseline.md`; versions in prose are not permanent claims.
+Exact dated dependency pins and revalidation rules live in `governance/platform-baseline.md`; versions in prose are not permanent claims. Vitest `4.1.11` was revalidated on 2026-09-09 and the package/test/governance migration passed the full repository plus independent artifact-rendering gate on `5ec3b55cfde67ee936166e8bd2408a7ebd37b011` through Actions run `34434334322`.
 
 ## Artifact workspace
 
@@ -145,13 +149,23 @@ Subproject 5's executable and catalog-binding gate passed on `1fea7d383537956631
 
 ## Presentation and visualization envelope
 
-The verified visualization surface now includes deterministic exhibit recommendation, accessible standalone SVG creation, bounded Mermaid-source generation, and new governed PPTX creation.
+The verified visualization surface includes deterministic exhibit recommendation, accessible standalone SVG creation, bounded Mermaid-source generation, and governed PPTX creation.
 
 `recommend_consulting_exhibit` maps explicit analytical-job/data-shape metadata to one of ten verified exhibit forms. `create_consulting_exhibit` renders bar/stacked-bar, line, scatter, waterfall, Pareto, heatmap, 2x2 matrix, risk matrix, Gantt, and funnel exhibits as standalone accessible SVG. `create_mermaid_diagram` emits bounded process/dependency/decision-tree Mermaid source from structured input only. `create_consulting_presentation` creates a new macro-free PPTX from `PresentationDeckV1` with title/section/summary/exhibit slides and repository-generated SVG exhibits.
 
 This does **not** make arbitrary visualization or PowerPoint editing implemented. The supported chart/diagram identities are bound only as `partial` where their catalog wording includes analytical judgment beyond rendering; `board-material` is partial with the PPTX creation engine; and broad `pptx-crud` remains `planned` and unbound because existing presentation inspection/edit/reorder/preservation is not implemented.
 
-Representative SVG/PPTX output is independently validated in CI using librsvg for SVG and LibreOffice Impress -> PDF -> Poppler parsing/rasterization for PPTX. The code/catalog/render gate passed on `5b232c50689d4c073d4d6340e5f4afc4d6ce5e7c` through Actions run `32900049782`. Subproject 8 remains closure-pending until this documentation state and the final truth-only record also pass fresh full repository/render gates.
+Representative SVG/PPTX output is independently validated in CI using librsvg for SVG and LibreOffice Impress -> PDF -> Poppler parsing/rasterization for PPTX. The code/catalog/render gate passed on `5b232c50689d4c073d4d6340e5f4afc4d6ce5e7c` through Actions run `32900049782`; final truth-only closure commit `87b7f29d019c6d3238ba0cb4f0eea812b0e24356` passed the complete repository/render gate through Actions run `34411180832`. Subproject 8 is therefore verified complete for its bounded envelope.
+
+## Public research, fact-check, and SEO status
+
+Subproject 9 is actively implementing an anonymous public-web evidence pipeline. The verified current layers are:
+
+- bounded public HTTP(S) retrieval with URL normalization, DNS/public-IP validation, pinned remote-address checks, redirect and body/time bounds — verified on `9245de418b75aabaf220462f2f2d889045d801f7` through run `34412170225`;
+- RFC 9309-style robots handling — verified on `7c5f4105f249e9d1dbbf864b19c07e75977ccaa7` through run `34412422881`;
+- bounded HTML extraction with visible-text preservation and unsafe-link handling — cumulative Task 3 state verified at `65d84da78a8ae679c370047812f530d38ad0ba48` through run `34412855276`.
+
+Sitemap parsing, robots-aware same-origin crawl orchestration, evidence/claim linking, SEO analysis, MCP exposure, and catalog promotion remain incomplete. No Subproject 9 completion claim is made yet.
 
 ## Remote MCP status
 
@@ -167,13 +181,19 @@ The repository contains source-level remote Streamable HTTP MCP support with fre
 
 **Subproject 4 — Data, Statistics & Forecasting Engines:** verified complete for its specified deterministic envelope on `35606810a45dc4dc057451096e859053ebbd9d51`, run `32300232978`.
 
-**Subproject 5 — Project, Operations & Supply-Chain Engines:** verified complete for its specified deterministic envelope on `1fea7d383537956631bd132a39f175646d5f02ac`, run `32408792540`. Verification covers pure engine fixtures, malformed/edge conditions, MCP HTTP discovery/execution and safe annotations, truthful partial catalog bindings, and all preserved regressions.
+**Subproject 5 — Project, Operations & Supply-Chain Engines:** verified complete for its specified deterministic envelope on `1fea7d383537956631bd132a39f175646d5f02ac`, run `32408792540`.
 
-**Subproject 6 — CSV & XLSX Artifact Engines:** verified complete for its specified bounded envelope. The executable/catalog gate passed on `485ec1a10f241bed3212abc3a8b8ffd9f3563e62`, run `32491018071`; the documentation-head closure gate passed on `bddf096f5a748fc3f8de43871518c6462d3da153`, run `32491513181`; branch enumeration confirmed `main` is the sole branch.
+**Subproject 6 — CSV & XLSX Artifact Engines:** verified complete for its specified bounded envelope. The executable/catalog gate passed on `485ec1a10f241bed3212abc3a8b8ffd9f3563e62`, run `32491018071`; the documentation-head closure gate passed on `bddf096f5a748fc3f8de43871518c6462d3da153`, run `32491513181`.
 
-**Subproject 7 — DOCX & PDF Artifact Expansion:** verified complete for its explicitly bounded envelope. The executable/catalog/rendering gate passed on `1c789291e9488f1a325ddc27a0ca29966338b791`, run `32536219577`; the documentation-head gate passed on `5a3b44806d3303854b803ef3e2e8a23abf7863d4`, run `32536569796`; exhaustive branch enumeration returned only `main`. The closure-record commit containing this statement must itself remain green before external signoff.
+**Subproject 7 — DOCX & PDF Artifact Expansion:** verified complete for its explicitly bounded envelope. The executable/catalog/rendering gate passed on `1c789291e9488f1a325ddc27a0ca29966338b791`, run `32536219577`; the documentation-head gate passed on `5a3b44806d3303854b803ef3e2e8a23abf7863d4`, run `32536569796`.
 
-**Subproject 8 - Presentation & Visualization Engine:** code/catalog/render envelope verified on `5b232c50689d4c073d4d6340e5f4afc4d6ce5e7c`, run `32900049782`; documentation/final closure validation remains pending, so the subproject is not yet signed off.
+**Subproject 8 — Presentation & Visualization Engine:** verified complete for its bounded envelope. The code/catalog/render gate passed on `5b232c50689d4c073d4d6340e5f4afc4d6ce5e7c`, run `32900049782`; final truth-only closure `87b7f29d019c6d3238ba0cb4f0eea812b0e24356` passed run `34411180832`.
+
+**Subproject 9 — Public Research, Fact Check & SEO:** in progress. Tasks 1–3 are independently verified; Task 4 bounded sitemap parsing and robots-aware same-origin crawl is the next unresolved implementation unit. The subproject is **not complete**.
+
+**Subproject 10 — Executive & Project Workflows:** not yet complete.
+
+**Subproject 11 — Production MCP & Plugin Directory Readiness:** not yet complete.
 
 ## Branch policy
 
