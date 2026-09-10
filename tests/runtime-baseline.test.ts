@@ -63,7 +63,7 @@ describe("current runtime baseline", () => {
   it("pins the verified supporting toolchain", () => {
     expect(packageJson.dependencies?.zod).toBe("4.4.3");
     expect(packageJson.devDependencies?.typescript).toBe("7.0.2");
-    expect(packageJson.devDependencies?.vitest).toBe("4.1.10");
+    expect(packageJson.devDependencies?.vitest).toBe("4.1.11");
     expect(packageJson.devDependencies?.["@types/node"]).toBe("24.13.3");
   });
 });
