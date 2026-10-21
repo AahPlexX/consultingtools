@@ -14,7 +14,7 @@
     "verify": "npm run typecheck && npm test && npm run build"
   },
   "dependencies": {
-    "@modelcontextprotocol/server": "2.0.0",
+    "@modelcontextprotocol/server": "2.3.0",
     "docx": "9.7.1",
     "fflate": "0.8.3",
     "parse5": "8.0.1",
